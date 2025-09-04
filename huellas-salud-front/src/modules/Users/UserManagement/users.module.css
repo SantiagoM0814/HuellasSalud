@@ -1,0 +1,470 @@
+/* Estilos base */
+.mainContainer {
+    background-color: #f5f7fa;
+    color: #333;
+    line-height: 1.5;
+}
+
+.container {
+    width: 1350px;
+    margin: 0 auto;
+    padding: 125px 0;
+}
+
+/* Header y filtros */
+.headerTitle {
+    padding: 20px 0;
+    font-size: 2rem;
+}
+
+.filters {
+    padding: 0 0 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.searchBar {
+    position: relative;
+    flex-grow: 1;
+    max-width: 400px;
+}
+
+.searchBar input {
+    width: 100%;
+    padding: 10px 15px 10px 40px;
+    border: 1px solid #ddd;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+}
+
+.searchBar input:focus {
+    outline: none;
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+}
+
+.searchIcon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+}
+
+.selectFilters {
+    display: flex;
+    gap: 1rem;
+}
+
+.filterSelect,
+.fieldGroup select,
+.btnCreateUser {
+    width: 180px;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236c757d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px;
+    padding-right: 32px;
+}
+
+.filterSelect:focus,
+.fieldGroup select:focus {
+    outline: none;
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+}
+
+.btnCreateUser {
+    background-image: none;
+    background-color: #000;
+    color: #FFF;
+    transition: all 0.3s;
+    padding-right: 15px;
+}
+
+.btnCreateUser:hover {
+    background-color: #166184;
+}
+
+/* Estilos de la tabla */
+.tableContainer {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+}
+
+.userTable {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+    border-bottom: 8px solid #000;
+}
+
+.userTable thead {
+    background-color: #f8f9fa;
+    border: 2px solid #000000;
+}
+
+.userTable th {
+    font-weight: 700;
+    color: #a7abaf;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+}
+
+.userTable tbody tr {
+    /* border-bottom: 1px solid #e9ecef; */
+    transition: all 0.2s ease;
+}
+
+.userTable tbody tr:hover {
+    background-color: #f0f2f5;
+}
+
+.userTable td {
+    padding: 12px 15px;
+    vertical-align: middle;
+    border-bottom: 1px solid #00000010;
+}
+
+.addressCell {
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Estilos para la información del usuario */
+.userInfo {
+    display: flex;
+    align-items: center;
+    text-align: left;
+}
+
+.avatar {
+    width: 45px;
+    height: 45px;
+    border: 1px solid #00000020;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    margin-right: 12px;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.initialsAvatar {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+}
+
+.userDetails {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    /* Ajusta el ancho para dejar espacio para el avatar */
+}
+
+.userName {
+    font-weight: 600;
+    color: #2c3e50;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.userDate {
+    font-size: 0.8rem;
+}
+
+.userEmail {
+    font-size: 0.75rem;
+    color: #6c757d;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Estilos para los badges de rol */
+.roleBadge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.administrador {
+    background-color: #e3f2fd;
+    color: #1976d2;
+}
+
+.veterinario {
+    background-color: #e8f5e9;
+    color: #388e3c;
+}
+
+.recepcionista {
+    background-color: #fff3e0;
+    color: #f57c00;
+}
+
+.cliente {
+    background-color: #fce4ec;
+    color: #c2185b;
+}
+
+/* Estilos para los estados */
+.status {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.active {
+    background-color: #e8f5e9;
+    color: #388e3c;
+}
+
+.inactive {
+    background-color: #ffebee;
+    color: #d32f2f;
+}
+
+/* Estilos para los botones de acción */
+.actions {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+
+.edit {
+    background-color: #e3f2fd;
+    color: #1976d2;
+}
+
+.delete {
+    background-color: #fce4ec;
+    color: #c2185b;
+}
+
+.toggleStatus {
+    background-color: #f3e5f5;
+    color: #8e24aa;
+}
+
+/* Estilos Modal usuario */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal {
+    background: #fff;
+    border-radius: 16px;
+    width: 900px;
+    position: relative;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    animation: fadeIn 0.3s ease;
+}
+
+.modal .formEditUser {
+    padding: 20px 30px 25px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.backgroundModalEdit {
+    border-radius: 16px 16px 0 0;
+    height: 110px;
+    background: linear-gradient(90deg, rgba(2, 0, 36, 1) 0%, rgba(9, 9, 121, 1) 50%, rgba(0, 212, 255, 1) 100%);
+}
+
+.imgDataUser .initialsAvatar,
+.imgDataUser img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 3px solid #FFFFFF;
+    box-shadow: 0px 0px 10px 2px #00000050;
+    font-size: 2.5rem;
+    position: absolute;
+    top: 70px;
+    left: 40px;
+    object-fit: cover;
+}
+
+.sectionMetaUser {
+    padding: 15px 40px 0 210px;
+}
+
+.asideMeta {
+    width: 420px;
+    margin: 10px 0 0 260px;
+}
+
+.metaUser {
+    display: inline-block;
+    width: 150px;
+    font-weight: bold;
+    font-size: .9rem;
+}
+
+.closeButton {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #333;
+    transition: transform .3s ease;
+}
+
+.closeButton:hover {
+    color: #000000;
+    transform: scale(1.1);
+}
+
+.fieldGroup {
+    display: grid;
+}
+
+.fieldGroup label {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 4px;
+}
+
+.fieldGroup input,
+.fieldGroup select {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 14px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+.fieldGroup input:disabled {
+    background: #f1f1f1;
+    color: #696969;
+}
+
+.buttonGroup {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    grid-column: span 2;
+}
+
+.cancelButton,
+.updateButton {
+    width: 125px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    color: #FFF;
+}
+
+.cancelButton {
+    background: #000;
+}
+
+.updateButton {
+    background-color: #090979;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .filters {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .searchBar {
+        max-width: 100%;
+    }
+
+    .selectFilters {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .tableContainer {
+        overflow-x: auto;
+    }
+
+    .userTable {
+        min-width: 1000px;
+    }
+}
+
+/* KeyFrames */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

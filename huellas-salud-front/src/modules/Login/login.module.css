@@ -1,0 +1,243 @@
+/* Estilo contenedor Login */
+.containerLogin {
+    background: linear-gradient(135deg,rgba(2, 0, 36, 1) 0%, rgba(121, 9, 9, 1) 35%, rgb(22, 145, 217) 100%);
+    width: 100vw;
+    display: grid;
+    grid-template-columns: 55% 45%;
+    color: #FFF;
+}
+
+/* Estilos sección crear cuenta */
+.sectionRegister {
+    display: flex;
+    align-items: end;
+    justify-content: center;
+}
+
+.asideCreateAccount {
+    width: 94%;
+    padding: 20px;
+    margin-bottom: 50px;
+    /* backdrop-filter: blur(50px); */
+    border-radius: 5px;
+    font-size: 1.1rem;
+}
+
+.asideCreateAccount h1 {
+    font-size: 2.8rem;
+}
+
+.asideCreateAccount p {
+    padding-top: 30px;
+}
+
+.asideCreateAccount ul {
+    margin-left: 30px;
+    padding: 25px 0px;
+}
+
+.asideCreateAccount aside button {
+    width: 270px;
+}
+
+/* Estilo Social media */
+.socialMedia {
+    margin-top: 20px;
+    display: flex;
+    gap: 15px;
+    padding-right: 10px;
+}
+
+.socialMedia i {
+    font-size: 1.6rem;
+    cursor: pointer;
+    transition: transform .3s ease, color .3s ease;
+}
+
+.socialMedia i:hover {
+    color: #00000090;
+    transform: scale(1.2);
+}
+
+/* Estilos fomulario Login */
+.sectionForm {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+    align-items: center;
+    text-align: center;
+}
+
+.containerForm {
+    /* backdrop-filter: blur(10px); */
+    width: 560px;
+    height: 650px;
+    margin-bottom: 50px;
+    border-radius: 5px;
+}
+
+.titleLogin {
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.logoLogin {
+    width: 220px;
+    margin-right: 20px;
+}
+
+.formLogin {
+    margin-top: 12px;
+}
+
+.inputContainer {
+    width: 100%;
+}
+
+.inputContainer p {
+    padding: 10px;
+    font-size: 1rem;
+    height: 40px;
+    font-weight: 600;
+    text-shadow: 1px 1px 3px red;
+}
+
+.loginLabel {
+    display: block;
+    text-transform: uppercase;
+    font-size: .8rem;
+    margin: .5rem 0;
+}
+
+.loginInput+.loginLabel {
+    margin-top: 1rem;
+}
+
+.loginInput {
+    font-size: 1rem;
+    width: 80%;
+    padding: 8px 15px;
+    border: 2px solid #00000020;
+    outline: none;
+    border-radius: 1.5rem;
+    letter-spacing: .5px;
+    transition: box-shadow 0.4s ease, border 0.4s ease;
+}
+
+.loginInput:hover,
+.loginInput:focus {
+    border: 2px solid #00000090;
+    box-shadow: 0px 0px 10px #00000090;
+}
+
+.inputPass {
+    padding-right: 38px;
+    margin-left: 24px;
+    user-select: none;
+}
+
+.iconEye {
+    width: 24px;
+    cursor: pointer;
+    position: relative;
+    right: 35px;
+    top: 1px;
+    color: #000;
+    background: transparent;
+    border: none;
+}
+
+.iconEye i {
+    font-size: 1.2rem;
+}
+
+.eyeDesable {
+    color: transparent;
+    cursor: default;
+    pointer-events: none;
+}
+
+.withoutError {
+    color: transparent;
+}
+
+.errorInput {
+    border: 2px solid #ff0000 !important;
+    box-shadow: 0px 0px 8px red;
+    animation: shake 0.5s;
+}
+
+/* Estilos Divider Comp */
+.sectionOr {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.rowLine {
+    height: 2px;
+    width: 152px;
+    border-bottom: 1px solid var(--color-font);
+}
+
+/* Inicio sesion Google */
+.loginGoogle button {
+    width: 80%;
+    font-size: 1rem;
+    padding: .6rem;
+    border-radius: 2rem;
+    border: 1px solid #00000060;
+    background-color: #ffffff99;
+    margin-top: 15px;
+    cursor: pointer;
+    transition: background-color .3s ease, transform .3s ease;
+}
+
+.loginGoogle button:hover {
+    background-color: #ffffff;
+    transform: scale(1.04);
+}
+
+.loginGoogle img {
+    width: 25px;
+    padding-right: 8px;
+    vertical-align: middle;
+}
+
+/* Olvido contraseña */
+.linkForget {
+    color: #FFF;
+    text-decoration: none;
+}
+
+.forgetPass .linkForget {
+    text-decoration: none;
+    display: inline-block;
+    margin: 15px;
+}
+
+.forgetPass .linkForget:hover {
+    cursor: pointer;
+    color: #FFFFFF90;
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    20%,
+    60% {
+        transform: translateX(-5px);
+    }
+
+    40%,
+    80% {
+        transform: translateX(5px);
+    }
+}

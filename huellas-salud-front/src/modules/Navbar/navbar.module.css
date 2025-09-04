@@ -1,0 +1,403 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+:root {
+    --color-principal: #0fa4b8;
+    --color-secundario: #2E2E2E;
+    --color-font: #e9e9e9;
+    --background-btns-acount: #17c4db60;
+    --background-input: rgba(255, 255, 255, 0.8);
+    --color-label-transparent: rgba(255, 255, 255, 0.5);
+}
+
+/* Contenedor principal - nav */
+.navbar {
+    background-color: #000000;
+    color: white;
+    width: 100vw;
+    height: 125px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: grid;
+    grid-template-columns: .7fr 5fr 1.2fr;
+    z-index: 1;
+}
+
+/* Contenedor logo navbar */
+.logoContain {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logoContain img {
+    width: 140px;
+    cursor: pointer;
+}
+
+/* Input de búsqueda */
+.asideInput {
+    width: 100%;
+    height: 50%;
+    display: flex;
+    justify-content: center;
+    padding-top: 25px;
+}
+
+.asideInput input {
+    font-size: 15px;
+    width: 60%;
+    height: 32px;
+    padding: 16px;
+    border: 1px solid #00000030;
+    border-radius: 15px 0 0 15px;
+    outline: none;
+}
+
+.asideInput input:focus {
+    box-shadow: 0px 0px 10px 1px var(--color-font);
+}
+
+.asideInput button {
+    font-weight: 600;
+    width: 90px;
+    height: 34px;
+    border-radius: 0 15px 15px 0;
+    border: 1px solid #00000040;
+    cursor: pointer;
+}
+
+/* Contenedor UL - Opciones Navbar */
+.containerUl {
+    width: 100%;
+    height: 46%;
+    list-style: none;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.liNav {
+    transition: transform .3s;
+}
+
+.liNav:hover {
+    transform: scale(1.1);
+}
+
+.liNav a {
+    padding-bottom: 25px;
+    color: white;
+}
+
+.liNav i {
+    font-size: 1rem;
+    padding-right: 6px;
+}
+
+.active {
+    text-underline-offset: 8px;
+}
+
+.disabled {
+    text-decoration: none;
+}
+
+/* Botones inicio y registro */
+.asideButtons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.asideButtons a button {
+    font-size: .9rem;
+    cursor: pointer;
+    border: 1px solid #00000040;
+    border-radius: 5px;
+    padding: 6px 0;
+    width: 130px;
+}
+
+/* Avatar */
+.avatarButton {
+    width: 70px;
+    height: 70px;
+    font-size: 1.3rem;
+    border: 1px solid #FFFFFF60;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+.avatarButton img {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+}
+
+/* Modal Avatar */
+.dropdown {
+    position: absolute;
+    top: 135px;
+    right: 80px;
+    background-color: #000;
+    border-radius: 12px;
+    box-shadow: 0 0px 12px 5px rgba(0, 0, 0, 0.2);
+    width: 250px;
+    padding: 16px;
+    z-index: 1;
+}
+
+.profileSection {
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+.profileSection div {
+    width: 120px;
+    height: 120px;
+    font-size: 2rem;
+    border-radius: 50%;
+    border: 1px solid #FFFFFF80;
+    margin: 0 auto;
+}
+
+.profileSection img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    margin-bottom: 8px;
+}
+
+.userName {
+    padding-top: 15px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.editButton,
+.logoutButton {
+    width: 100%;
+    padding: 8px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 6px;
+}
+
+.editButton {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.editButton:hover {
+    background-color: #2563eb;
+}
+
+.logoutButton {
+    background-color: #ef4444;
+    color: white;
+}
+
+.logoutButton:hover {
+    background-color: #dc2626;
+}
+
+.closeButton {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: transparent;
+    border: none;
+    font-size: 1.6rem;
+    cursor: pointer;
+    color: #888;
+}
+
+.closeButton:hover {
+    color: #ffffff;
+}
+
+/* Diseño opciones menú */
+.optionMenu {
+    position: absolute;
+    top: 0;
+    left: 10%;
+    z-index: 1;
+    margin: 125px auto 0;
+    box-shadow: 0px 0px 5px 2px #00000040;
+    border-bottom: 10px solid;
+    border-radius: 0 0 14px 14px;
+    width: 65%;
+    min-width: 1150px;
+    height: 465px;
+    display: grid;
+    background-color: #fff;
+    grid-template-columns: 21% 79%;
+}
+
+.optionCategory {
+    height: 340px;
+    border-right: 1px solid #00000010;
+}
+
+.optionCategory ul {
+    color: #00000080;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    list-style: none;
+}
+
+.optionCategory ul a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.optionCategory li {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.optionCategory li:hover {
+    color: #fff;
+    background-color: #000000;
+}
+
+.optionCategory li i {
+    margin: 0 10px;
+    font-size: 1.2rem;
+}
+
+.optionMain {
+    padding: 10px 10px 10px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.optionMain section {
+    width: 200px;
+}
+
+.optionMain section img {
+    cursor: pointer;
+    width: 140px;
+}
+
+.optionMain section h3 {
+    padding: 6px 0;
+}
+
+.optionMain section ul {
+    list-style: none;
+}
+
+.optionMain section ul li {
+    color: #00000080;
+    font-size: .9rem;
+}
+
+.optionMain section ul li:hover {
+    list-style-type: disc;
+    color: #000000;
+    cursor: pointer;
+}
+
+.optionBrands {
+    grid-column: span 2;
+    height: 115px;
+    border-top: 1px solid #00000010;
+}
+
+.optionBrands ul {
+    height: 100%;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    list-style: none;
+}
+
+.optionBrands ul li {
+    padding: 10px;
+    cursor: pointer;
+    text-align: center;
+    transition: transform .3s;
+}
+
+.optionBrands ul li:hover {
+    transform: scale(1.1);
+}
+
+.optionBrands ul li img {
+    width: 80px;
+}
+
+/* Diseño Responsivo */
+@media (max-width: 1510px) {
+    .asideInput input {
+        width: 65%;
+    }
+
+    .asideButtons {
+        flex-direction: column;
+        justify-content: space-evenly;
+        gap: 0;
+    }
+}
+
+@media (max-width: 1100px) {
+    .navbar {
+        grid-template-columns: 1fr;
+        height: auto;
+        padding: 10px;
+    }
+
+    .navbar picture {
+        justify-content: center;
+    }
+
+    .navbar picture span {
+        margin-left: 15px;
+    }
+
+    .asideInput {
+        padding: 8px;
+        align-items: center;
+    }
+
+    .asideInput input {
+        width: 70%;
+    }
+
+    .containerUl {
+        height: 60%;
+    }
+
+    .asideButtons {
+        position: absolute;
+        top: 8px;
+        right: 50px;
+        gap: 8px;
+    }
+}
+
+@media (max-width: 650px) {
+    .navbar picture {
+        margin-right: 80px;
+    }
+}

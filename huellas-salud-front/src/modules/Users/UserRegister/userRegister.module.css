@@ -1,0 +1,235 @@
+/* Contenedor principal */
+.containerRegister {
+    width: 100vw;
+    height: 100vh;
+    min-height: 950px;
+    background: linear-gradient(315deg, rgba(2, 0, 36, 1) 0%, rgba(9, 108, 121, 1) 100%);
+    display: grid;
+    grid-template-columns: 60% 40%;
+    color: #FFF;
+}
+
+/* Contenedor descripción registro usuario */
+.userRegisterData {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: end;
+    padding-right: 30px;
+}
+
+.userRegisterData p {
+    font-size: 1rem;
+    font-weight: bold;
+    text-align: end;
+}
+
+.userRegisterData .slogan {
+    font-size: 1.6rem;
+    padding-bottom: 8px;
+}
+
+.userRegisterData i {
+    font-size: 25px;
+}
+
+.userRegisterData i:hover {
+    color: #FFFFFF90;
+}
+
+/* Contenedor formulario registro */
+.containerForm {
+    width: 100%;
+    padding-top: 115px;
+    /* backdrop-filter: blur(5px); */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.formRegister {
+    width: 85%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.formAdmin {
+    padding: 25px;
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 1fr 1fr;
+}
+
+.initialsAvatar {
+    color: #000;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: #FFF;
+    border: 3px solid #FFFFFF;
+    box-shadow: 0px 0px 10px 2px #00000050;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 3.5rem;
+    position: relative;
+    top: -20px;
+    cursor: pointer;
+    transition: transform .3s ease;
+}
+
+.initialsAvatar:hover {
+    transform: scale(1.1);
+}
+
+.inputField label {
+    display: block;
+    width: 230px;
+    padding-left: 8px;
+    margin-bottom: 8px;
+    font-weight: 600;
+    text-shadow: 1px 1px 4px rgba(5, 5, 5, 0.5);
+}
+
+.inputAdmin label {
+    display: flex;
+    width: 200px;
+    margin: 3px 0 5px;
+}
+
+.inputField input,
+.inputField select,
+.inputAdmin input,
+.inputAdmin select {
+    width: 97%;
+    padding: 6px 12px;
+    border-radius: 1.5rem;
+    border: 2px solid #FFFFFF50;
+    outline: none;
+    font-size: 1rem;
+    transition: box-shadow 0.3s ease, border 0.3s ease;
+}
+
+.inputAdmin input,
+.inputAdmin select {
+    border-radius: 6px;
+    border: 2px solid #00000050;
+}
+
+.inputField input:hover,
+.inputField select:hover,
+.inputField input:focus,
+.inputField select:focus {
+    border: 2px solid #FFFFFF;
+    box-shadow: 0px 0px 10px #FFF;
+}
+
+.inputAdmin input:hover,
+.inputAdmin select:hover,
+.inputAdmin input:focus,
+.inputAdmin select:focus {
+    border: 2px solid #000000;
+    box-shadow: 0px 0px 6px #000;
+}
+
+.selectImgAdmin,
+.selectImg {
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 70px;
+}
+
+.selectImgAdmin span {
+    margin-left: 20px;
+}
+
+.selectImg {
+    height: inherit;
+    grid-column: span 2;
+    align-items: start;
+}
+
+.selectImg span {
+    padding-top: 15px;
+    margin-left: 25px;
+}
+
+.selectImg .initialsAvatar {
+    width: 85px;
+    height: 85px;
+    font-size: 2.8rem;
+}
+
+.containerButtons {
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    gap: 25px;
+}
+
+.containerButtons button {
+    font-size: .9rem;
+    width: 200px;
+    margin: 0;
+    border: 1px solid #FFFFFF80;
+    border-radius: 1.5rem;
+}
+
+.btnsAdmin {
+    text-align: end;
+    display: grid;
+    grid-auto-flow: column;
+    justify-content: end;
+    gap: inherit;
+}
+
+.btnsAdmin button {
+    width: 180px;
+    font-size: .9rem;
+    border-radius: 5px;
+}
+
+.inputFull {
+    grid-column: span 2;
+}
+
+.required {
+    font-size: .8rem;
+    padding-left: 3px;
+    color: red;
+}
+
+.errorMsg {
+    text-align: center;
+    text-shadow: 0px 0px 5px red;
+    font-size: 1.1rem;
+    padding: 5px 0 15px;
+}
+
+.errorInput {
+    border: 2px solid red !important;
+    box-shadow: 0px 0px 8px red;
+}
+
+.validationError,
+.validationAdmin {
+    height: 36px;
+    padding: 3px 0 0;
+    font-size: .9rem;
+    display: block;
+    text-align: center;
+    color: #FFF;
+    text-shadow: 1px 1px 5px rgb(255, 0, 0);
+}
+
+.validationAdmin {
+    height: auto;
+    color: red;
+    text-shadow: none;
+}

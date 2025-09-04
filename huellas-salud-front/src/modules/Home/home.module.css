@@ -1,0 +1,270 @@
+.contenedorMain {
+    margin-top: 125px;
+    display: grid;
+    grid-template-columns: 20% 70% 10%;
+}
+
+.contenedorImagen {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding: 25px;
+}
+
+.imagenLateral {
+    width: 350px;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2);
+}
+
+.imagenLateral:hover {
+    transform: scale(1.01);
+}
+
+.header {
+    margin: 0 auto;
+    padding: 20px;
+    max-width: 80%;
+    background-color: white;
+    color: #0f0f0f;
+    text-align: center;
+}
+
+.header h1 {
+    font-size: 36px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.header p {
+    font-size: 20px;
+    text-align: center;
+    line-height: 1.6;
+}
+
+.contenedorProductos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    align-items: center;
+}
+
+article {
+    color: #0f0f0f;
+    background: #eee;
+    padding: 15px;
+    border-radius: 5px;
+    width: 250px;
+    text-align: center;
+    cursor: pointer;
+}
+
+article img {
+    width: 100px;
+    height: auto;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.products h2 {
+    font-size: 1.3rem;
+    color: #0f0f0f;
+    text-align: center;
+}
+
+.products article h3 {
+    color: #0f0f0f;
+    text-align: center;
+    font-size: 1rem;
+}
+
+.verMas {
+    background-color: transparent;
+    width: 100%;
+    margin-top: 15px;
+}
+
+.btnVerMas,
+.btnVerMas2 {
+    font-size: 1rem;
+    width: 280px;
+    border-radius: 5px;
+    padding: 10px 16px;
+    background-color: #000;
+    color: white;
+    border: transparent;
+    cursor: pointer;
+    margin: 15px 0;
+}
+
+.btnVerMas:hover,
+.btnVerMas2:hover {
+    background-color: #166184;
+    transition: .3s;
+}
+
+.contenedorServicios {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 125px;
+    justify-content: center;
+}
+
+.contenedorServicios article {
+    border: 1000px;
+    width: 250px;
+    height: 200px;
+    border-radius: 60%;
+}
+
+.contenedorServicios article img {
+    margin-bottom: 0px;
+    width: 120px;
+}
+
+.services h2 {
+    font-size: 1.3rem;
+    margin: 25px;
+    color: #0f0f0f;
+    text-align: center;
+}
+
+.elegirnos {
+    background-color: #e3dcdcca;
+    padding: 40px 20px;
+    color: #333;
+    border-radius: 10px;
+    margin: 30px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.textoElegirnos {
+    text-align: left;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.textoElegirnos h2 {
+    font-size: 2rem;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.textoElegirnos .resaltado {
+    color: #186870;
+    border-bottom: 3px solid #ff9900;
+}
+
+.textoElegirnos p {
+    font-size: 110%;
+    color: #333;
+}
+
+.beneficios {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+.itemBeneficio {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 250px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.itemBeneficio:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+}
+
+article:hover {
+    transform: translateY(-5px);
+}
+
+
+.itemBeneficio img {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 10px;
+}
+
+.itemBeneficio:hover img {
+    transform: rotate(10deg) scale(1.1);
+}
+
+.itemBeneficio h3 {
+    color: #186870;
+    margin-bottom: 8px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.footer {
+    background-color: #24262B;
+    padding: 30px 0;
+}
+
+.footerRow {
+    display: flex;
+    padding: 30px 0;
+    flex-wrap: wrap;
+}
+
+.footerLinks {
+    width: 25%;
+    padding: 0 15px;
+}
+
+.footerLinks h4 {
+    font-size: 23px;
+    color: var(--color-font);
+    margin-bottom: 25px;
+    border-bottom: 2px solid #00C3FF;
+    padding-bottom: 10px;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.footerLinks ul li a {
+    font-size: 18px;
+    text-decoration: none;
+    color: #BBBBBB;
+    display: block;
+    margin-bottom: 15px;
+    transition: all .3s ease;
+}
+
+.footerLinks ul li a:hover {
+    color: var(--color-font);
+    padding-left: 6px;
+}
+
+.socialLink a {
+    display: inline-block;
+    min-height: 40px;
+    width: 40px;
+    background-color: rgba(255, 255, 255, 0.2);
+    margin: 0 10px 10px 0;
+    text-align: center;
+    line-height: 40px;
+    border-radius: 50%;
+    color: var(--color-font);
+    transition: all .5s ease;
+}
+
+.socialLink a:hover {
+    background-color: var(--color-secundario);
+    padding-left: 1px;
+}
