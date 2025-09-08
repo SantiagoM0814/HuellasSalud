@@ -199,6 +199,10 @@ public class PetService {
         petMongo.setDescription(petRequest.getDescription());
         petMongo.setIsActive(petRequest.getIsActive());
         petMongo.setMedicalHistory(petRequest.getMedicalHistory());
+        petMongo.setSpecies(petRequest.getSpecies());
+        petMongo.setBreed(petRequest.getBreed());
+        petMongo.setSex(petRequest.getSex());
+        petMongo.setIdOwner(petRequest.getIdOwner());
 
 
         metaMongo.setLastUpdate(LocalDateTime.now());

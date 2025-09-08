@@ -145,11 +145,13 @@ public class PetApi {
                 "mascota con la data: %s", petMsg.getData());
 
         petService.updatePetDataInMongo(petMsg);
+        PetMsg petUpdated = petService.getPetById(petMsg.getData().getIdPet());
 
         LOG.debugf("@updatePetData API > Finaliza ejecucion del servicio de actualizacion de la informacion de " +
                 "una mascota. Se actualizo con la siguiente informacion: %s", petMsg);
 
-        return Response.status(Response.Status.NO_CONTENT).build();
+        return Response.ok(petUpdated)
+                .build();
     }
 
     @DELETE

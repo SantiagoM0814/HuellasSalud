@@ -11,6 +11,7 @@ import ButtonComponent from "../../components/Button/Button";
 import { RegisterOptions } from "react-hook-form";
 import { validationRules } from "./validationRulesPetRegister";
 import { useUserService } from "../Users/UserManagement/usersService";
+import { metaEmpty, petEmpty } from "./petsUtils";
 
 // export const FormPetRegister = () => (
 //   <section className={styles.containerFormPet}>
@@ -30,7 +31,7 @@ export const CreatePetModal = ({ setModalCreatePet, setPetsData }: CreatePetModa
   )
 }
 
-export const FormPet = ({ setModalCreatePet, setPetsData }: FormPetProps) => {
+export const FormPet = ({ setModalCreatePet, setPetsData, petSelected }: FormPetProps) => {
   const { user } = useContext(AuthContext);
   const { handleGetUsers } = useUserService();
   const [users, setUsers] = useState<UserData[] | undefined>([]);
@@ -40,46 +41,56 @@ export const FormPet = ({ setModalCreatePet, setPetsData }: FormPetProps) => {
       const data = await handleGetUsers();
       setUsers(data);
     };
-    
+
     if (user?.role === "ADMINISTRADOR" || user?.role === "VETERINARIO") {
       fetchUserData();
     }
   }, []);
 
   const {
-    errorMsg, handleCreatePetSubmit, loading, register, errors,
-    handleSubmit, fileName, fileInput, previewImg, handleChangeImg
-  } = usePetRegister({ setModalCreatePet, setPetsData });
+    errorMsg, handleCreatePetSubmit, confirmUpdate, loading, register, errors,
+    handleSubmit, fileName, fileInput, previewImg, handleChangeImg, reset
+  } = usePetRegister({ setModalCreatePet, setPetsData, petSelected });
+
+  useEffect(() => {
+    if (petSelected?.data && users?.length) {
+      reset({
+        ...petSelected.data,
+        idOwner: petSelected.data.idOwner
+      });
+    }
+  }, [petSelected, users, reset]);
+
 
   const handelClicCancel = () => setModalCreatePet && setModalCreatePet(false);
 
   return (
     <form
       className={styles.formRegisterPet}
-      onSubmit={handleSubmit(handleCreatePetSubmit)}
+      onSubmit={handleSubmit(petSelected ? confirmUpdate : handleCreatePetSubmit)}
     >
       <section className={styles.selectImg}>
-        <label
-          htmlFor="loadImg"
-          className={styles.initialsAvatar}
-          style={previewImg ? { backgroundImage: `url(${previewImg})`, backgroundSize: "cover", backgroundPosition: "center" } : {}}
-        >
-          {!previewImg && (<i className="fa-solid fa-dog"></i>)}
-        </label>
-        <input
-          type="file"
-          id="loadImg"
-          {...register("mediaFile", {required: "Debe subir una imagen",})}
-          onChange={handleChangeImg}
-          style={{ display: "none" }}
-        />
-        <section className={styles.textMediaFile}>
-          <span style={{display: "inline-block"}}>{fileName}</span>
-          {errors.mediaFile && (
-            <p className={styles.errorMsg}>{errors.mediaFile.message}</p>
-          )}
-        </section>
-      </section>
+  <label
+    htmlFor="loadImg"
+    className={styles.initialsAvatar}
+    style={
+      previewImg
+        ? { backgroundImage: `url(${previewImg})`, backgroundSize: "cover", backgroundPosition: "center" }
+        : {}
+    }
+  >
+    {!previewImg && (<i className="fa-solid fa-dog"></i>)}
+  </label>
+  <input
+    type="file"
+    name="image"
+    id="loadImg"
+    ref={fileInput}
+    onChange={handleChangeImg}
+    style={{ display: "none" }}
+  />
+  <span>{fileName}</span>
+</section>
       <section className={`${styles.inputField}`}>
         {(user?.role === "ADMINISTRADOR" || user?.role === "VETERINARIO") ? (
           <>
@@ -114,8 +125,8 @@ export const FormPet = ({ setModalCreatePet, setPetsData }: FormPetProps) => {
           )}
         </select>
         {errors.species && (
-              <p className={styles.errorMsg}>{errors.species.message}</p>
-            )}
+          <p className={styles.errorMsg}>{errors.species.message}</p>
+        )}
       </aside>
       <aside className={styles.inputField}>
         <label htmlFor="sex">Sexo<span className={styles.required}>*</span></label>
@@ -128,11 +139,11 @@ export const FormPet = ({ setModalCreatePet, setPetsData }: FormPetProps) => {
           ))}
         </select>
         {errors.sex && (
-              <p className={styles.errorMsg}>{errors.sex.message}</p>
-            )}
+          <p className={styles.errorMsg}>{errors.sex.message}</p>
+        )}
       </aside>
       {/* Edad */}
-      <InputField label="Edad (años)" idInput="age" type="number" register={register} errors={errors}/>
+      <InputField label="Edad (años)" idInput="age" type="number" register={register} errors={errors} />
 
       {/* Peso */}
       <InputField
@@ -147,7 +158,7 @@ export const FormPet = ({ setModalCreatePet, setPetsData }: FormPetProps) => {
       <aside className={styles.inputField}>
         <label htmlFor="sterilized">¿Está esterilizado?<span className={styles.required}>*</span></label>
         <select
-          id="sterilized" className={`${errors.sterilized ? styles.errorInput : ''}`} {...register("sterilized", {required: "Debes indicar si está esterilizado",})}>
+          id="sterilized" className={`${errors.sterilized ? styles.errorInput : ''}`} {...register("sterilized", { required: "Debes indicar si está esterilizado", })}>
           <option value="">Seleccione una opción</option>
           <option value="true">Sí</option>
           <option value="false">No</option>
@@ -186,7 +197,7 @@ export const FormPet = ({ setModalCreatePet, setPetsData }: FormPetProps) => {
         )}
       </aside>
       <aside className={`${styles.containerButtons} ${styles.inputFull}`}>
-        <ButtonComponent type="submit" contain={"Crear mascota"} loading={loading} />
+        <ButtonComponent type="submit" contain={petSelected ? "Actualizar Mascota" : "Crear Mascota"} loading={loading} />
       </aside>
     </form>
   )
@@ -272,12 +283,20 @@ const Pets = () => {
 const PetCard = ({ pets, setPetsData }: PetCardProps) => {
   const { user } = useContext(AuthContext);
 
+  const [petSelected, setPetSelected] = useState<PetData | undefined>(undefined);
+  const [isModalPetEditOpen, setIsModalPetEditOpen] = useState<boolean>(false);
+
   const navigate = useNavigate();
   const { confirmUpdate, confirmDelete } = usePetService();
 
   const goToPetDetail = (idPet: String) => {
     navigate(`/mascotas/${idPet}`);
   };
+
+  const handleEditPet = (pet: Pet, meta: Meta) => {
+    setIsModalPetEditOpen(prev => !prev);
+    setPetSelected({ data: pet, meta });
+  }
 
   if (!pets || pets.length === 0) return (<h2>No hay mascotas registradas</h2>);
 
@@ -307,6 +326,15 @@ const PetCard = ({ pets, setPetsData }: PetCardProps) => {
           <aside className={styles.cardContent}>
             {(user?.role === "ADMINISTRADOR" || user?.role === "VETERINARIO") && (
               <section className={styles.actions}>
+                <button
+                  title="Editar"
+                  className={`${styles.btn} ${styles.edit}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleEditPet(pet, meta)
+                  }}>
+                  <i className="fa-regular fa-pen-to-square" />
+                </button>
                 <button
                   title="Eliminar"
                   className={`${styles.btn} ${styles.delete}`}
@@ -345,6 +373,15 @@ const PetCard = ({ pets, setPetsData }: PetCardProps) => {
           </aside>
         </section>
       ))}
+      {isModalPetEditOpen && (
+        <main className={styles.overlay}>
+          <section className={styles.modal}>
+            <button className={styles.closeButton} onClick={() => setIsModalPetEditOpen && setIsModalPetEditOpen(false)}>x</button>
+            <section className={styles.backgroundModalEdit} />
+            <FormPet setModalCreatePet={setIsModalPetEditOpen} setPetsData={setPetsData} petSelected={petSelected} />
+          </section>
+        </main>
+      )}
     </main>
   );
 };

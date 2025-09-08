@@ -1,8 +1,6 @@
 import styles from "./petDetails.module.css"
 import { PetData, Pet, InputEditProps } from "../../helper/typesHS"
-import imgPet from "../../assets/simba.webp";
 import { memo, useState } from "react";
-import { fieldsFormPet } from "../Pets/dataPet";
 
 export const PetDetails = ({ pet }: { pet: PetData }) => {
   const petData = pet.data;

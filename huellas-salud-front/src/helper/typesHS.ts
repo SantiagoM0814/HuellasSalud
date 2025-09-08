@@ -233,6 +233,7 @@ export interface FormPetProps extends CreatePetModalProps { }
 export interface CreatePetModalProps {
     setModalCreatePet?: (close: boolean) => void;
     setPetsData?: Dispatch<SetStateAction<PetData[] | undefined>>;
+    petSelected?: PetData
 }
 
 export interface InputFieldPetRegister {
