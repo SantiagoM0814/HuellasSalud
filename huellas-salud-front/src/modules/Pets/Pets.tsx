@@ -231,7 +231,7 @@ const Pets = () => {
     };
 
     fetchPetData();
-  }, [user]);  // 👈 aquí está user dentro de las llaves
+  }, [user]);
 
 
   const filteredPets = useMemo(() => {

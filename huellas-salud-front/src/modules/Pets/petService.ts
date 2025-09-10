@@ -11,7 +11,7 @@ export const usePetService = () => {
 
     const apiPets = {
         getPetsOwner: async (ownerId: string) => {
-            const { data } = await axiosInstance.get<PetData[]>(`/pet/owners-pets/${ownerId}`,);
+            const { data } = await axiosInstance.get<PetData[]>(`/pet/owners-pets/${ownerId}`);
             return data;
         },
         getPets: async () => {

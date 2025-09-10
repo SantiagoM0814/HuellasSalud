@@ -43,6 +43,11 @@ export interface Product {
     barcode: number;
 }
 
+export interface ProductData {
+    data: Product,
+    meta: Meta
+}
+
 export interface User {
     name: string;
     lastName: string;
@@ -178,6 +183,11 @@ export interface UserTableProps {
 export interface PetCardProps { 
     pets: PetData[] | undefined;
     setPetsData: Dispatch<SetStateAction<PetData[] | undefined>>;
+}
+
+export interface ProductCardProps {
+    products: ProductData[] | undefined;
+    setProductsData: Dispatch<SetStateAction<ProductData[] | undefined>>;
 }
 
 interface AuthContextType {

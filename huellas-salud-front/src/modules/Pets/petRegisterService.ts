@@ -1,5 +1,5 @@
 import { ChangeEvent, useEffect, useRef, useState } from "react";
-import { set, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { CreatePetModalProps, MediaFile, Pet, PetData } from "../../helper/typesHS";
 import axiosInstance from "../../context/axiosInstance";
