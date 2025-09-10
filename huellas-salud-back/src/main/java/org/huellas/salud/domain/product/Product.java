@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.huellas.salud.helper.validators.ValidationGroups;
+import org.huellas.salud.domain.mediaFile.MediaFile;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -75,4 +76,5 @@ public class Product implements Serializable {
     @BsonProperty("activo")
     private Boolean active;
 
+    private MediaFile mediaFile;
 }

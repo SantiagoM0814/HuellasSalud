@@ -1,11 +1,12 @@
-import { ChangeEvent, useRef, useState } from "react";
-import { set, useForm } from "react-hook-form";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { CreatePetModalProps, MediaFile, Pet, PetData } from "../../helper/typesHS";
 import axiosInstance from "../../context/axiosInstance";
 import axios from "axios";
+import Swal from "sweetalert2";
 
-export const usePetRegister = ({ setModalCreatePet, setPetsData }: CreatePetModalProps) => {
+export const usePetRegister = ({ setModalCreatePet, setPetsData, petSelected }: CreatePetModalProps) => {
     const fileInput = useRef<HTMLInputElement>(null);
 
     const [errorMsg, setErrorMsg] = useState<string>("");
@@ -19,6 +20,17 @@ export const usePetRegister = ({ setModalCreatePet, setPetsData }: CreatePetModa
         formState: { errors },
         reset
     } = useForm<Pet>({ defaultValues: { isActive: true } })
+
+    useEffect(() => {
+        if (petSelected?.data.mediaFile) {
+            setPreviewImg(`data:${petSelected.data.mediaFile.contentType};base64,${petSelected.data.mediaFile.attachment}`); // Base64 si lo tienes
+            setFileName(petSelected.data.mediaFile.fileName);
+        }
+        if (petSelected?.data) {
+            reset(petSelected.data);
+        }
+    }, [petSelected, reset]);
+
 
     const createPet = async (petData: Pet) => {
         const payload = { data: petData };
@@ -64,6 +76,12 @@ export const usePetRegister = ({ setModalCreatePet, setPetsData }: CreatePetModa
     }
 
     const onSubmit = async (pet: Pet) => {
+        const file = fileInput.current?.files?.[0];
+        if (!file) {
+            toast.error("¡Debe subir una imagen de la mascota!");
+            return;
+        }
+
         setLoading(true);
 
         try {
@@ -97,7 +115,72 @@ export const usePetRegister = ({ setModalCreatePet, setPetsData }: CreatePetModa
         setFileName(file.name);
     }
 
+    const handleUpdatePet = async (pet: Pet) => {
+        const payload = { data: pet };
+        setLoading(true);
+        toast.info("Actualizando mascota... ⌛", { autoClose: 1000 });
+
+        try {
+            const file = fileInput.current?.files?.[0];
+            if (file) {
+                const formData = new FormData();
+                formData.append("file", file);
+
+                try {
+                    await axiosInstance.put<MediaFile>(
+                        `/avatar-user/update/PET/${payload.data.idPet}`,
+                        formData,
+                        { headers: { "Content-Type": "multipart/form-data" } }
+                    );
+                } catch (err) {
+                    toast.error("Mascota actualizada, pero falló el envío de imagen");
+                }
+            }
+            const { data: petUpdated } = await axiosInstance.put(`/pet/update`, payload); // 204 NO CONTENT
+
+            // ✅ Si hay imagen seleccionada, actualiza mediaFile
+            console.log(petUpdated) 
+            setPetsData &&
+                setPetsData(prev =>
+                    prev?.map(p =>
+                        p.data.idPet === petUpdated.data.idPet ? petUpdated : p
+                    )
+                );
+
+            toast.success("¡Mascota actualizada con éxito! 🎉", { autoClose: 1500 });
+            setModalCreatePet && setModalCreatePet(false);
+            return payload.data;
+        } catch (error) {
+            handleError("Error al actualizar la mascota");
+            throw error;
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
+    const confirmUpdate = async (pet: Pet): Promise<boolean> => {
+        console.log(pet);
+        const result = await Swal.fire({
+            title: "¿Estás seguro?",
+            text: `¿Deseas actualizar la mascota ${pet.name}?`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: `Actualizar mascota`,
+            cancelButtonText: "Cancelar",
+        });
+        if (result.isConfirmed) {
+            handleUpdatePet(pet);
+            return true;
+        }
+        return false;
+    }
+
+
     return {
+        confirmUpdate,
         errorMsg,
         handleCreatePetSubmit: onSubmit,
         loading,
@@ -107,6 +190,7 @@ export const usePetRegister = ({ setModalCreatePet, setPetsData }: CreatePetModa
         fileName,
         fileInput,
         previewImg,
-        handleChangeImg
+        handleChangeImg,
+        reset
     }
 }

@@ -98,4 +98,47 @@ public class MediaFileApi {
                 .entity(mediaFile)
                 .build();
     }
+
+    @PUT
+    @Path("/avatar-user/update/{entityType}/{entityId}")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Operation(
+            summary = "Actualizar imagen de usuario, mascota o producto",
+            description = "Permite reemplazar el avatar existente de un usuario, mascota o producto"
+    )
+    public Response updateAvatarUser(
+            @Parameter(
+                    name = "entityType",
+                    description = "Tipo de entidad, si es para un usuario, mascota o producto",
+                    example = "User",
+                    required = true
+            )
+            @NotBlank(message = "El valor del entityType no puede ser nulo o vacío")
+            @PathParam("entityType") String entityType,
+
+            @Parameter(
+                    name = "entityId",
+                    description = "Identificador de la entidad",
+                    example = "1012345678",
+                    required = true
+            )
+            @NotBlank(message = "El valor del entityId no puede ser nulo o vacío")
+            @PathParam("entityId") String entityId,
+
+            @Valid MediaUploadForm mediaUploadForm
+    ) throws HSException {
+
+        LOG.infof("@updateAvatarUser API > Inicia actualización de imagen para entityType: %s y entityId: %s",
+                entityType, entityId);
+
+        // Lógica: borrar/reemplazar archivo anterior y guardar nuevo
+        mediaFileService.updateMediaFileInMongo(entityType, entityId, mediaUploadForm);
+
+        LOG.infof("@updateAvatarUser API > Finaliza actualización de imagen para entityType: %s y entityId: %s",
+                entityType, entityId);
+
+        return Response.ok()
+                .status(Response.Status.NO_CONTENT) // o NO_CONTENT si no devuelves nada
+                .build();
+    }
 }

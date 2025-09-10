@@ -6,7 +6,7 @@ import {
   ForgotPasswordSection,
   GoogleLoginButton,
   LoginForm,
-} from "./loginComponents";
+} from "./LoginComponents";
 import { useState } from "react";
 
 const Login = () => {

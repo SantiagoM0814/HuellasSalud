@@ -154,6 +154,11 @@
     transform: translateY(2px);
 }
 
+.edit {
+    background-color: #e4eafc;
+    color: #1976d2;
+}
+
 .delete {
     background-color: #fce4ec;
     color: #c2185b;

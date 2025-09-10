@@ -1,13 +1,27 @@
 import { carrito, categorias, marcas, productos } from './data';
 import styles from './products.module.css';
 import imgComida from '../../assets/dogchow.webp';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ProductCardProps, ProductData } from '../../helper/typesHS';
+import { useProductService } from './productsService';
 
 const Products = () => {
 
   const [showCart, setShowCart] = useState<boolean>(false);
   const [productCounter, setProductCounter] = useState<number>(0);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [productsData, setProductsData] = useState<ProductData[] | undefined>([]);
+
+  const { loading, handleGetProducts } = useProductService();
+
+  useEffect(() => {
+    const fetchProductData = async () => {
+      let data = await handleGetProducts();
+      setProductsData(data);
+    }
+    fetchProductData();
+  }, []);
 
   const handlerFormatCoin = (precio: number): string => {
     return new Intl.NumberFormat("es-CO", {
@@ -16,6 +30,17 @@ const Products = () => {
       minimumFractionDigits: 0
     }).format(precio);
   }
+
+  const filteredProducts = useMemo(() => {
+    return productsData?.filter(({ data: product}) => {
+      const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase())
+        || product.category.includes(searchTerm.toLowerCase());
+
+      return matchesSearch;
+    })
+  }, [productsData, searchTerm])
+
+  if (loading) return (<div style={{ marginTop: "125px" }}>Cargando productos...</div>);
 
   return (
     <main className={styles.containProducts}>
@@ -55,20 +80,7 @@ const Products = () => {
         </Link>
       </section>
       <section className={styles.productCardContainer}>
-        {productos.map((prod, index) => (
-          <div className={styles.cardProduct} key={prod.name + index}>
-            <img src={imgComida} alt={prod.name} />
-            <div className={styles.productName}><h1>{prod.name}</h1></div>
-            <h3 className={styles.productPrice}>Precio: {handlerFormatCoin(prod.price)}</h3>
-            <h4>Cantidad:
-              <input min="1" type="number" />
-            </h4>
-            {/* <button className="boton" onclick="agregarCarrito('${nombre}', '${precio}', '${imagen}', 'cantidad-${nombre}')"> */}
-            <button className={styles.productBtn} onClick={() => setProductCounter(prev => prev + 1)}>
-              Agregar al carrito
-            </button>
-          </div>
-        ))}
+        <ProductCard products={filteredProducts} setProductsData={setProductsData}/>
       </section>
       {/* <div className="iconoCarrito" id="iconoCarrito" onclick="abrirCarrito()"> */}
       <div className={styles.cartIcon} onClick={() => setShowCart(prev => !prev)}>
@@ -101,6 +113,24 @@ const Products = () => {
           </button>
         </section>
       )}
+    </main>
+  );
+}
+
+const ProductCard = ({ products, setProductsData}: ProductCardProps) => {
+
+  if (!products || products.length === 0) return (<h2>No hay productos registrados</h2>);
+
+  return (
+    <main className={styles.cardProductsContainer}>
+      {products?.map(({ data: product, meta }) => (
+        <section className={styles.cardProduct} key={product.id}>
+          <aside className={styles.imgCardProduct}>
+            <img src={imgComida} alt={product.name} className={styles.cardImage}/> 
+          </aside>
+          <h3 key={product.id}>{product.name}</h3>
+        </section>
+      ))}
     </main>
   );
 }

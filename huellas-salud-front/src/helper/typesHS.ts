@@ -43,6 +43,11 @@ export interface Product {
     barcode: number;
 }
 
+export interface ProductData {
+    data: Product,
+    meta: Meta
+}
+
 export interface User {
     name: string;
     lastName: string;
@@ -180,6 +185,11 @@ export interface PetCardProps {
     setPetsData: Dispatch<SetStateAction<PetData[] | undefined>>;
 }
 
+export interface ProductCardProps {
+    products: ProductData[] | undefined;
+    setProductsData: Dispatch<SetStateAction<ProductData[] | undefined>>;
+}
+
 interface AuthContextType {
     user: User | null;
     token: string | null;
@@ -233,6 +243,7 @@ export interface FormPetProps extends CreatePetModalProps { }
 export interface CreatePetModalProps {
     setModalCreatePet?: (close: boolean) => void;
     setPetsData?: Dispatch<SetStateAction<PetData[] | undefined>>;
+    petSelected?: PetData
 }
 
 export interface InputFieldPetRegister {
