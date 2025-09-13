@@ -62,7 +62,7 @@ public class PetApi {
 
     @GET
     @Path("/list-pets")
-    @RolesAllowed("ADMINISTRADOR")
+    //@RolesAllowed("ADMINISTRADOR")
     @Tag(name = "Gestión de mascotas")
     public Response getListPets() {
 

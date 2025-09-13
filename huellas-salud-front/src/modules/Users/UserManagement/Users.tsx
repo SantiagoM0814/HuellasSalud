@@ -23,6 +23,7 @@ const Users = () => {
     fetchUserData();
   }, []);
 
+  console.log(usersData);
   const filteredUsers = useMemo(() => {
     return usersData?.filter(({ data: user }) => {
 

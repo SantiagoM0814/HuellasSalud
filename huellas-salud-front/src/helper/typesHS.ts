@@ -29,18 +29,19 @@ export interface InputFieldProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export interface Product {
-    id: string;
+    idProduct: string;
     name: string;
     price: number;
-    stock: number;
+    brand: string;
+    quantityAvailable: number;
     category: string;
     supplier: string;
     description: string;
     expiration: Date | null;
     status: "activo" | "inactivo" | "agotado";
-    image: string;
     unitMeasure: "kg" | "g" | "l" | "ml" | "unidad";
     barcode: number;
+    mediaFile?: MediaFile;
 }
 
 export interface ProductData {
@@ -175,9 +176,24 @@ export interface UserFiltersProps {
     onStatusFilterChange: (value: string) => void;
 }
 
+export interface ProductFiltersProps {
+    searchTerm: string
+    categoryFilter: string
+    statusFilter: string
+    setModalCreateProduct: (close: boolean) => void;
+    onSearchChange: (value: string) => void;
+    onCategoryFilterChange: (value: string) => void;
+    onStatusFilterChange: (value: string) => void;
+}
+
 export interface UserTableProps {
     users: UserData[] | undefined;
     setUsersData: Dispatch<SetStateAction<UserData[] | undefined>>;
+}
+
+export interface ProductTableProps {
+    products: ProductData[] | undefined;
+    setProductsData: Dispatch<SetStateAction<ProductData[] | undefined>>;
 }
 
 export interface PetCardProps { 

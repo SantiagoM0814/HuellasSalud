@@ -11,6 +11,15 @@ export const tableColumns: string[] = [
     "Acciones",
 ];
 
+export const tableProductColumns: string[] = [
+    "Nombre",
+    "Marca",
+    "Valor",
+    "Unidades",
+    "Categoria",
+    "Acciones",
+];
+
 const optionsDate: Intl.DateTimeFormatOptions = {
     day: "2-digit",
     month: "2-digit",
@@ -34,6 +43,15 @@ export const roles = [
     "VETERINARIO",
     "RECEPCIONISTA",
 ];
+
+export const categorys = [
+    "COMIDA",
+    "JUGUETES",
+    "MEDICINA",
+    "ACCESORIOS",
+    "HIGIENE",
+    "EQUIPOS"
+]
 
 export const species = [
     "ALL",

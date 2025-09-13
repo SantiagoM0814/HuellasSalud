@@ -1,6 +1,5 @@
 /* Estilos base */
 .mainContainer {
-    background-color: #f5f7fa;
     color: #333;
     line-height: 1.5;
 }
@@ -113,7 +112,7 @@
 }
 
 .userTable thead {
-    background-color: #f8f9fa;
+    background-color: #000000;
     border: 2px solid #000000;
 }
 

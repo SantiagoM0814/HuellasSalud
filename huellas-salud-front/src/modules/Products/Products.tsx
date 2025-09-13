@@ -124,11 +124,11 @@ const ProductCard = ({ products, setProductsData}: ProductCardProps) => {
   return (
     <main className={styles.cardProductsContainer}>
       {products?.map(({ data: product, meta }) => (
-        <section className={styles.cardProduct} key={product.id}>
+        <section className={styles.cardProduct} key={product.idProduct}>
           <aside className={styles.imgCardProduct}>
             <img src={imgComida} alt={product.name} className={styles.cardImage}/> 
           </aside>
-          <h3 key={product.id}>{product.name}</h3>
+          <h3 key={product.idProduct}>{product.name}</h3>
         </section>
       ))}
     </main>
