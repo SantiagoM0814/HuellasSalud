@@ -93,7 +93,7 @@ public class UserApi {
 
     @GET
     @Path("/list-users")
-    @RolesAllowed("ADMINISTRADOR")
+    //@RolesAllowed("ADMINISTRADOR")
     @Tag(name = "Gestión de usuarios")
     @APIResponses(
             value = {
