@@ -83,10 +83,13 @@ public class ProductApi {
 
         LOG.info("@addProduct API > Inicia ejecucion del servicio para agregar un producto nuevo");
 
-        productService.addProductInMongo(productMsg);
+        ProductMsg productCreated = productService.addProductInMongo(productMsg);
 
         LOG.debug("@addProduct API > Finaliza la ejecucion del servicio para registrar un producto nuevo");
 
-        return Response.status(Response.Status.CREATED).build();
+        return Response.ok()
+                .status(Response.Status.CREATED)
+                .entity(productCreated)
+                .build();
     }
 }

@@ -430,11 +430,9 @@ const PetsFilters = ({
         className={styles.filterSelect}
       >
         <option value="ALL">Todas las especies</option>
-        {species.filter(species => species !== 'ALL').map(species => (
-          <option key={species} value={species}>
-            {species.charAt(0) + species.slice(1).toLowerCase()}
-          </option>
-        ))}
+        {species.map(specie =>
+          (<option key={specie.value} value={specie.value}>{specie.label}</option>)
+        )}
       </select>
       <select
         value={sexFilter}

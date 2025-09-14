@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ProductData } from "../../helper/typesHS";
 import { useProductService } from "./productsService";
-import { ProductFilters, ProductTable } from "./productComponents";
+import { ProductFilters, ProductModal, ProductTable } from "./productComponents";
 import styles from './productsAdmin.module.css';
 
 const ProductsAdmin = () => {
@@ -26,7 +26,7 @@ const ProductsAdmin = () => {
     return productsData?.filter(({ data: product}) => {
       const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase())
 
-      const matchesCategory = categoryFilter === 'ALL' || product.category === categoryFilter;
+      const matchesCategory = categoryFilter === 'ALL' || product.category.toLowerCase() === categoryFilter.toLowerCase();
       const matchesStatus = statusFilter === 'ALL'
         || (statusFilter === 'ACTIVE' && product.status)
         || (statusFilter === 'INACTIVE' && !product.status);
@@ -51,6 +51,7 @@ const ProductsAdmin = () => {
           onStatusFilterChange={setStatusFilter}
         />
         <ProductTable products={filteredProducts} setProductsData={setProductsData}/>
+        {isModalCreateProduct && (<ProductModal setModalProduct={setIsModalCreateProduct} setProductsData={setProductsData} />)}
       </section>
     </main>
   )

@@ -1,5 +1,6 @@
 import { createContext, Dispatch, HTMLInputTypeAttribute, SetStateAction } from "react";
 import { FieldErrors, UseFormRegister } from "react-hook-form";
+import { UnitOfMeasure } from "../modules/Users/UserManagement/usersUtils";
 
 export type Sex = "MACHO" | "HEMBRA" | "INDETERMINADO";
 export type Species = "PERRO" | "GATO" | "AVE" | "ROEDOR" | "REPTIL" | "PESCADO";
@@ -31,16 +32,17 @@ export interface InputFieldProps extends React.HTMLAttributes<HTMLDivElement> {
 export interface Product {
     idProduct: string;
     name: string;
-    price: number;
-    brand: string;
-    quantityAvailable: number;
     category: string;
-    supplier: string;
+    animalType: string;
     description: string;
-    expiration: Date | null;
-    status: "activo" | "inactivo" | "agotado";
-    unitMeasure: "kg" | "g" | "l" | "ml" | "unidad";
+    price: number;
+    unitOfMeasure: UnitOfMeasure;
+    quantityAvailable: number;
+    brand: string;
+    expirationDate: Date | null;
     barcode: number;
+    status: "activo" | "inactivo" | "agotado";
+    supplier?: string;
     mediaFile?: MediaFile;
 }
 
@@ -262,6 +264,14 @@ export interface CreatePetModalProps {
     petSelected?: PetData
 }
 
+export interface FormProductProps extends CreateProductModalProps { }
+
+export interface CreateProductModalProps {
+    setModalProduct?: (close: boolean) => void;
+    setProductsData?: Dispatch<SetStateAction<ProductData[] | undefined>>;
+    productSelected?: ProductData
+}
+
 export interface InputFieldPetRegister {
     label: string;
     type?: HTMLInputTypeAttribute;
@@ -270,4 +280,14 @@ export interface InputFieldPetRegister {
     inputFull?: boolean;
     register: UseFormRegister<Pet>;
     errors: FieldErrors<Pet>;
+}
+
+export interface InputFieldProductRegister {
+    label: string;
+    type?: HTMLInputTypeAttribute;
+    idInput: keyof Product;
+    required?: boolean;
+    inputFull?: boolean;
+    register: UseFormRegister<Product>;
+    errors: FieldErrors<Product>;
 }

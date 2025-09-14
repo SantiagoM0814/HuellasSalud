@@ -10,6 +10,7 @@ import org.huellas.salud.domain.product.Product;
 import org.huellas.salud.domain.product.ProductMsg;
 import org.huellas.salud.helper.exceptions.HSException;
 import org.huellas.salud.helper.utils.Utils;
+import org.huellas.salud.repositories.MediaFileRepository;
 import org.huellas.salud.repositories.ProductRepository;
 import org.jboss.logging.Logger;
 
@@ -28,6 +29,9 @@ public class ProductService {
     @Inject
     ProductRepository productRepository;
 
+    @Inject
+    MediaFileRepository mediaFileRepository;
+
     @CacheResult(cacheName = "products-list-cache")
     public List<ProductMsg> getListProducts() {
 
@@ -35,13 +39,18 @@ public class ProductService {
 
         List<ProductMsg> products = productRepository.listAll(Sort.descending("data.name"));
 
+        products.forEach(productMsg -> {
+            mediaFileRepository.getMediaByEntityTypeAndId("PRODUCT", productMsg.getData().getIdProduct())
+                    .ifPresent(media -> productMsg.getData().setMediaFile(media.getData()));
+        });
+
         LOG.infof("@getListProducts SERV > Finaliza consulta. Se obtuvo: %s productos", products.size());
 
         return products;
     }
 
     @CacheInvalidateAll(cacheName = "products-list-cache")
-    public void addProductInMongo(ProductMsg productMsg) throws HSException, UnknownHostException {
+    public ProductMsg addProductInMongo(ProductMsg productMsg) throws HSException, UnknownHostException {
 
         LOG.infof("@addProductInMongo SERV > Inicia servicio para agregar producto con la data: %s.", productMsg);
 
@@ -62,6 +71,8 @@ public class ProductService {
         productRepository.persist(productMsg);
 
         LOG.infof("@addProductInMongo SERV > El producto se registro correctamente con ID: %s.", product.getIdProduct());
+
+        return productMsg;
     }
 
     private void validateIfProductIsRegistered(ProductMsg productMsg) throws HSException {

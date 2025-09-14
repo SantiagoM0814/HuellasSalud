@@ -29,9 +29,14 @@ public class Product implements Serializable {
     private String name;
 
     @BsonProperty("categoria")
-    @Schema(example = "Comida")
+    @Schema(example = "COMIDA")
     @NotBlank(message = "El valor del campo category no puede ser nulo o vacío")
     private String category;
+
+    @BsonProperty("tipoAnimal")
+    @Schema(example = "PERRO")
+    @NotBlank(message = "El valor del campo animalType no puede ser nulo o vacío")
+    private String animalType;
 
     @BsonProperty("descripcion")
     @Schema(example = "Dog Chow Alta Proteína para perros Adultos 7.5 Kg")

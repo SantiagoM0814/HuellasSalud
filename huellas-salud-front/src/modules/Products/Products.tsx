@@ -1,9 +1,10 @@
-import { carrito, categorias, marcas, productos } from './data';
+import { carrito, categorias, marcas, productos } from './data.ts';
 import styles from './products.module.css';
 import imgComida from '../../assets/dogchow.webp';
+import defaultPetImage from "../../assets/simba.webp";
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ProductCardProps, ProductData } from '../../helper/typesHS';
+import { Product, ProductCardProps, ProductData } from '../../helper/typesHS';
 import { useProductService } from './productsService';
 
 const Products = () => {
@@ -126,13 +127,20 @@ const ProductCard = ({ products, setProductsData}: ProductCardProps) => {
       {products?.map(({ data: product, meta }) => (
         <section className={styles.cardProduct} key={product.idProduct}>
           <aside className={styles.imgCardProduct}>
-            <img src={imgComida} alt={product.name} className={styles.cardImage}/> 
+            <img src={getProductImage(product)} alt={product.name} className={styles.cardImage}/> 
           </aside>
           <h3 key={product.idProduct}>{product.name}</h3>
         </section>
       ))}
     </main>
   );
+}
+
+const getProductImage = (product: Product) => {
+  if (product.mediaFile) {
+    return `data:${product.mediaFile.contentType};base64,${product.mediaFile.attachment}`;
+  }
+  return defaultPetImage;
 }
 
 export default Products;
