@@ -448,9 +448,11 @@
 }
 
 .inputField input,
-.inputField select {
+.inputField select,
+.inputField textarea {
     width: 97%;
     font-size: 15px;
+    resize: none;
     padding: 10px 12px;
     border-radius: 8px;
     border: 2px solid #ccc;

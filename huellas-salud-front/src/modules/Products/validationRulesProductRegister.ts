@@ -22,6 +22,8 @@ export const productValidationRules: ProductValidationRules = {
     required: "El tipo de animal es obligatorio",
   },
   description: {
+    required: "La descripción es obligatoria",
+    minLength: { value: 1, message: "La descripción debe tener al menos 15 caracteres"},
     maxLength: { value: 500, message: "La descripción no puede superar 500 caracteres" },
   },
   price: {

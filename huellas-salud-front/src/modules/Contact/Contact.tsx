@@ -15,7 +15,7 @@ const Contact = () => {
                         <h4>Horario de disponibilidad</h4>
                         <p>Lunes a sábado<br />9:00 A.M. a 6:30 P.M.</p>
                         <h4>Nuestra información</h4>
-                        <p>huellasysalud09@gmail.com</p>
+                        <p>huellassalud@gmail.com</p>
                         <p>+57 3125378524</p>
                         <p>+57 3148657201</p>
                         <h4>Visítanos</h4>

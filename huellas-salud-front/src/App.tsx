@@ -51,7 +51,8 @@ const AppRoutes = () => {
     },
     // { path: "/historial", element: <History /> },
     { path: "/contacto", element: <Contact /> },
-    { path: "/servicios", element: <Services /> }
+    { path: "/servicios", element: <Services /> },
+    { path: "*", element: <Home /> }
   ]);
 
   return routes;

@@ -42,13 +42,6 @@ export const NavLinks = ({ setOptionHover, setShowSubMenu }: NavLinkProps) => {
                 setOptionHover={setOptionHover}
                 setShowSubMenu={setShowSubMenu}
             />
-            {/* <ListItemNav
-                path="/mascotas/otras-mascotas"
-                name="Otras Mascotas"
-                icon="fa-solid fa-horse-head"
-                setOptionHover={setOptionHover}
-                setShowSubMenu={setShowSubMenu}
-            /> */}
             <ListItemNav path="/productos" name="Productos" icon="fa-solid fa-boxes-stacked" />
             <ListItemNav path="/servicios" name="Servicios" icon="fa-solid fa-house-laptop" />
             {
@@ -60,7 +53,6 @@ export const NavLinks = ({ setOptionHover, setShowSubMenu }: NavLinkProps) => {
                 hasRole(user, ["ADMINISTRADOR", "CLIENTE"]) && (
                     <>
                         <ListItemNav path="/mascotas" name="Mascotas" icon="fa-solid fa-paw" />
-                        <ListItemNav path="/historial" name="Historial" icon="fa-solid fa-notes-medical" />
                     </>
                 )
             }
@@ -151,6 +143,15 @@ export const BtnsLogRegister = () => {
                         <p className={styles.userName}>{`${user.name} ${user.lastName}`}</p>
                     </div>
                     <button className={styles.editButton}>Editar perfil</button>
+                    {
+                        hasRole(user, ["ADMINISTRADOR"]) && (
+                            <>
+                            <Link to="/productos-admin">
+                                <button>Productos</button>
+                            </Link>
+                            </>
+                        )
+                    }
                     <button className={styles.logoutButton} onClick={handleLogout}>
                         Cerrar sesión
                     </button>

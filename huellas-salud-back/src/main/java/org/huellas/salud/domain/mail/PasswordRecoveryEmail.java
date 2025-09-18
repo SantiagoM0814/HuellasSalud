@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.bson.types.ObjectId;
 import org.bson.codecs.pojo.annotations.BsonId;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 import org.huellas.salud.domain.user.User;
@@ -18,6 +19,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @MongoEntity(collection = "CorreoRecuperacion")
 public class PasswordRecoveryEmail {
+
+    public ObjectId id;
 
     @BsonProperty("codigoAprobacion")
     private String approvalCode;

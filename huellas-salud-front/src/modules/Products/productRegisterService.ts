@@ -38,15 +38,13 @@ export const useProductRegister = ({ setModalProduct, setProductsData, productSe
         toast.info(`Creando registro del producto ${productData.name.toUpperCase()}... ⌛`, { autoClose: 1200 });
 
         const file = fileInput.current?.files?.[0];
-        console.log(file);
         const { data: createdProduct } = await axiosInstance.post<ProductData>("product/register", payload);
-        console.log(createdProduct);
+
         if (file && createdProduct?.data?.idProduct) {
 
             const formData = new FormData();
             formData.append("file", file);
 
-            console.log(formData);
             try {
                 const { data: mediaFile } = await axiosInstance.post<MediaFile>(
                     `/avatar-user/PRODUCT/${createdProduct.data.idProduct}`,
@@ -54,7 +52,6 @@ export const useProductRegister = ({ setModalProduct, setProductsData, productSe
                     { headers: { "Content-Type": "multipart/form-data" } }
                 );
                 createdProduct.data.mediaFile = mediaFile;
-                console.log(createdProduct);
             } catch (err) {
                 toast.error("Producto creado, pero falló el envío de imagen");
             }
@@ -118,7 +115,7 @@ export const useProductRegister = ({ setModalProduct, setProductsData, productSe
         setFileName(file.name);
     }
 
-    const handleUpdatePet = async (product: Product) => {
+    const handleUpdateProduct = async (product: Product) => {
         const payload = { data: product };
         setLoading(true);
         toast.info("Actualizando producto... ⌛", { autoClose: 1000 });
@@ -130,13 +127,23 @@ export const useProductRegister = ({ setModalProduct, setProductsData, productSe
                 formData.append("file", file);
 
                 try {
-                    await axiosInstance.put<MediaFile>(
+                    await axiosInstance.get(`/avatar-user/PRODUCT/${payload.data.idProduct}`);
+
+                    await axiosInstance.put(
                         `/avatar-user/update/PRODUCT/${payload.data.idProduct}`,
                         formData,
                         { headers: { "Content-Type": "multipart/form-data" } }
                     );
-                } catch (err) {
-                    toast.error("Producto actualizado, pero falló el envío de imagen");
+                } catch (error: any) {
+                    if (error.response?.status === 404) {
+                        await axiosInstance.post(
+                            `/avatar-user/PRODUCT/${payload.data.idProduct}`,
+                            formData,
+                            { headers: { "Content-Type": "multipart/form-data" } }
+                        );
+                    } else {
+                        toast.error("Producto actualizado, pero falló el envío de imagen");
+                    }
                 }
             }
             const { data: productUpdated } = await axiosInstance.put(`/product/update`, payload);
@@ -161,18 +168,29 @@ export const useProductRegister = ({ setModalProduct, setProductsData, productSe
 
 
     const confirmUpdate = async (product: Product): Promise<boolean> => {
+        const file = fileInput.current?.files?.[0];
+
+        if (
+            productSelected?.data &&
+            JSON.stringify(productSelected.data) === JSON.stringify(product) &&
+            !file
+        ) {
+            toast.info("No realizaste ningún cambio en el producto.");
+            return false;
+        }
+
         const result = await Swal.fire({
             title: "¿Estás seguro?",
-            text: `¿Deseas actualizar la mascota ${product.name}?`,
+            text: `¿Deseas actualizar el producto ${product.name}?`,
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: `Actualizar mascota`,
+            confirmButtonText: `Actualizar Producto`,
             cancelButtonText: "Cancelar",
         });
         if (result.isConfirmed) {
-            handleUpdatePet(product);
+            handleUpdateProduct(product);
             return true;
         }
         return false;

@@ -1,14 +1,12 @@
 .contacto {
-    margin-top: 8vh;
-    height: 92vh;
+    margin-top: 115px;
     display: grid;
     grid-template-columns: 1fr 3fr;
-    /* background-color: #1a2980; */
     color: black;
 }
 
 .fondoContacto {
-    max-height: 91vh;
+    height: calc(100vh - 118px);
 }
 
 .fondoContacto img{

@@ -68,6 +68,7 @@ public class ProductApi {
                                     "name": "Agility Gold Gatos Sin Granos 7 Kg",
                                     "category": "Comida",
                                     "description": "Alimento ideal para suministrar en todas las etapas de la vida de los gatos",
+                                    "animalType": "PERRO",
                                     "price": 170000,
                                     "unitOfMeasure": "Unidad",
                                     "quantityAvailable": 10,
@@ -90,6 +91,32 @@ public class ProductApi {
         return Response.ok()
                 .status(Response.Status.CREATED)
                 .entity(productCreated)
+                .build();
+    }
+
+    @PUT
+    @Path("/update")
+    @Tag(name = "Gestión de productos")
+    public Response updateProductData(
+            @RequestBody(
+                    name = "productMsg",
+                    description = "Información con la que se actualizara el producto",
+                    required = true
+            )
+            @NotNull(message = "Debe ingresar los datos que se actualizarán del producto")
+            @ConvertGroup(to = ValidationGroups.Put.class) @Valid ProductMsg productMsg
+    ) throws HSException {
+
+        LOG.debugf("@updateProductData API > Inicia ejecucion del servicio para actualizar la informacion de un " +
+                "producto con la data: %s", productMsg.getData());
+
+        productService.updateProductDataInMongo(productMsg);
+        ProductMsg productUpdated = productService.getProductById(productMsg.getData().getIdProduct());
+
+        LOG.debugf("@updateProductData API > Finaliza ejecucion del servicio de actualizacion de la informacion de " +
+                "un producto. Se actualizo con la siguiente informacion: %s", productMsg);
+
+        return Response.ok(productUpdated)
                 .build();
     }
 }

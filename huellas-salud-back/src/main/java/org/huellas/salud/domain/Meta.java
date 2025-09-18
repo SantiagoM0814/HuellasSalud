@@ -25,7 +25,7 @@ public class Meta implements Serializable {
     @Schema(example = "192.168.1.1")
     private String ipAddress;
 
-    @Schema(example = "http://localhost:8089/internal/API_PATH")
+    @Schema(example = "http://localhost:8080/internal/API_PATH")
     private String source;
 
     @BsonProperty("nombreUsuarioCreo")

@@ -20,4 +20,11 @@ public class ProductRepository implements PanacheMongoRepository<ProductMsg> {
         return find("data.codigoBarras = ?1", barCode).firstResultOptional();
     }
 
+    public Optional<ProductMsg> findProductById(String productId) {
+
+        LOG.infof("@findProductById REPO > Inicia busqueda del registro de la mascota con identificador: %s", productId);
+
+        return find("data.idProducto = ?1", productId).firstResultOptional();
+    }
+
 }

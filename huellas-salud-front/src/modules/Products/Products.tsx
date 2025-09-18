@@ -6,6 +6,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Product, ProductCardProps, ProductData } from '../../helper/typesHS';
 import { useProductService } from './productsService';
+import { formatCurrencyCOP } from '../../helper/formatter.ts';
+import ButtonComponent from '../../components/Button/Button.tsx';
 
 const Products = () => {
 
@@ -129,7 +131,12 @@ const ProductCard = ({ products, setProductsData}: ProductCardProps) => {
           <aside className={styles.imgCardProduct}>
             <img src={getProductImage(product)} alt={product.name} className={styles.cardImage}/> 
           </aside>
-          <h3 key={product.idProduct}>{product.name}</h3>
+          <aside className={styles.nameProduct}>
+            <h3 key={product.idProduct}>{product.name}</h3>
+          </aside>
+          <span className={styles.price}>{formatCurrencyCOP(product.price)}</span>
+          <input type="number" defaultValue={1} max={product.quantityAvailable} min={1}/>
+          <button className={styles.addCard}>Añadir al carrito</button>
         </section>
       ))}
     </main>

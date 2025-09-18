@@ -56,6 +56,12 @@
             <artifactId>resend-java</artifactId>
             <version>3.1.0</version>
         </dependency>
+        <!-- Gmail -->
+        <dependency>
+            <groupId>org.eclipse.angus</groupId>
+            <artifactId>angus-mail</artifactId>
+            <version>2.0.3</version>
+        </dependency>
         <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>

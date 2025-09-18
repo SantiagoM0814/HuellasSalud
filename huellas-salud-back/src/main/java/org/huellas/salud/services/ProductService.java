@@ -6,17 +6,21 @@ import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
+import org.huellas.salud.domain.Meta;
 import org.huellas.salud.domain.product.Product;
 import org.huellas.salud.domain.product.ProductMsg;
 import org.huellas.salud.helper.exceptions.HSException;
+import org.huellas.salud.helper.jwt.JwtService;
 import org.huellas.salud.helper.utils.Utils;
 import org.huellas.salud.repositories.MediaFileRepository;
 import org.huellas.salud.repositories.ProductRepository;
 import org.jboss.logging.Logger;
 
 import java.net.UnknownHostException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.Optional;
 
 @ApplicationScoped
 public class ProductService {
@@ -25,6 +29,9 @@ public class ProductService {
 
     @Inject
     Utils utils;
+
+    @Inject
+    JwtService jwtService;
 
     @Inject
     ProductRepository productRepository;
@@ -47,6 +54,28 @@ public class ProductService {
         LOG.infof("@getListProducts SERV > Finaliza consulta. Se obtuvo: %s productos", products.size());
 
         return products;
+    }
+
+    public ProductMsg getProductById(String idProduct) {
+        LOG.infof("@getProductById SERV > Inicia ejecucion del servicio para obtener el producto con id: " +
+                " %s. Inicia consulta a mongo", idProduct);
+
+        Optional<ProductMsg> optionalProduct = productRepository.findProductById(idProduct);
+
+        if (optionalProduct.isEmpty()) {
+            LOG.warnf("@getProductById SERV > No se encontro ningun producto con el id: %s", idProduct);
+            return null;
+        }
+
+        ProductMsg product = optionalProduct.get();
+
+        mediaFileRepository.getMediaByEntityTypeAndId("PRODUCT", product.getData().getIdProduct())
+                .ifPresent(media -> product.getData().setMediaFile(media.getData()));
+
+        LOG.infof("@getProductById SERV > Finaliza consulta de producto en mongo. Se obtuvo el registro " +
+                "del producto con id: %s", idProduct);
+
+        return product;
     }
 
     @CacheInvalidateAll(cacheName = "products-list-cache")
@@ -90,5 +119,63 @@ public class ProductService {
         ;
 
         LOG.info("@validateIfProductIsRegistered SERV > El producto no se encuentra registrado");
+    }
+
+    @CacheInvalidateAll(cacheName = "products-list-cache")
+    public void updateProductDataInMongo(ProductMsg productMsg) throws HSException {
+        LOG.infof("@updateProductDataInMongo SERV > Inicia ejecucion del servicio para actualizar registro del producto " +
+                "con el id: %s. Data a modificar: %s", productMsg.getData().getIdProduct(), productMsg);
+
+        ProductMsg productMsgMongo = getProductMsg(productMsg.getData().getIdProduct());
+
+        LOG.infof("@updateProductDataInMongo SERV > El producto con id: %s si esta registrado. Inicia la " +
+                "actualizacion del registro del producto con data: %s", productMsg.getData().getIdProduct(), productMsg);
+
+        setProductInformation(productMsg.getData().getIdProduct(), productMsg.getData(), productMsgMongo);
+
+        LOG.infof("@updateProductDataInMongo SERV > Finaliza edicion de la informacion del producto con id: %s. " +
+                "Inicia actualizacion en mongo con la data: %s", productMsg.getData().getIdProduct(), productMsg);
+
+        productRepository.update(productMsgMongo);
+
+        LOG.infof("@updateProductDataInMongo SERV > Finaliza actualizacion del registro del producto con id: %s. " +
+                "Finaliza ejecucion de servicio de actualizacion", productMsg.getData().getIdProduct());
+    }
+
+    private void setProductInformation(String idProduct, Product productRequest, ProductMsg productMsgMongo) {
+
+        LOG.infof("@setProductInformation SERV > Inicia set de los datos del producto con id: %s", idProduct);
+
+        Product productMongo = productMsgMongo.getData();
+        Meta metaMongo = productMsgMongo.getMeta();
+
+        productMongo.setName(utils.capitalizeWords(productRequest.getName()));
+        productMongo.setCategory(productRequest.getCategory());
+        productMongo.setAnimalType(productRequest.getAnimalType());
+        productMongo.setDescription(productRequest.getDescription());
+        productMongo.setPrice(productRequest.getPrice());
+        productMongo.setUnitOfMeasure(productRequest.getUnitOfMeasure());
+        productMongo.setQuantityAvailable(productRequest.getQuantityAvailable());
+        productMongo.setBrand(productRequest.getBrand());
+        productMongo.setExpirationDate(productRequest.getExpirationDate());
+        productMongo.setBarcode(productRequest.getBarcode());
+
+
+        metaMongo.setLastUpdate(LocalDateTime.now());
+        metaMongo.setNameUserUpdated(jwtService.getCurrentUserName());
+        metaMongo.setEmailUserUpdated(jwtService.getCurrentUserEmail());
+        metaMongo.setRoleUserUpdated(jwtService.getCurrentUserRole());
+
+        LOG.infof("@setProductInformation SERV > Finaliza set de los datos del producto con id: %s", idProduct);
+    }
+
+    private ProductMsg getProductMsg(String idProduct) throws HSException {
+        return productRepository.findProductById(idProduct).orElseThrow(() -> {
+            LOG.errorf("@updateProductDataInMongo SERV > El producto con el identificador: %s NO esta registrado" +
+                    ". Solicitud invalida no se puede modificar el registro", idProduct);
+
+            return new HSException(Response.Status.NOT_FOUND, "No se encontro el registro del producto con " +
+                    "identificador: " + idProduct + "en la base de datos");
+        });
     }
 }

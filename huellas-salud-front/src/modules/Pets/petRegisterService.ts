@@ -127,13 +127,23 @@ export const usePetRegister = ({ setModalCreatePet, setPetsData, petSelected }: 
                 formData.append("file", file);
 
                 try {
-                    await axiosInstance.put<MediaFile>(
+                    await axiosInstance.get(`/avatar-user/PET/${payload.data.idPet}`);
+
+                    await axiosInstance.put(
                         `/avatar-user/update/PET/${payload.data.idPet}`,
                         formData,
                         { headers: { "Content-Type": "multipart/form-data" } }
                     );
-                } catch (err) {
-                    toast.error("Mascota actualizada, pero falló el envío de imagen");
+                } catch (error: any) {
+                    if (error.response?.status === 404) {
+                        await axiosInstance.post(
+                            `/avatar-user/PET/${payload.data.idPet}`,
+                            formData,
+                            { headers: { "Content-Type": "multipart/form-data" } }
+                        );
+                    } else {
+                        toast.error("Mascota actualizada, pero falló el envío de imagen");
+                    }
                 }
             }
             const { data: petUpdated } = await axiosInstance.put(`/pet/update`, payload); // 204 NO CONTENT
@@ -158,7 +168,17 @@ export const usePetRegister = ({ setModalCreatePet, setPetsData, petSelected }: 
 
 
     const confirmUpdate = async (pet: Pet): Promise<boolean> => {
-        console.log(pet);
+        const file = fileInput.current?.files?.[0];
+
+        if (
+            petSelected?.data &&
+            JSON.stringify(petSelected.data) === JSON.stringify(pet) &&
+            !file
+        ) {
+            toast.info("No realizaste ningún cambio en la mascota");
+            return false;
+        }
+
         const result = await Swal.fire({
             title: "¿Estás seguro?",
             text: `¿Deseas actualizar la mascota ${pet.name}?`,

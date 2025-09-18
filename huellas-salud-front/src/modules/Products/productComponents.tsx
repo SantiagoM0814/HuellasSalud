@@ -3,6 +3,7 @@ import { AuthContext, CreateProductModalProps, FormProductProps, InputFieldProdu
 import styles from './productsAdmin.module.css';
 import { categorys, species, statusOptions, tableProductColumns, unitOfMeasure } from "../Users/UserManagement/usersUtils";
 import { formatCurrencyCOP } from "../../helper/formatter";
+import defaultProductImg from "../../assets/default_product.webp";
 import { useProductRegister } from "./productRegisterService";
 import { productValidationRules } from "./validationRulesProductRegister";
 import { RegisterOptions } from "react-hook-form";
@@ -172,12 +173,6 @@ export const FormProduct = ({ setModalProduct, setProductsData, productSelected 
     handleSubmit, fileName, fileInput, previewImg, handleChangeImg, reset
   } = useProductRegister({ setModalProduct, setProductsData, productSelected });
 
-  useEffect(() => {
-    if (productSelected?.data) {
-      reset(productSelected.data);
-    }
-  }, [productSelected, reset]);
-
   return (
     <form
       className={styles.formRegisterProduct}
@@ -214,6 +209,9 @@ export const FormProduct = ({ setModalProduct, setProductsData, productSelected 
             (<option key={category.value} value={category.value}>{category.label}</option>)
           )}
         </select>
+        {errors.category && (
+          <p className={styles.errorMsg}>{errors.category.message}</p>
+        )}
       </aside>
       <aside className={styles.inputField}>
         <label>SubCategoria<span className={styles.required}>*</span></label>
@@ -223,6 +221,9 @@ export const FormProduct = ({ setModalProduct, setProductsData, productSelected 
             (<option key={specie.value} value={specie.value}>{specie.label}</option>)
           )}
         </select>
+        {errors.animalType && (
+          <p className={styles.errorMsg}>{errors.animalType.message}</p>
+        )}
       </aside>
       <InputField label="Precio" idInput="price" type="number" register={register} errors={errors} />
       <aside className={styles.inputField}>
@@ -233,6 +234,9 @@ export const FormProduct = ({ setModalProduct, setProductsData, productSelected 
             (<option key={u.value} value={u.value}>{u.label}</option>)
           )}
         </select>
+        {errors.unitOfMeasure && (
+          <p className={styles.errorMsg}>{errors.unitOfMeasure.message}</p>
+        )}
       </aside>
       <InputField label="Unidades" idInput="quantityAvailable" type="number" register={register} errors={errors} />
       <InputField label="Marca" idInput="brand" register={register} errors={errors} />
@@ -243,6 +247,7 @@ export const FormProduct = ({ setModalProduct, setProductsData, productSelected 
         <textarea
           id="description"
           {...register("description", {
+            required: "La descripción es obligatoria",
             minLength: {
               value: 10,
               message: "Minimo 10 caracteres"

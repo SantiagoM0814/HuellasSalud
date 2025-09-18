@@ -45,12 +45,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const storedUser = localStorage.getItem("userData");
         const storedToken = localStorage.getItem("token");
 
-        if (storedToken && storedUser && !isTokenExpired(storedToken)) {
+        if (storedToken && storedUser) {
+        if (isTokenExpired(storedToken)) {
+            logout(); // aquí sí hacemos logout si el token ya expiró
+        } else {
             setToken(storedToken);
             setUser(JSON.parse(storedUser));
             axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${storedToken}`;
-        } else logout();
-
+        }
+    }
         setLoading(false);
     }, []);
 

@@ -3,7 +3,7 @@ import { sexOptionsFilter, species, statusOptions } from "../Users/UserManagemen
 import { SearchBar } from "../Users/UserManagement/userComponents";
 import { usePetService } from "./petService";
 import { Meta, Pet, PetCardProps, PetData, FormPetProps, CreatePetModalProps, InputFieldPetRegister, UserData, AuthContext } from "../../helper/typesHS";
-import defaultPetImage from "../../assets/simba.webp";
+import defaultPetImage from "../../assets/default_pet.webp";
 import styles from "./pets.module.css";
 import { useNavigate } from "react-router-dom";
 import { usePetRegister } from "./petRegisterService";
@@ -11,7 +11,6 @@ import ButtonComponent from "../../components/Button/Button";
 import { RegisterOptions } from "react-hook-form";
 import { validationRules } from "./validationRulesPetRegister";
 import { useUserService } from "../Users/UserManagement/usersService";
-import { metaEmpty, petEmpty } from "./petsUtils";
 
 // export const FormPetRegister = () => (
 //   <section className={styles.containerFormPet}>
@@ -182,6 +181,7 @@ export const FormPet = ({ setModalCreatePet, setPetsData, petSelected }: FormPet
         <textarea
           id="description"
           {...register("description", {
+            required: "La descripción es obligatoria",
             minLength: {
               value: 10,
               message: "Minimo 10 caracteres"
@@ -365,9 +365,9 @@ const PetCard = ({ pets, setPetsData }: PetCardProps) => {
             </div>
             <div className={styles.petDetails}>
               <p><strong>Id propietario:</strong> {pet.idOwner}</p>
-              <p><strong>Edad:</strong> {pet.age}</p>
+              <p><strong>Edad:</strong> {pet.age} <span>años</span></p>
               <p><strong>Raza:</strong> {pet.breed || 'Sin definir'}</p>
-              <p><strong>Peso:</strong> {pet.weight}</p>
+              <p><strong>Peso:</strong> {pet.weight} <span>kg</span></p>
               <p><strong>Fecha registro:</strong> {new Date(meta.creationDate).toLocaleDateString()}</p>
             </div>
           </aside>

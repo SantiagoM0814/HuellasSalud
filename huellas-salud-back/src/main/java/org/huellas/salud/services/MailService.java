@@ -1,8 +1,14 @@
 package org.huellas.salud.services;
 
-import com.resend.Resend;
-import com.resend.services.emails.model.CreateEmailOptions;
-import com.resend.services.emails.model.CreateEmailResponse;
+import java.util.Properties;
+import jakarta.mail.Session;
+import jakarta.mail.Authenticator;
+import jakarta.mail.PasswordAuthentication;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Transport;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
@@ -68,9 +74,7 @@ public class MailService {
         String html = PasswordRecoveryTemplate.formatPasswordRecovery(userName, resetLink);
         String text = PasswordRecoveryTemplate.getTextContentPassRecovery(userName, resetLink);
 
-        CreateEmailOptions options = buildCreateEmailOptions(userEmail, html, text, subject);
-
-        sendEmail(options, subject, type);
+        sendEmail(userEmail, subject, html, text, type);
 
         LOG.info("@sendEmailRecoveryPass SERV > Finaliza servicio de envio de correo de recupracion de contrasena");
     }
@@ -117,42 +121,82 @@ public class MailService {
         });
     }
 
-    private void sendEmail(CreateEmailOptions options, String subject, String type) throws HSException {
-
-        String userEmail = options.getTo().stream().findFirst().orElse("");
-
+    private void sendEmail(String userEmail, String subject, String htmlContent, String textContent, String type) throws HSException {
         LOG.infof("@sendEmail SERV > Inicia servicio de envio de correo al email: %s", userEmail);
 
-        try {
-            Resend resend = new Resend(resendApiKey);
-            CreateEmailResponse response = resend.emails().send(options);
-            String description = "Correo entregado correctamente. ID: " + response.getId();
+        Properties props = new Properties();
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.port", "587"); // TLS
 
+        Session session = Session.getInstance(props, new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication("huellassalud@gmail.com", "ysvy lxgo smcc aynw");
+            }
+        });
+
+        try {
+            Message message = new MimeMessage(session);
+            message.setFrom(new InternetAddress("huellassalud@gmail.com"));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(userEmail));
+            message.setSubject(subject);
+            message.setContent(htmlContent, "text/html; charset=utf-8"); // HTML
+            // También puedes enviar textContent con message.setText(textContent) si quieres texto plano
+
+            Transport.send(message);
+
+            String description = "Correo entregado correctamente via Gmail";
             saveEmailDelivery(description, userEmail, "OK", subject, type);
 
-            LOG.infof("@sendEmailRecoveryPass SERV > Correo enviado correctamente. Respuesta: %s", response.getId());
+            LOG.infof("@sendEmail SERV > Correo enviado correctamente a: %s", userEmail);
 
-        } catch (Exception ex) {
-
-            LOG.errorf(ex, "@sendEmailRecoveryPass SERV > Error al enviar correo a: %s", userEmail);
-
-            String description = "Error en envío de correo: " + ex.getMessage();
+        } catch (MessagingException e) {
+            LOG.errorf(e, "@sendEmail SERV > Error al enviar correo a: %s", userEmail);
+            String description = "Error en envío de correo: " + e.getMessage();
             saveEmailDelivery(description, userEmail, "ERROR", subject, type);
-
             throw new HSException(Response.Status.INTERNAL_SERVER_ERROR, "Error al enviar correo de recuperación");
         }
     }
 
-    private CreateEmailOptions buildCreateEmailOptions(String userEmail, String html, String text, String subject) {
 
-        return CreateEmailOptions.builder()
-                .from(domainResend)
-                .to(List.of(userEmail))
-                .subject(subject)
-                .html(html)
-                .text(text)
-                .build();
-    }
+//    private void sendEmail(CreateEmailOptions options, String subject, String type) throws HSException {
+//
+//        String userEmail = options.getTo().stream().findFirst().orElse("");
+//
+//        LOG.infof("@sendEmail SERV > Inicia servicio de envio de correo al email: %s", userEmail);
+//
+//        try {
+//            Resend resend = new Resend(resendApiKey);
+//            CreateEmailResponse response = resend.emails().send(options);
+//            String description = "Correo entregado correctamente. ID: " + response.getId();
+//
+//            saveEmailDelivery(description, userEmail, "OK", subject, type);
+//
+//            LOG.infof("@sendEmailRecoveryPass SERV > Correo enviado correctamente. Respuesta: %s", response.getId());
+//
+//        } catch (Exception ex) {
+//
+//            LOG.errorf(ex, "@sendEmailRecoveryPass SERV > Error al enviar correo a: %s", userEmail);
+//
+//            String description = "Error en envío de correo: " + ex.getMessage();
+//            saveEmailDelivery(description, userEmail, "ERROR", subject, type);
+//
+//            throw new HSException(Response.Status.INTERNAL_SERVER_ERROR, "Error al enviar correo de recuperación");
+//        }
+//    }
+
+//    private CreateEmailOptions buildCreateEmailOptions(String userEmail, String html, String text, String subject) {
+//
+//        return CreateEmailOptions.builder()
+//                .from(domainResend)
+//                .to(List.of(userEmail))
+//                .subject(subject)
+//                .html(html)
+//                .text(text)
+//                .build();
+//    }
 
     private void saveEmailDelivery(String description, String userEmail, String status, String subject, String type) {
 
@@ -227,11 +271,7 @@ public class MailService {
         String html = PasswordRecoveryTemplate.formatConfirmEmail(userName, approvalLink);
         String text = PasswordRecoveryTemplate.getTextContentConfirmEmail(userName, approvalLink);
 
-        userEmail = "supersanti0814@gmail.com";
-
-        CreateEmailOptions options = buildCreateEmailOptions(userEmail, html, text, subject);
-
-        sendEmail(options, subject, type);
+        sendEmail(userEmail, subject, html, text, type);
 
         LOG.infof("@sendConfirmationEmail SERV > Finaliza servicio de envio de correo de confirmacion de " +
                 "cuenta al cliente con correo: %s", userEmail);
@@ -242,7 +282,7 @@ public class MailService {
         LOG.info("@getApprovalLink SERV > Inicia obtencion y guardado de codigo de aprobacion para confirmacion de correo");
 
         String token = UUID.randomUUID() + "-" + Instant.now().toEpochMilli();
-        String approvalLink = "http://localhost:8089/internal/confirm-email/" + token;
+        String approvalLink = "http://localhost:8080/internal/confirm-email/" + token;
 
         EmailConfirmation emailConfirmation = EmailConfirmation.builder()
                 .context(ContextEmailConfirm.builder()
