@@ -2,12 +2,15 @@ import { carrito, categorias, marcas, productos } from './data.ts';
 import styles from './products.module.css';
 import imgComida from '../../assets/dogchow.webp';
 import defaultPetImage from "../../assets/simba.webp";
-import { useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Product, ProductCardProps, ProductData } from '../../helper/typesHS';
 import { useProductService } from './productsService';
 import { formatCurrencyCOP } from '../../helper/formatter.ts';
 import ButtonComponent from '../../components/Button/Button.tsx';
+import { CartContext } from '../Cart/types/cart.types.ts';
+import { CartProvider } from '../Cart/context/CartContext.tsx';
+import CartPage from '../Cart/page/CartPage.tsx';
 
 const Products = () => {
 
@@ -17,7 +20,7 @@ const Products = () => {
   const [productsData, setProductsData] = useState<ProductData[] | undefined>([]);
 
   const { loading, handleGetProducts } = useProductService();
-
+  
   useEffect(() => {
     const fetchProductData = async () => {
       let data = await handleGetProducts();
@@ -46,81 +49,63 @@ const Products = () => {
   if (loading) return (<div style={{ marginTop: "125px" }}>Cargando productos...</div>);
 
   return (
-    <main className={styles.containProducts}>
-      <section className={styles.containFilter}>
-        <div className={styles.sectionFilter}>
-          {/* <div className="tituloFiltro" onclick="cambiarFiltro('categoria')"> */}
-          <div className={styles.titleFilter}>
-            Categoría<span><i className="fa-solid fa-square-caret-down"></i></span>
-          </div>
-          <div className={styles.filterContain}>
-            {/* <input type="text" className="buscar" placeholder="Buscar..." onkeyup="filtrarLista('listaCategoria', this.value)"> */}
-            <input type="text" className={styles.search} placeholder="Buscar..." />
-            <div className={styles.listCheckbox}>
-              {categorias.map(category => (
-                <label key={category.nombre}><input type="checkbox" value={category.nombre} /> {category.nombre}</label>
-              ))}
+    <CartProvider>
+      <main className={styles.containProducts}>
+        <section className={styles.containFilter}>
+          <div className={styles.sectionFilter}>
+            {/* <div className="tituloFiltro" onclick="cambiarFiltro('categoria')"> */}
+            <div className={styles.titleFilter}>
+              Categoría<span><i className="fa-solid fa-square-caret-down"></i></span>
             </div>
-          </div>
-        </div>
-        <div className={styles.sectionFilter}>
-          {/* <div className="tituloFiltro" onclick="cambiarFiltro('marca')"> */}
-          <div className={styles.titleFilter}>
-            Marca<span><i className="fa-solid fa-square-caret-down"></i></span>
-          </div>
-          <div className={styles.filterContain}>
-            {/* <input type="text" className="buscar" placeholder="Buscar..." onkeyup="filtrarLista('listaMarca', this.value)"> */}
-            <input type="text" className={styles.search} placeholder="Buscar..." />
-            <div className={styles.listCheckbox}>
-              {marcas.map(marca => (
-                <label key={marca.nombre}><input type="checkbox" value={marca.nombre} /> {marca.nombre}</label>
-              ))}
-            </div>
-          </div>
-        </div>
-        <Link to={"/productos-admin"}>
-          <button className={styles.managmentPrdBtn}>Gestión de productos</button>
-        </Link>
-      </section>
-      <section className={styles.productCardContainer}>
-        <ProductCard products={filteredProducts} setProductsData={setProductsData}/>
-      </section>
-      {/* <div className="iconoCarrito" id="iconoCarrito" onclick="abrirCarrito()"> */}
-      <div className={styles.cartIcon} onClick={() => setShowCart(prev => !prev)}>
-        <div className={styles.amount}>{productCounter}</div>
-        <i className="fa-solid fa-cart-shopping"></i>
-      </div>
-      {showCart && (
-        <section className={styles.cartSection} >
-          <h2>Productos en el carrito <i className="fa-solid fa-bone"></i></h2>
-          <div>
-            {carrito.map((prod, index) => (
-              <div className={styles.cartItem} key={prod.name + index}>
-                <img src={imgComida} alt={prod.name} />
-                <p>{prod.name}<br />{handlerFormatCoin(prod.price)} x
-                  {/* <input className="cantCarrito" type="number" min="1" value="${cantidad}" onchange="actualizarCantidad('${nombre}', this.value)" /> */}
-                  <input className={styles.amountCart} type="number" min="1" value={prod.amount} />
-                </p>
-                {/* <button className="botonProducto" onclick="eliminarDelCarrito('${nombre}')"> */}
-                <button className={styles.productBtnCart}>
-                  <i className="fa-solid fa-trash-can" />
-                </button>
+            <div className={styles.filterContain}>
+              {/* <input type="text" className="buscar" placeholder="Buscar..." onkeyup="filtrarLista('listaCategoria', this.value)"> */}
+              <input type="text" className={styles.search} placeholder="Buscar..." />
+              <div className={styles.listCheckbox}>
+                {categorias.map(category => (
+                  <label key={category.nombre}><input type="checkbox" value={category.nombre} /> {category.nombre}</label>
+                ))}
               </div>
-            ))}
+            </div>
           </div>
-          <h3 style={{ padding: "10px" }}>Total compra: {handlerFormatCoin(25000)}</h3>
-          <button className={styles.buyBtn}>Comprar</button>
-          {/* <button className="cerrarCarrito" onclick="cerrarCarrito()"><i class="fa-solid fa-rectangle-xmark"></i></button> */}
-          <button className={styles.closeCart} onClick={() => setShowCart(false)}>
-            <i className="fa-solid fa-rectangle-xmark" />
-          </button>
+          <div className={styles.sectionFilter}>
+            {/* <div className="tituloFiltro" onclick="cambiarFiltro('marca')"> */}
+            <div className={styles.titleFilter}>
+              Marca<span><i className="fa-solid fa-square-caret-down"></i></span>
+            </div>
+            <div className={styles.filterContain}>
+              {/* <input type="text" className="buscar" placeholder="Buscar..." onkeyup="filtrarLista('listaMarca', this.value)"> */}
+              <input type="text" className={styles.search} placeholder="Buscar..." />
+              <div className={styles.listCheckbox}>
+                {marcas.map(marca => (
+                  <label key={marca.nombre}><input type="checkbox" value={marca.nombre} /> {marca.nombre}</label>
+                ))}
+              </div>
+            </div>
+          </div>
+          <Link to={"/productos-admin"}>
+            <button className={styles.managmentPrdBtn}>Gestión de productos</button>
+          </Link>
         </section>
-      )}
-    </main>
+        <section className={styles.productCardContainer}>
+          <ProductCard products={filteredProducts} setProductsData={setProductsData}/>
+        </section>
+        {/* <div className="iconoCarrito" id="iconoCarrito" onclick="abrirCarrito()"> */}
+        <div className={styles.cartIcon} onClick={() => setShowCart(prev => !prev)}>
+          <div className={styles.amount}>{productCounter}</div>
+          <i className="fa-solid fa-cart-shopping"></i>
+        </div>
+        {showCart && (
+          <section className={styles.cartSection} >
+            <CartPage/>
+          </section>
+        )}
+      </main>
+    </CartProvider>
   );
 }
 
 const ProductCard = ({ products, setProductsData}: ProductCardProps) => {
+   const { addItem } = useContext(CartContext);
 
   if (!products || products.length === 0) return (<h2>No hay productos registrados</h2>);
 
@@ -136,7 +121,8 @@ const ProductCard = ({ products, setProductsData}: ProductCardProps) => {
           </aside>
           <span className={styles.price}>{formatCurrencyCOP(product.price)}</span>
           <input type="number" defaultValue={1} max={product.quantityAvailable} min={1}/>
-          <button className={styles.addCard}>Añadir al carrito</button>
+          <button className={styles.addCard}
+          onClick={() => addItem( product,  1)}>Añadir al carrito</button>
         </section>
       ))}
     </main>

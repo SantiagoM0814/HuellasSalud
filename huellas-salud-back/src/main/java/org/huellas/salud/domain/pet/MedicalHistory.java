@@ -10,6 +10,9 @@ import java.util.List;
 @Data
 public class MedicalHistory {
 
+    @BsonProperty("idHistorial")
+    private String idHistory;
+
     @BsonProperty("fecha")
     @NotNull(message = "La fecha es obligatoria")
     private LocalDateTime date;

@@ -1,5 +1,6 @@
-import styles from "./petDetails.module.css"
-import { PetData, Pet, InputEditProps } from "../../helper/typesHS"
+import styles from "./petDetails.module.css";
+import { formatDate } from "../Users/UserManagement/usersUtils";
+import { PetData, Pet, InputEditProps, MedicalHistory } from "../../helper/typesHS";
 import { memo, useState } from "react";
 
 export const PetDetails = ({ pet }: { pet: PetData }) => {
@@ -10,7 +11,7 @@ export const PetDetails = ({ pet }: { pet: PetData }) => {
     <section className={styles.historyContainer}>
       <aside className={styles.photoPet}>
         <h1>{petData.name}</h1>
-        <img src={`data:${petData.mediaFile?.contentType};base64,${petData.mediaFile?.attachment}`}  alt={petData.name} width="200" />
+        <img src={`data:${petData.mediaFile?.contentType};base64,${petData.mediaFile?.attachment}`} alt={petData.name} width="200" />
       </aside>
       <aside className={styles.informationPet}>
         <section className={styles.options}>
@@ -36,108 +37,114 @@ const InfoPet = ({ pet, option }: { pet: Pet; option: number }) => {
     case 1:
       return (
         <section className={styles.information}>
-          <InputPet label="Nombre" value={pet?.name}/>
+          <InputPet label="Nombre" value={pet?.name} />
           <InputPet label="Especie" value={pet?.species ? capitalizeWords(pet.species) : ""} />
           <InputPet label="Raza" value={pet?.breed} />
           <InputPet label="Edad" value={pet?.age?.toString() ?? ""} />
           <InputPet label="Peso" value={pet?.weight?.toString() ?? ""} />
           <InputPet label="Descripción" value={pet?.description} />
           <InputPet label="Estado" value={pet?.name} />
-          <InputPet label="Vacunas aplicadas" value={pet?.vaccines?.length ? pet.vaccines.join(", ") : "Ninguna"} />
-          <InputPet label="Cirugias realizadas" value={pet?.surgeries?.length ? pet.surgeries.join(", ") : "Ninguna"} />
-          <InputPet label="Tratamientos realizados" value={pet?.treatments?.length ? pet.treatments .join(", ") : "Ninguno"} />
         </section>
       );
     case 2:
-      return (
-        <section className={styles.optionDetial}>
-          <h2>Tratamientos realizados</h2>
-          <ul className={styles.ulTreatment}>
-            <li className={styles.liTreatment}>
-              <strong>Vacuna Antirrábica</strong><br />
-              Fecha: 10/01/2025<br />
-              Veterinario: Dr. Ramírez<br />
-              Observaciones: Sin reacciones adversas.
-            </li>
-            <li className={styles.liTreatment}>
-              <strong>Desparasitación interna</strong><br />
-              Fecha: 05/02/2025<br />
-              Veterinario: Dra. Gómez<br />
-              Observaciones: Repetir en 3 meses.
-            </li>
-            <li className={styles.liTreatment}>
-              <strong>Tratamiento para otitis</strong><br />
-              Fecha: 20/03/2025<br />
-              Veterinario: Dr. Pérez<br />
-              Observaciones: Aplicar gotas 2 veces al día por 7 días.
-            </li>
-            <li className={styles.liTreatment}>
-              <strong>Tratamiento para otitis</strong><br />
-              Fecha: 20/03/2025<br />
-              Veterinario: Dr. Pérez<br />
-              Observaciones: Aplicar gotas 2 veces al día por 7 días.
-            </li>
-            <li className={styles.liTreatment}>
-              <strong>Tratamiento para otitis</strong><br />
-              Fecha: 20/03/2025<br />
-              Veterinario: Dr. Pérez<br />
-              Observaciones: Aplicar gotas 2 veces al día por 7 días.
-            </li>
-            
-          </ul>
-        </section>
-      );
+  return (
+    <section className={styles.optionDetial}>
+      <h2 className={styles.sectionTitle}>💊 Tratamientos Realizados</h2>
+
+      {pet.medicalHistory?.length ? (
+        <ul className={styles.ulTreatment}>
+          {pet.medicalHistory
+            .filter(h => h.treatment) // Solo mostramos los que tienen tratamiento
+            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+            .map((history, index) => (
+              <li key={history.idHistory || index} className={styles.liTreatment}>
+                <strong>{history.diagnostic || "Tratamiento"}</strong><br />
+                <span className={styles.date}>
+                  Fecha: {new Date(history.date).toLocaleDateString("es-ES")}
+                </span><br />
+                <span className={styles.vet}>
+                  Veterinario: {history.veterinarian}
+                </span><br />
+                <span className={styles.obs}>
+                  {history.treatment}
+                </span>
+              </li>
+            ))}
+        </ul>
+      ) : (
+        <p className={styles.noHistory}>
+          No hay tratamientos registrados para esta mascota.
+        </p>
+      )}
+    </section>
+  );
+
     case 3:
-      return (
-        <section className={styles.medicalHistory}>
-          <h2>Historial Clínico</h2>
-          <h3>Resumen de la Mascota</h3>
-          <div style={{ background: "#eaf4f7", padding: "15px", borderRadius: "10px" }}>
-            <p><strong>Nombre:</strong> {pet.name}</p>
-            <p><strong>Especie:</strong> {capitalizeWords(pet.species)}</p>
-            <p><strong>Raza:</strong> {pet.breed}</p>
-            <p><strong>Edad:</strong> {pet.age}</p>
-            <p><strong>Peso:</strong> {pet.weight}</p>
-          </div>
+  return (
+    <section className={styles.medicalHistory}>
+      <h2 className={styles.sectionTitle}>📜 Historial Clínico</h2>
 
-          <h3 style={{ marginTop: "20px" }}>🩺 Último Procedimiento Realizado</h3>
-          <div style={{ background: "#fef6e4", padding: "15px", borderRadius: "10px" }}>
-            <p><strong>Fecha:</strong> 20/03/2025</p>
-            <p><strong>Motivo:</strong> Infección en el oído</p>
-            <p><strong>Tratamiento:</strong> Aplicación de gotas antibióticas durante 7 días</p>
-            <p><strong>Veterinario:</strong> Dr. Pérez</p>
-          </div>
+      <div className={styles.summaryCard}>
+        <h3>Resumen</h3>
+        <ul>
+          <li><strong>Nombre:</strong> {pet.name}</li>
+          <li><strong>Especie:</strong> {capitalizeWords(pet.species)}</li>
+          <li><strong>Raza:</strong> {pet.breed}</li>
+          <li><strong>Edad:</strong> {pet.age} años</li>
+          <li><strong>Peso:</strong> {pet.weight} kg</li>
+        </ul>
+      </div>
+      
+      <h3 className={styles.subTitle}>🩺 Procedimientos</h3>
 
-          <h3 style={{ marginTop: "20px" }}>🔍 Revisión General</h3>
-          <div style={{ background: "#e3f9e5", padding: "15px", borderRadius: "10px" }}>
-            <p><strong>Estado general:</strong> Saludable</p>
-            <p><strong>Observaciones:</strong> Buen estado de ánimo, apetito normal, sin signos visibles de dolor o infección.</p>
-          </div>
-          <div style={{ background: "#f9f9f9", padding: "15px", borderRadius: "10px" }}>
-            <div >
-              <strong>Fecha:</strong> 10/01/2025<br />
-              <strong>Motivo de consulta:</strong> Vacunación<br />
-              <strong>Diagnóstico:</strong> Salud óptima<br />
-              <strong>Tratamiento:</strong> Aplicación de vacuna antirrábica<br />
-              <strong>Veterinario:</strong> Dr. Ramírez
-            </div>
-            <div style={{ marginTop: "20px" }}>
-              <strong>Fecha:</strong> 05/02/2025<br />
-              <strong>Motivo de consulta:</strong> Desparasitación<br />
-              <strong>Diagnóstico:</strong> Prevención<br />
-              <strong>Tratamiento:</strong> Antiparasitario oral<br />
-              <strong>Veterinario:</strong> Dra. Gómez
-            </div>
-            <div style={{ marginTop: "20px" }}>
-              <strong>Fecha:</strong> 20/03/2025<br />
-              <strong>Motivo de consulta:</strong> Infección en oído<br />
-              <strong>Diagnóstico:</strong> Otitis externa<br />
-              <strong>Tratamiento:</strong> Gotas óticas antibióticas<br />
-              <strong>Veterinario:</strong> Dr. Pérez
-            </div>
-          </div>
-        </section>
-      );
+      {pet.medicalHistory?.length ? (
+        <div className={styles.timeline}>
+          {pet.medicalHistory
+            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+            .map((history: MedicalHistory, index: number) => (
+              <div key={history.idHistory || `history-${index}`} className={styles.timelineItem}>
+                <div className={styles.timelineDot}></div>
+                <div className={styles.timelineContent}>
+                  <span className={styles.date}>{formatDate(history.date)}</span>
+
+                  <p><strong>Diagnóstico:</strong> {history.diagnostic}</p>
+
+                  {history.treatment && (
+                    <p><strong>Tratamiento:</strong> {history.treatment}</p>
+                  )}
+
+                  <p><strong>Veterinario:</strong> {history.veterinarian}</p>
+
+                  {/* Cirugías */}
+                  {!!history.surgeries?.length && (
+                    <p><strong>Cirugías:</strong> {history.surgeries.join(", ")}</p>
+                  )}
+
+                  {/* Vacunas */}
+                  {!!history.vaccines?.length && (
+                    <div className={styles.vaccineList}>
+                      <strong>Vacunas aplicadas:</strong>
+                      <ul>
+                        {history.vaccines.map((v, i) => (
+                          <li key={`${history.idHistory}-vaccine-${i}`}>
+                            {v.name} — Aplicada: {formatDate(v.dateApplied)}
+                            {v.validUntil && ` (Válida hasta: ${formatDate(v.validUntil)})`}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+        </div>
+      ) : (
+        <p className={styles.noHistory}>
+          No hay historial médico registrado para esta mascota.
+        </p>
+      )}
+    </section>
+  );
     case 4:
       return (
         <div className={styles.containerProcess}>
@@ -174,11 +181,11 @@ const InfoPet = ({ pet, option }: { pet: Pet; option: number }) => {
 
 const InputPet = memo(
   ({ label, value, isEditable = true }: InputEditProps) => (
-        <aside className={styles.fieldGroup}>
-            <label>{label}</label>
-            <input value={value} disabled={isEditable} />
-        </aside>
-    )
+    <aside className={styles.fieldGroup}>
+      <label>{label}</label>
+      <input value={value} disabled={isEditable} />
+    </aside>
+  )
 )
 
 const capitalizeWords = (text: string) =>

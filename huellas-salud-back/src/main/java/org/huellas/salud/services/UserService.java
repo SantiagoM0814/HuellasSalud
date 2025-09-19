@@ -200,7 +200,7 @@ public class UserService {
 
     public void updateUserPassword(PasswordRecovery passwordRecovery) throws HSException {
 
-        LOG.info("@updateUserPassword SERV > Inicia servicio de actualizacion de contrasena de usuario");
+        LOG.infof("@updateUserPassword SERV > Inicia servicio de actualizacion de contrasena de usuario");
 
         PasswordRecoveryEmail recovery = mailService.getPasswordRecovery(passwordRecovery.getData().approvalCode());
 

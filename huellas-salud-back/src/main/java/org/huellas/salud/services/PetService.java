@@ -9,6 +9,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.huellas.salud.domain.Meta;
 import org.huellas.salud.domain.pet.Pet;
 import org.huellas.salud.domain.pet.PetMsg;
+import org.huellas.salud.domain.pet.MedicalHistory;
 import org.huellas.salud.helper.exceptions.HSException;
 import org.huellas.salud.helper.jwt.JwtService;
 import org.huellas.salud.helper.utils.Utils;
@@ -18,6 +19,7 @@ import org.jboss.logging.Logger;
 
 import java.net.UnknownHostException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -159,6 +161,28 @@ public class PetService {
 
         LOG.infof("@updatePetDataInMongo SERV > Finaliza actualizacion del registro de la mascota con id: %s. " +
                 "Finaliza ejecucion de servicio de actualizacion", petMsg.getData().getIdPet());
+    }
+
+    @CacheInvalidateAll(cacheName = "pets-list-cache")
+    public PetMsg addMedicalHistory(String idPet, MedicalHistory medicalHistory) throws HSException {
+        LOG.infof("@addMedicalHistory SERV > Inicia servicio de agregar historial medico a una mascota");
+        PetMsg petMsgMongo = getPetById(idPet);
+
+        LOG.infof("@addMedicalHistory SERV > Se obtuvo el registro: %s", petMsgMongo);
+        List<MedicalHistory> historyList = petMsgMongo.getData().getMedicalHistory();
+
+        if(historyList == null){
+            historyList = new ArrayList<>();
+            petMsgMongo.getData().setMedicalHistory(historyList);
+        }
+
+        medicalHistory.setIdHistory(UUID.randomUUID().toString());
+        medicalHistory.setDate(LocalDateTime.now());
+
+        historyList.add(medicalHistory);
+        petRepository.update(petMsgMongo);
+
+        return petMsgMongo;
     }
 
     @CacheInvalidateAll(cacheName = "pets-list-cache")

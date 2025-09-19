@@ -14,6 +14,7 @@ import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.huellas.salud.domain.pet.PetMsg;
+import org.huellas.salud.domain.pet.MedicalHistory;
 import org.huellas.salud.helper.exceptions.HSException;
 import org.huellas.salud.helper.validators.ValidationGroups;
 import org.huellas.salud.services.PetService;
@@ -186,5 +187,36 @@ public class PetApi {
                 "con id: %s asociada al propietario con numero de documento: %s", identifierPet, idOwner);
 
         return Response.status(Response.Status.NO_CONTENT).build();
+    }
+
+    @POST
+    @PermitAll
+    @Path("/{idPet}/medical-history")
+    @Tag(name = "Gestión de mascotas")
+    public Response addMedicalHistory(
+            @Parameter(
+                    name = "idPet",
+                    description = "Identificador de la mascota",
+                    required = true,
+                    example = "26ec4a57-f43b-4230-a169-b0ef1fd6ade1"
+            )
+            @PathParam("idPet") String idPet,
+
+            @RequestBody(
+                    required = true,
+                    description = "Datos del historial médico a agregar"
+            )
+            MedicalHistory newHistory
+    ) throws HSException {
+
+        LOG.infof("@addMedicalHistory API > Inicia servicio de agregar historial medico a la mascota con id: %s", idPet);
+
+        PetMsg petMsg = petService.addMedicalHistory(idPet, newHistory);
+
+        LOG.infof("@addMedicalHistory API > Finaliza servicio de agregar historial medico a la mascota");
+
+        return Response.status(Response.Status.CREATED)
+                .entity(petMsg)
+                .build();
     }
 }

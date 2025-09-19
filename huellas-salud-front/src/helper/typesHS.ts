@@ -66,6 +66,23 @@ export interface User {
     mediaFile?: MediaFile;
 }
 
+export interface Vaccine {
+  name: string;
+  dateApplied: string; // ISO string
+  validUntil?: string; // Puede ser opcional si no todas tienen vigencia
+  singleDose: boolean;
+}
+
+export interface MedicalHistory {
+  idHistory: string;
+  date: string; // Usar string porque el backend te enviará un ISO 8601 (ej: "2025-09-19T13:45:00")
+  diagnostic: string;
+  treatment?: string;
+  veterinarian: string;
+  surgeries?: string[];
+  vaccines?: Vaccine[];
+}
+
 export interface Pet {
     idPet: string;
     idOwner: string;
@@ -79,9 +96,7 @@ export interface Pet {
     disability: string;
     description: string;
     isActive: boolean;
-    vaccines: string[];
-    surgeries: string[];
-    treatments: string[];
+    medicalHistory: MedicalHistory[];
     mediaFile?: MediaFile;
 }
 
