@@ -9,13 +9,13 @@ import { useProductService } from './productsService';
 import { formatCurrencyCOP } from '../../helper/formatter.ts';
 import ButtonComponent from '../../components/Button/Button.tsx';
 import { CartContext } from '../Cart/types/cart.types.ts';
-import { CartProvider } from '../Cart/context/CartContext.tsx';
-import CartPage from '../Cart/page/CartPage.tsx';
+import Cart from '../Cart/Cart.tsx';
 
 const Products = () => {
 
+  const { items } = useContext(CartContext);
   const [showCart, setShowCart] = useState<boolean>(false);
-  const [productCounter, setProductCounter] = useState<number>(0);
+  const productCounter = items.reduce((acc, item) => acc + item.quantity, 0); 
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [productsData, setProductsData] = useState<ProductData[] | undefined>([]);
 
@@ -49,7 +49,6 @@ const Products = () => {
   if (loading) return (<div style={{ marginTop: "125px" }}>Cargando productos...</div>);
 
   return (
-    <CartProvider>
       <main className={styles.containProducts}>
         <section className={styles.containFilter}>
           <div className={styles.sectionFilter}>
@@ -96,16 +95,28 @@ const Products = () => {
         </div>
         {showCart && (
           <section className={styles.cartSection} >
-            <CartPage/>
+            <Cart/>
           </section>
         )}
       </main>
-    </CartProvider>
   );
 }
 
 const ProductCard = ({ products, setProductsData}: ProductCardProps) => {
    const { addItem } = useContext(CartContext);
+   const [quantities, setQuantities] = useState<{ [id: string]: number}>({});
+
+   const handleQuantityChange = (id: string, value: number) => {
+    setQuantities((prev) => ({
+      ...prev,
+      [id]: value,
+    }));
+   }
+
+   const handleAdd = (product: Product) => {
+    const quantity = quantities[product.idProduct] || 1;
+    addItem(product, quantity);
+   }
 
   if (!products || products.length === 0) return (<h2>No hay productos registrados</h2>);
 
@@ -120,9 +131,14 @@ const ProductCard = ({ products, setProductsData}: ProductCardProps) => {
             <h3 key={product.idProduct}>{product.name}</h3>
           </aside>
           <span className={styles.price}>{formatCurrencyCOP(product.price)}</span>
-          <input type="number" defaultValue={1} max={product.quantityAvailable} min={1}/>
+          <input
+            type="number"
+            defaultValue={1}
+            max={product.quantityAvailable}
+            min={1}
+            onChange = {((e) => handleQuantityChange(product.idProduct, Number(e.target.value)))}/>
           <button className={styles.addCard}
-          onClick={() => addItem( product,  1)}>Añadir al carrito</button>
+          onClick={() => handleAdd(product)}>Añadir al carrito</button>
         </section>
       ))}
     </main>

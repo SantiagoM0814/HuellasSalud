@@ -1,6 +1,7 @@
 import { useEffect, useState, ReactNode } from "react";
 import { CartContext, CartItem } from "../types/cart.types";
 import { Product } from "../../../helper/typesHS";
+import { toast } from "react-toastify";
 
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
@@ -29,6 +30,17 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         setItems((prev) => {
             const existing = prev.find((i) => i.product.idProduct === product.idProduct);
             if (existing) {
+                const newQty = existing.quantity + quantity;
+
+                if (newQty > product.quantityAvailable) {
+                    toast.info("No se pueden agregar más productos de este item");
+                    return prev.map((i) =>
+                        i.product.idProduct === product.idProduct
+                            ? { ...i, quantity: product.quantityAvailable }
+                            : i
+                    );
+                }
+
                 return prev.map((i) =>
                     i.product.idProduct === product.idProduct ? { ...i, quantity: i.quantity + quantity } : i
                 );

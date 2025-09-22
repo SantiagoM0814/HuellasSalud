@@ -1,0 +1,126 @@
+.cart {
+    padding-bottom: 40px;
+}
+
+.productItem {
+    border-radius: 10px;
+    position: relative;
+    margin: 10px 10px;
+    background-color: #F7F7F7;
+    display: flex;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    align-items: center;
+    /* height: 90px; */
+    padding: 20px 10px;
+    width: 95%;
+}
+
+.productItem:hover{
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
+}
+
+.productInfo {
+    display: flex;
+    align-items: center;
+    text-align: left;
+    min-width: 80%;
+    max-width: 80%;
+}
+
+.imgProduct {
+    width: 100px;
+    height: 100px;
+    border: 2px solid #00000020;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    margin-right: 12px;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.imgProduct img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background-color: white;
+}
+
+.productDetails {
+    display: flex;
+    flex-direction: column;
+    width: 70%;
+    text-align: center;
+}
+
+.productName {
+    font-weight: 600;
+    height: 50px;
+    color: #2c3e50;
+    text-align: center;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+}
+
+.productQty {
+    font-size: 0.8rem;
+}
+
+.sectionQty{
+    width: 20%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.quantity {
+    width: 50px;
+    cursor:context-menu;
+}
+
+.btnActions {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.btnMinus, .btnPlus {
+    color: green;
+    font-size: 20px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.btnCartItem {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+}
+
+.deleteProduct {
+    color: red;
+    font-size: 20px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.deleteProduct:hover {
+    color: rgb(199, 20, 20);
+}

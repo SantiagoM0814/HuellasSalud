@@ -265,6 +265,13 @@ export interface CreateUserModalProps {
     setUsersData?: Dispatch<SetStateAction<UserData[] | undefined>>;
 }
 
+export interface FormHistoryProps extends CreateHistoryModalProps {}
+
+export interface CreateHistoryModalProps {
+    setModalHistory?: (close: boolean) => void;
+    setPetData?: Dispatch<SetStateAction<MedicalHistory[] | undefined>>;
+}
+
 export interface SearchBarProps {
     placeholder: string;
     searchTerm: string;
@@ -305,4 +312,14 @@ export interface InputFieldProductRegister {
     inputFull?: boolean;
     register: UseFormRegister<Product>;
     errors: FieldErrors<Product>;
+}
+
+export interface InputFieldHistoryRegister {
+    label: string;
+    type?: HTMLInputTypeAttribute;
+    idInput: keyof MedicalHistory;
+    required?: boolean;
+    inputFull?: boolean;
+    register: UseFormRegister<MedicalHistory>;
+    errors: FieldErrors<MedicalHistory>;
 }
