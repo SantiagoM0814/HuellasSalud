@@ -88,6 +88,8 @@ export const useUserRegister = ({ setModalCreate, setUsersData }: CreateUserModa
             await createUser(user);
             toast.success("¡Usuario registrado con éxito! 🎉");
             setErrorMsg("");
+            setPreviewImg(undefined);
+            setFileName("Cargar imagen de perfil");
             reset();
             setModalCreate && setModalCreate(false);
         } catch (error) { handleError(error); }
