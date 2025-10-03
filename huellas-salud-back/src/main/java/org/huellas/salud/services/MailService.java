@@ -37,11 +37,11 @@ public class MailService {
 
     private static final Logger LOG = Logger.getLogger(MailService.class);
 
-    @ConfigProperty(name = "PARAMETER.HUELLAS_SALUD.DOMAIN_RESEND")
-    String domainResend;
+    @ConfigProperty(name = "PARAMETER.HUELLAS_SALUD.EMAIL")
+    String smtpUser;
 
-    @ConfigProperty(name = "PARAMETER.HUELLAS_SALUD.RESEND_API.API_KEY")
-    String resendApiKey;
+    @ConfigProperty(name = "PARAMETER.HUELLAS_SALUD.APP_PASSWORD")
+    String smtpPassword;
 
     @Inject
     UserService userService;
@@ -127,19 +127,21 @@ public class MailService {
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.starttls.required", "true");
+        props.put("mail.smtp.ssl.protocols", "TLSv1.2");
         props.put("mail.smtp.host", "smtp.gmail.com");
         props.put("mail.smtp.port", "587"); // TLS
 
         Session session = Session.getInstance(props, new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication("huellassalud@gmail.com", "ysvy lxgo smcc aynw");
+                return new PasswordAuthentication(smtpUser, smtpPassword);
             }
         });
 
         try {
             Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress("huellassalud@gmail.com"));
+            message.setFrom(new InternetAddress(smtpUser));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(userEmail));
             message.setSubject(subject);
             message.setContent(htmlContent, "text/html; charset=utf-8"); // HTML
