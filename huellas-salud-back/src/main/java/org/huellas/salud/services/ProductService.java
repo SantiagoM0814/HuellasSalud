@@ -159,6 +159,7 @@ public class ProductService {
         productMongo.setBrand(productRequest.getBrand());
         productMongo.setExpirationDate(productRequest.getExpirationDate());
         productMongo.setBarcode(productRequest.getBarcode());
+        productMongo.setActive(productRequest.getActive());
 
 
         metaMongo.setLastUpdate(LocalDateTime.now());

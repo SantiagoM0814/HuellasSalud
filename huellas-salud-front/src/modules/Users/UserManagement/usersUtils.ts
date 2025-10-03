@@ -17,6 +17,7 @@ export const tableProductColumns: string[] = [
     "Valor",
     "Unidades",
     "Categoria",
+    "Estado",
     "Acciones",
 ];
 

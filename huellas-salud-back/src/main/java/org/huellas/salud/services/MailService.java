@@ -160,44 +160,6 @@ public class MailService {
         }
     }
 
-
-//    private void sendEmail(CreateEmailOptions options, String subject, String type) throws HSException {
-//
-//        String userEmail = options.getTo().stream().findFirst().orElse("");
-//
-//        LOG.infof("@sendEmail SERV > Inicia servicio de envio de correo al email: %s", userEmail);
-//
-//        try {
-//            Resend resend = new Resend(resendApiKey);
-//            CreateEmailResponse response = resend.emails().send(options);
-//            String description = "Correo entregado correctamente. ID: " + response.getId();
-//
-//            saveEmailDelivery(description, userEmail, "OK", subject, type);
-//
-//            LOG.infof("@sendEmailRecoveryPass SERV > Correo enviado correctamente. Respuesta: %s", response.getId());
-//
-//        } catch (Exception ex) {
-//
-//            LOG.errorf(ex, "@sendEmailRecoveryPass SERV > Error al enviar correo a: %s", userEmail);
-//
-//            String description = "Error en envío de correo: " + ex.getMessage();
-//            saveEmailDelivery(description, userEmail, "ERROR", subject, type);
-//
-//            throw new HSException(Response.Status.INTERNAL_SERVER_ERROR, "Error al enviar correo de recuperación");
-//        }
-//    }
-
-//    private CreateEmailOptions buildCreateEmailOptions(String userEmail, String html, String text, String subject) {
-//
-//        return CreateEmailOptions.builder()
-//                .from(domainResend)
-//                .to(List.of(userEmail))
-//                .subject(subject)
-//                .html(html)
-//                .text(text)
-//                .build();
-//    }
-
     private void saveEmailDelivery(String description, String userEmail, String status, String subject, String type) {
 
         LOG.infof("@saveEmailDelivery SERV > Inicia guardado de registro para el envio del email: %s", userEmail);
@@ -282,7 +244,7 @@ public class MailService {
         LOG.info("@getApprovalLink SERV > Inicia obtencion y guardado de codigo de aprobacion para confirmacion de correo");
 
         String token = UUID.randomUUID() + "-" + Instant.now().toEpochMilli();
-        String approvalLink = "http://localhost:8080/internal/confirm-email/" + token;
+        String approvalLink = "https://huellassalud.onrender.com/internal/confirm-email/" + token;
 
         EmailConfirmation emailConfirmation = EmailConfirmation.builder()
                 .context(ContextEmailConfirm.builder()

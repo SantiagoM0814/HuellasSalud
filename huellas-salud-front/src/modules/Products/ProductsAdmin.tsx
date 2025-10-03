@@ -28,12 +28,12 @@ const ProductsAdmin = () => {
 
       const matchesCategory = categoryFilter === 'ALL' || product.category.toLowerCase() === categoryFilter.toLowerCase();
       const matchesStatus = statusFilter === 'ALL'
-        || (statusFilter === 'ACTIVE' && product.status)
-        || (statusFilter === 'INACTIVE' && !product.status);
+        || (statusFilter === 'ACTIVE' && product.active)
+        || (statusFilter === 'INACTIVE' && !product.active);
 
       return matchesSearch && matchesCategory && matchesStatus;
     })
-  }, [productsData, searchTerm, categoryFilter]);
+  }, [productsData, searchTerm, categoryFilter, statusFilter]);
 
   if (loading) return (<div style={{ marginTop: "125px" }}>Cargando productos...</div>);
 

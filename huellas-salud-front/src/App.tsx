@@ -23,7 +23,14 @@ const AppRoutes = () => {
     { path: "/login", element: <Login /> },
     { path: "/registro-usuario", element: <UserRegister /> },
     { path: "/productos", element: <Products /> },
-    { path: "/productos-admin", element: <ProductsAdmin /> },
+    { 
+      path: "/productos-admin",
+      element: (
+        <ProtectedRoute requiredRole={["ADMINISTRADOR"]}>
+          <ProductsAdmin />
+        </ProtectedRoute>
+      )
+    },
     { path: "/recuperar-contrasena", element: <PasswordRecovery /> },
     { path: "/reset-password", element: <ResetPassword /> },
     {

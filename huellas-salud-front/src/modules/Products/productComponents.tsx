@@ -8,6 +8,7 @@ import { useProductRegister } from "./productRegisterService";
 import { productValidationRules } from "./validationRulesProductRegister";
 import { RegisterOptions } from "react-hook-form";
 import ButtonComponent from "../../components/Button/Button";
+import { useProductService } from "./productsService";
 
 export const ProductFilters = ({
   searchTerm,
@@ -70,14 +71,24 @@ export const SearchBar = ({ placeholder, searchTerm, onSearchChange }: SearchBar
 export const ProductTable = ({ products, setProductsData }: ProductTableProps) => {
   const [productSelected, setProductSelected] = useState<ProductData | undefined>(undefined)
   const [isModalEditProduct, setIsModalEditProduct] = useState<boolean>(false);
+  const { confirmUpdate, confirmDelete } = useProductService();
+
 
   const handleEditProduct = (product: Product, meta: Meta) => {
     setIsModalEditProduct(prev => !prev);
-    setProductSelected({ data: product, meta})
+    setProductSelected({ data: product, meta })
   }
 
-
   if (!products || products.length === 0) return (<h2>No hay productos registrados</h2>);
+
+  const changeProductStatus = async (product: Product, meta: Meta) => {
+    if (await confirmUpdate(product)) meta.lastUpdate = new Date().toString();
+  }
+
+  const deleteProduct = async (product: Product) => {
+      const idProduct = await confirmDelete(product);
+      if (idProduct) setProductsData(prev => prev?.filter(p => p.data.idProduct !== idProduct));
+    };
 
   return (
     <section className={styles.tableContainer}>
@@ -110,6 +121,11 @@ export const ProductTable = ({ products, setProductsData }: ProductTableProps) =
               <td>{product.quantityAvailable}</td>
               <td>{product.category.charAt(0).toUpperCase() + product.category.slice(1).toLowerCase()}</td>
               <td>
+                <span className={`${styles.status} ${product.active ? styles.active : styles.inactive}`}>
+                  {product.active ? 'Activo' : 'Inactivo'}
+                </span>
+              </td>
+              <td>
                 <aside className={styles.actions}>
                   <button
                     title="Editar"
@@ -127,6 +143,7 @@ export const ProductTable = ({ products, setProductsData }: ProductTableProps) =
                   <button
                     title="Cambiar Estado"
                     className={`${styles.btn} ${styles.toggleStatus}`}
+                    onClick={() => changeProductStatus(product, meta)}
                   >
                     <i className="fa-solid fa-power-off" />
                   </button>
@@ -203,7 +220,7 @@ export const FormProduct = ({ setModalProduct, setProductsData, productSelected 
       <InputField label="Nombre del producto" idInput="name" register={register} errors={errors} />
       <aside className={styles.inputField}>
         <label>Categoria<span className={styles.required}>*</span></label>
-        <select id="category" className={`${errors.category ? styles.errorInput : ''}`} {...register("category", {required: "La categoria es obligatoria"})}>
+        <select id="category" className={`${errors.category ? styles.errorInput : ''}`} {...register("category", { required: "La categoria es obligatoria" })}>
           <option value="">Seleccione una categoria</option>
           {categorys.map(category =>
             (<option key={category.value} value={category.value}>{category.label}</option>)
@@ -215,7 +232,7 @@ export const FormProduct = ({ setModalProduct, setProductsData, productSelected 
       </aside>
       <aside className={styles.inputField}>
         <label>SubCategoria<span className={styles.required}>*</span></label>
-        <select id="animalType" className={`${errors.animalType ? styles.errorInput : ''}`} {...register("animalType", {required: "La SubCategoria es obligatoria"})}>
+        <select id="animalType" className={`${errors.animalType ? styles.errorInput : ''}`} {...register("animalType", { required: "La SubCategoria es obligatoria" })}>
           <option value="">Seleccione una subcategoria</option>
           {species.map(specie =>
             (<option key={specie.value} value={specie.value}>{specie.label}</option>)
@@ -228,7 +245,7 @@ export const FormProduct = ({ setModalProduct, setProductsData, productSelected 
       <InputField label="Precio" idInput="price" type="number" register={register} errors={errors} />
       <aside className={styles.inputField}>
         <label>Unidad de medida<span className={styles.required}>*</span></label>
-        <select id="unitOfMeasure" className={`${errors.unitOfMeasure ? styles.errorInput : ''}`} {...register("unitOfMeasure", {required: "La u. medida es obligatoria"})}>
+        <select id="unitOfMeasure" className={`${errors.unitOfMeasure ? styles.errorInput : ''}`} {...register("unitOfMeasure", { required: "La u. medida es obligatoria" })}>
           <option value="">Seleccione una u. de medida</option>
           {unitOfMeasure.map(u =>
             (<option key={u.value} value={u.value}>{u.label}</option>)

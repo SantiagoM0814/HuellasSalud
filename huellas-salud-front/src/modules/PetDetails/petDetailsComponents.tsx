@@ -1,6 +1,6 @@
 import styles from "./petDetails.module.css";
 import { formatDate } from "../Users/UserManagement/usersUtils";
-import { PetData, Pet, InputEditProps, MedicalHistory, FormHistoryProps, CreateHistoryModalProps, InputFieldHistoryRegister } from "../../helper/typesHS";
+import { PetData, Pet, InputEditProps, MedicalHistory, FormHistoryProps, CreateHistoryModalProps, InputFieldHistoryRegister, Vaccine } from "../../helper/typesHS";
 import { memo, useState } from "react";
 import { useHistoryRegister } from "./petDetailsService";
 import ButtonComponent from "../../components/Button/Button";
@@ -54,9 +54,9 @@ const InfoPet = ({ pet, option }: { pet: Pet; option: number }) => {
         <section className={styles.optionDetial}>
           <h2 className={styles.sectionTitle}>💊 Tratamientos Realizados</h2>
 
-          {pet.medicalHistory?.length ? (
+          {petHistory?.length ? (
             <ul className={styles.ulTreatment}>
-              {pet.medicalHistory
+              {petHistory
                 .filter(h => h.treatment) // Solo mostramos los que tienen tratamiento
                 .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                 .map((history, index) => (
@@ -83,6 +83,7 @@ const InfoPet = ({ pet, option }: { pet: Pet; option: number }) => {
       );
 
     case 3:
+      console.log(petHistory);
       return (
         <section className={styles.medicalHistory}>
           <h2 className={styles.sectionTitle}>📜 Historial Clínico</h2>
@@ -102,9 +103,9 @@ const InfoPet = ({ pet, option }: { pet: Pet; option: number }) => {
 
           <h3 className={styles.subTitle}>🩺 Procedimientos</h3>
 
-          {pet.medicalHistory?.length ? (
+          {petHistory?.length ? (
             <div className={styles.timeline}>
-              {pet.medicalHistory
+              {petHistory
                 .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                 .map((history: MedicalHistory, index: number) => (
                   <div key={history.idHistory || `history-${index}`} className={styles.timelineItem}>
@@ -120,20 +121,21 @@ const InfoPet = ({ pet, option }: { pet: Pet; option: number }) => {
 
                       <p><strong>Veterinario:</strong> {history.veterinarian}</p>
 
-                      {/* Cirugías */}
-                      {!!history.surgeries?.length && (
+                      {history.surgeries?.length && (
                         <p><strong>Cirugías:</strong> {history.surgeries.join(", ")}</p>
                       )}
 
-                      {/* Vacunas */}
-                      {!!history.vaccines?.length && (
+                      {history.vaccines?.length && (
                         <div className={styles.vaccineList}>
                           <strong>Vacunas aplicadas:</strong>
                           <ul>
                             {history.vaccines.map((v, i) => (
                               <li key={`${history.idHistory}-vaccine-${i}`}>
-                                {v.name} — Aplicada: {formatDate(v.dateApplied)}
-                                {v.validUntil && ` (Válida hasta: ${formatDate(v.validUntil)})`}
+                                {v.name} — Aplicada: {new Date(v.dateApplied).toLocaleDateString()}
+                                {v.singleDose
+                                  ? <strong> — Única Dosis</strong>
+                                  : v.validUntil && ` (Válida hasta: ${new Date(v.validUntil).toLocaleDateString()})`
+                                }
                               </li>
                             ))}
                           </ul>
@@ -200,8 +202,8 @@ export const ModalCreateHistory = ({ setModalHistory, setPetData }: CreateHistor
 export const FormHistory = ({ setModalHistory, setPetData }: FormHistoryProps) => {
   const { errorMsg, handleCreateHistorySubmit, loading, register, errors, handleSubmit, reset } = useHistoryRegister({ setModalHistory, setPetData })
 
-  const [surgeries, setSurgeries] = useState<string[]>([""]);
-  const [vaccines, setVaccines] = useState([{ name: "", dateApplied: "", validUntil: "", singleDose: false }]);
+  const [surgeries, setSurgeries] = useState<string[]>([]);
+  const [vaccines, setVaccines] = useState<Vaccine[]>([]);
 
   const addSurgery = () => setSurgeries((prev) => [...prev, ""]);
   const handleSurgeryChange = (i: number, value: string) => {
@@ -220,7 +222,7 @@ export const FormHistory = ({ setModalHistory, setPetData }: FormHistoryProps) =
   return (
     <form onSubmit={handleSubmit(handleCreateHistorySubmit)}>
       <h3>Agregar Historial Médico</h3>
-      {/* Diagnóstico */}
+
       <InputField
         label="Diagnóstico"
         idInput="diagnostic"
@@ -228,7 +230,6 @@ export const FormHistory = ({ setModalHistory, setPetData }: FormHistoryProps) =
         errors={errors}
       />
 
-      {/* Tratamiento (opcional) */}
       <InputField
         label="Tratamiento"
         idInput="treatment"
@@ -237,7 +238,6 @@ export const FormHistory = ({ setModalHistory, setPetData }: FormHistoryProps) =
         required={false}
       />
 
-      {/* Veterinario */}
       <InputField
         label="Veterinario"
         idInput="veterinarian"
@@ -245,46 +245,47 @@ export const FormHistory = ({ setModalHistory, setPetData }: FormHistoryProps) =
         errors={errors}
       />
 
-      {/* Cirugías */}
-      <h4>Cirugías (opcional)</h4>
       {surgeries.map((s, i) => (
         <input
           key={`surgery-${i}`}
           type="text"
           value={s}
+          {...register(`surgeries.${i}`)}
           placeholder={`Cirugía ${i + 1}`}
           onChange={(e) => handleSurgeryChange(i, e.target.value)}
           className={styles.surgeryInput}
         />
       ))}
       <button type="button" onClick={addSurgery} className={styles.addButton}>
-        ➕ Agregar otra cirugía
+        <i className="fa-solid fa-square-plus"></i> Agregar cirugía
       </button>
 
-      {/* Vacunas */}
-      <h4>Vacunas aplicadas (opcional)</h4>
       {vaccines.map((v, i) => (
         <div key={`vaccine-${i}`} className={styles.vaccineGroup}>
           <input
             type="text"
             placeholder="Nombre de vacuna"
             value={v.name}
+            {...register(`vaccines.${i}.name`)}
             onChange={(e) => handleVaccineChange(i, "name", e.target.value)}
           />
           <input
             type="date"
             value={v.dateApplied}
+            {...register(`vaccines.${i}.dateApplied`)}
             onChange={(e) => handleVaccineChange(i, "dateApplied", e.target.value)}
           />
           <input
             type="date"
             value={v.validUntil}
+            {...register(`vaccines.${i}.validUntil`)}
             onChange={(e) => handleVaccineChange(i, "validUntil", e.target.value)}
           />
           <label>
             <input
               type="checkbox"
               checked={v.singleDose}
+              {...register(`vaccines.${i}.singleDose`)}
               onChange={(e) => handleVaccineChange(i, "singleDose", e.target.checked)}
             />
             Dosis única
@@ -292,7 +293,7 @@ export const FormHistory = ({ setModalHistory, setPetData }: FormHistoryProps) =
         </div>
       ))}
       <button type="button" onClick={addVaccine} className={styles.addButton}>
-        ➕ Agregar otra vacuna
+        <i className="fa-solid fa-square-plus"></i> Agregar vacuna
       </button>
 
       {/* Botones */}

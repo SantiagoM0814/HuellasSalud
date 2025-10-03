@@ -81,9 +81,6 @@ const Products = () => {
               </div>
             </div>
           </div>
-          <Link to={"/productos-admin"}>
-            <button className={styles.managmentPrdBtn}>Gestión de productos</button>
-          </Link>
         </section>
         <section className={styles.productCardContainer}>
           <ProductCard products={filteredProducts} setProductsData={setProductsData}/>
@@ -122,7 +119,8 @@ const ProductCard = ({ products, setProductsData}: ProductCardProps) => {
 
   return (
     <main className={styles.cardProductsContainer}>
-      {products?.map(({ data: product, meta }) => (
+      {products?.filter(({ data: product}) => product.active)
+      .map(({ data: product, meta }) => (
         <section className={styles.cardProduct} key={product.idProduct}>
           <aside className={styles.imgCardProduct}>
             <img src={getProductImage(product)} alt={product.name} className={styles.cardImage}/> 

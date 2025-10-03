@@ -19,7 +19,7 @@ export const useProductRegister = ({ setModalProduct, setProductsData, productSe
         handleSubmit,
         formState: { errors },
         reset
-    } = useForm<Product>({ defaultValues: { status: "activo" } })
+    } = useForm<Product>({ defaultValues: { active: true } })
 
     useEffect(() => {
         if (productSelected?.data.mediaFile) {

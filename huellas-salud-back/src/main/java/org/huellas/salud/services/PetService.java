@@ -164,7 +164,7 @@ public class PetService {
     }
 
     @CacheInvalidateAll(cacheName = "pets-list-cache")
-    public PetMsg addMedicalHistory(String idPet, MedicalHistory medicalHistory) throws HSException {
+    public MedicalHistory addMedicalHistory(String idPet, MedicalHistory medicalHistory) throws HSException {
         LOG.infof("@addMedicalHistory SERV > Inicia servicio de agregar historial medico a una mascota");
         PetMsg petMsgMongo = getPetById(idPet);
 
@@ -182,7 +182,7 @@ public class PetService {
         historyList.add(medicalHistory);
         petRepository.update(petMsgMongo);
 
-        return petMsgMongo;
+        return medicalHistory;
     }
 
     @CacheInvalidateAll(cacheName = "pets-list-cache")

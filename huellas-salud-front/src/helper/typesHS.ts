@@ -41,7 +41,7 @@ export interface Product {
     brand: string;
     expirationDate: Date | null;
     barcode: number;
-    status: "activo" | "inactivo" | "agotado";
+    active: boolean;
     supplier?: string;
     mediaFile?: MediaFile;
 }

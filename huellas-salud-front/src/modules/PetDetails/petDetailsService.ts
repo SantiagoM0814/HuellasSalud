@@ -39,7 +39,6 @@ export const useHistoryRegister = ({ setModalHistory, setPetData }: CreateHistor
     } = useForm<MedicalHistory>()
 
     const createHistory = async (historyData: MedicalHistory, idPet: string) => {
-        console.log(historyData);
         toast.info(`Creando registro de historia medica... ⌛`, { autoClose: 1200 });
 
         const { data: createdHistory } = await axiosInstance.post<MedicalHistory>(`pet/${idPet}/medical-history`, historyData);

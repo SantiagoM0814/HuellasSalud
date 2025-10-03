@@ -1,5 +1,5 @@
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { AuthContext, ListItemNavProps, NavLinkProps, SubMenuProps, User } from "../../helper/typesHS";
 import { MENU_DATA } from "./navbarData";
 import { UserAvatar } from "../Users/UserManagement/userComponents";
@@ -93,10 +93,15 @@ export const BtnsLogRegister = () => {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const { user, logout } = useContext(AuthContext);
     const dropdownRef = useRef<HTMLDivElement>(null);
+    const navigate = useNavigate();
 
     const handleLogout = () => {
         logout();
         setOpenModal(false);
+    };
+
+    const handleProductsAdmin = () => {
+        navigate("/productos-admin");
     };
 
     const handleClickOutside = (e: MouseEvent) => {
@@ -145,11 +150,7 @@ export const BtnsLogRegister = () => {
                     <button className={styles.editButton}>Editar perfil</button>
                     {
                         hasRole(user, ["ADMINISTRADOR"]) && (
-                            <>
-                            <Link to="/productos-admin">
-                                <button>Productos</button>
-                            </Link>
-                            </>
+                                <button className={styles.btnProducts} onClick={handleProductsAdmin}>Productos</button>
                         )
                     }
                     <button className={styles.logoutButton} onClick={handleLogout}>

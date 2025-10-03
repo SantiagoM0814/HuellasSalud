@@ -4,7 +4,7 @@ import lombok.Data;
 import jakarta.validation.constraints.*;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 public class Vaccine {
@@ -15,11 +15,11 @@ public class Vaccine {
 
     @BsonProperty("fechaAplicación")
     @NotNull(message = "La fecha de aplicación es obligatoria")
-    private LocalDateTime dateApplied;
+    private LocalDate dateApplied;
 
     @BsonProperty("fechaVencimiento")
     @Future(message = "La fecha de vencimiento debe ser en el futuro")
-    private LocalDateTime validUntil;
+    private LocalDate validUntil;
 
     @BsonProperty("dosisUnica")
     private boolean singleDose;

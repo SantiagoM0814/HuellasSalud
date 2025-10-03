@@ -211,12 +211,12 @@ public class PetApi {
 
         LOG.infof("@addMedicalHistory API > Inicia servicio de agregar historial medico a la mascota con id: %s", idPet);
 
-        PetMsg petMsg = petService.addMedicalHistory(idPet, newHistory);
+        MedicalHistory medicalHistory = petService.addMedicalHistory(idPet, newHistory);
 
         LOG.infof("@addMedicalHistory API > Finaliza servicio de agregar historial medico a la mascota");
 
         return Response.status(Response.Status.CREATED)
-                .entity(petMsg)
+                .entity(medicalHistory)
                 .build();
     }
 }

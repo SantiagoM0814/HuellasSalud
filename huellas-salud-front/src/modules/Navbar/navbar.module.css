@@ -187,6 +187,7 @@
 }
 
 .editButton,
+.btnProducts,
 .logoutButton {
     width: 100%;
     padding: 8px;
@@ -204,6 +205,11 @@
 
 .editButton:hover {
     background-color: #2563eb;
+}
+
+.btnProducts {
+    background-color: #12a805;
+    color: white;
 }
 
 .logoutButton {
