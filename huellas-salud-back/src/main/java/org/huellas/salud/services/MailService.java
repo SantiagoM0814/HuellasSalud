@@ -126,11 +126,10 @@ public class MailService {
 
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.starttls.required", "true");
-        props.put("mail.smtp.ssl.protocols", "TLSv1.2");
         props.put("mail.smtp.host", "smtp.gmail.com");
-        props.put("mail.smtp.port", "587"); // TLS
+        props.put("mail.smtp.port", "465");
+        props.put("mail.smtp.ssl.enable", "true");
+        props.put("mail.smtp.ssl.protocols", "TLSv1.2");
 
         Session session = Session.getInstance(props, new Authenticator() {
             @Override
