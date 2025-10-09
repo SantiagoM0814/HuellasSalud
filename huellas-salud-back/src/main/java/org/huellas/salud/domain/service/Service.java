@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bson.codecs.pojo.annotations.BsonProperty;
+import org.huellas.salud.domain.mediaFile.MediaFile;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.huellas.salud.helper.validators.ValidationGroups;
 
@@ -61,4 +62,6 @@ public class Service implements Serializable {
     private boolean priceByWeight;
 
     private List<WeightPriceRule> weightPriceRules;
+
+    private MediaFile mediaFile;
 }

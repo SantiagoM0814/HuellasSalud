@@ -27,4 +27,10 @@ public class ProductRepository implements PanacheMongoRepository<ProductMsg> {
         return find("data.idProducto = ?1", productId).firstResultOptional();
     }
 
+    public long deleteProductDataMongo(String productId) {
+
+        LOG.debugf("@deleteProductDataMongo REPO > Inicia eliminacion del registro del producto con id: %s ", productId);
+
+        return delete("data.idProducto = ?1", productId);
+    }
 }

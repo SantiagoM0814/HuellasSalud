@@ -137,6 +137,7 @@ export const ProductTable = ({ products, setProductsData }: ProductTableProps) =
                   <button
                     title="Eliminar"
                     className={`${styles.btn} ${styles.delete}`}
+                    onClick={() => deleteProduct(product)}
                   >
                     <i className="fa-regular fa-trash-can" />
                   </button>

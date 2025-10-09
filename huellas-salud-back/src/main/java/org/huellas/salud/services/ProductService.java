@@ -179,4 +179,28 @@ public class ProductService {
                     "identificador: " + idProduct + "en la base de datos");
         });
     }
+
+    @CacheInvalidateAll(cacheName = "products-list-cache")
+    public void deleteProductDataMongo(String productId) throws HSException {
+
+        LOG.infof("@deleteProductDataMongo SERV > Inicia la ejecucion del servicio para eliminar el registro del " +
+                "producto con id: %s", productId);
+
+        long deleted = productRepository.deleteProductDataMongo(productId);
+
+        if (deleted == 0) {
+
+            LOG.infof("@deleteProductDataMongo SERV > El registro del producto con id: %s  No existe en Mongo. " +
+                    "No se realiza eliminacion.", productId);
+
+            throw new HSException(Response.Status.NOT_FOUND, "El producto con id: " + productId + " No esta registrado en la " +
+                    "base de datos");
+        }
+
+        LOG.infof("@deleteProductDataMongo SERV > El registro del producto con id: %s se elimino correctamente " +
+                "en mongo. Finaliza ejecucion del servicio para eliminar producto y se elimino %s registro de " +
+                "la base de datos", productId, deleted);
+
+
+    }
 }

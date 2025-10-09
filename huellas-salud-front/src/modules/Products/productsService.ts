@@ -20,7 +20,7 @@ export const useProductService = () => {
         deleteProduct: async (product: Product) => {
             await axiosInstance.delete(`product/delete`, {
                 params: {
-                    idProduct: product.idProduct
+                    productId: product.idProduct
                 }
             })
         }

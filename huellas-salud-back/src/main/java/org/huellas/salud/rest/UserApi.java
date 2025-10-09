@@ -110,7 +110,7 @@ public class UserApi {
     )
     public Response getListUsers() {
 
-        LOG.info("@getListUsers API > Inicia servicio para obtener listado de todos los usuarios registrados en mongo");
+        LOG.infof("@getListUsers API > Inicia servicio para obtener listado de todos los usuarios registrados en mongo");
 
         List<UserMsg> users = userService.getListRegisteredUser();
 

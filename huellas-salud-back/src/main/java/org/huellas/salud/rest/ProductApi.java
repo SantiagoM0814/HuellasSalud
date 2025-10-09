@@ -3,6 +3,7 @@ package org.huellas.salud.rest;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.groups.ConvertGroup;
 import jakarta.ws.rs.*;
@@ -10,6 +11,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.huellas.salud.domain.product.ProductMsg;
@@ -117,6 +119,34 @@ public class ProductApi {
                 "un producto. Se actualizo con la siguiente informacion: %s", productMsg);
 
         return Response.ok(productUpdated)
+                .build();
+    }
+
+    @DELETE
+    @RolesAllowed("ADMINISTRADOR")
+    @Path("/delete")
+    @Tag(name = "Gestión de productos")
+    public Response deleteProductData(
+            @Parameter(
+                    name = "productId",
+                    description = "Identificador del producto",
+                    required = true,
+                    example = "26ec4a57-f43b-4230-a169-b0ef1fd6ade1"
+            )
+            @NotBlank(message = "Debe ingresar un identificador (productId) del producto")
+            @QueryParam("productId") String productId
+    ) throws HSException {
+
+        LOG.infof("@deleteProductData API > Inicia ejecucion del servicio para eiminar el registro del producto " +
+                "con id: %s", productId);
+
+        productService.deleteProductDataMongo(productId);
+
+        LOG.infof("@deleteProductData API > Finaliza ejecucion del servicio para eliminar el registro del " +
+                "producto con id: %s", productId);
+
+        return Response.ok()
+                .status(Response.Status.NO_CONTENT)
                 .build();
     }
 }
