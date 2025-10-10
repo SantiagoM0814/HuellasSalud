@@ -22,6 +22,13 @@ public class ServiceRepository implements PanacheMongoRepository<ServiceMsg> {
         return listAll(Sort.descending("meta.fechaCreacion"));
     }
 
+    public Optional<ServiceMsg> findServiceById(String idService) {
+
+        LOG.infof("@findServiceById REPO > Inicia busqueda del registro del servicio con id: %s", idService);
+
+        return find("data.idService = ?1", idService).firstResultOptional();
+    }
+
     public Optional<ServiceMsg> findServiceByName(String name) {
 
         LOG.infof("@findServiceByName REPO > Inicia busqueda del registro del servicio con nombre " +

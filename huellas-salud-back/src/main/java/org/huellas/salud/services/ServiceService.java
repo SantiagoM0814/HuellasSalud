@@ -91,4 +91,80 @@ public class ServiceService {
 
         return services;
     }
+
+    @CacheInvalidateAll(cacheName = "services-list-cache")
+    public void updateServiceDataMongo(ServiceMsg serviceMsg) throws HSException {
+        LOG.infof("@updateServiceDataMongo SERV > Inicia ejecucion del servicio para actualizar el registro de un " +
+                "servicio con el id: %s. Data a modificar: %s", serviceMsg.getData().getIdService(), serviceMsg);
+
+        ServiceMsg serviceMsgMongo = getServiceMsg(serviceMsg.getData().getIdService());
+
+        LOG.infof("@updateServiceDataMongo SERV > El servicio con id: %s si esta registrado. Inicia la " +
+                "actualizacion del registro del servicio con data; %s", serviceMsg.getData().getIdService(), serviceMsg);
+        
+        setServiceInformation(serviceMsg.getData().getIdService(), serviceMsg.getData(), serviceMsgMongo);
+        
+        LOG.infof("@updateServiceDataMongo SERV > Finaliza edicion de la informacion del servicio con id: %s. " +
+                "Inicia actualizacion del registro en mongo con la data: %s", serviceMsg.getData().getIdService(), serviceMsg);
+        
+        serviceRepository.update(serviceMsgMongo);
+
+        LOG.infof("updateServiceDataMongo SERV > Finaliza actualizacion del registro del servicio con id: %s. " +
+                "Finaliza ejecucion del servicio de actualizacion", serviceMsg.getData().getIdService());
+    }
+
+    @CacheInvalidateAll(cacheName = "services-list-cache")
+    public void deleteServiceDataMongo(String idService) throws HSException {
+        LOG.infof("@deleteServiceDataMongo SERV > Inicia ejecucion del servicio para eliminar el registro de un " +
+                "servicio con el id: %s de mongo", idService);
+
+        long deleted = serviceRepository.deleteServiceDataMongo(idService);
+
+        if(deleted == 0) {
+
+                LOG.errorf("@deleteServiceDataMongo SERV > El registro del servicio con id: %s no " +
+                        "existe en mongo. No se realiza eliminacion. Registros eliminados: %s", idService, deleted);
+
+                throw new HSException(Response.Status.NOT_FOUND, "El servicio con id: " + idService + "No esta " +
+                        "registrado en la base de datos.");
+        }
+
+        LOG.infof("@deleteServiceDataMongo SERV > El registro del servicio con id: %s se elimino correctamente de " +
+                "mongo. Finaliza ejecucion del servicio para eliminar usuario y se elimino %s registro de la base " +
+                "de datos", idService, deleted);
+    }
+
+    private void setServiceInformation(String idService, Service serviceRequest, ServiceMsg serviceMsgMongo) {
+
+        LOG.infof("@setServiceInformation SERV > Inicia set de los datos del servicio con id: %s", idService);
+
+        Service serviceMongo = serviceMsgMongo.getData();
+        Meta metaMongo = serviceMsgMongo.getMeta();
+
+        serviceMongo.setName(serviceRequest.getName());
+        serviceMongo.setShortDescription(serviceRequest.getShortDescription());
+        serviceMongo.setLongDescription(serviceRequest.getLongDescription());
+        serviceMongo.setBasePrice(serviceRequest.getBasePrice());
+        serviceMongo.setPriceByWeight(serviceRequest.isPriceByWeight());
+        serviceMongo.setWeightPriceRules(serviceRequest.getWeightPriceRules());
+        
+        metaMongo.setLastUpdate(LocalDateTime.now());
+        metaMongo.setNameUserUpdated(jwtService.getCurrentUserName());
+        metaMongo.setEmailUserUpdated(jwtService.getCurrentUserEmail());
+        metaMongo.setRoleUserUpdated(jwtService.getCurrentUserRole());
+        
+        LOG.infof("@setServiceInformation SERV > Finaliza set de los datos del servicio con id: %s", idService);
+    }
+
+    private ServiceMsg getServiceMsg(String idService) throws HSException {
+
+        return serviceRepository.findServiceById(idService).orElseThrow(() -> {
+
+                LOG.errorf("@getServiceMsg SERV > El servicio con id: %s No esta registrado." +
+                        " Solicitud invalida no se puede modificado el registro", idService);
+
+                return new HSException(Response.Status.NOT_FOUND, "No se encontro el registro del servicio con id: " + idService +
+                        " en la base de datos");
+        });
+    }
 }

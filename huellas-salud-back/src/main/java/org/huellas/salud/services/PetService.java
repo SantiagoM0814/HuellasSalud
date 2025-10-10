@@ -109,7 +109,7 @@ public class PetService {
 
         if (optionalPet.isEmpty()) {
             LOG.warnf("@getPetById SERV > No se encontro ninguna mascota con id: %s", idPet);
-            return null; // o puedes lanzar una NotFoundException
+            return null;
         }
 
         PetMsg pet = optionalPet.get();
