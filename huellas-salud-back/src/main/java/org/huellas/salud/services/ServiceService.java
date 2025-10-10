@@ -49,6 +49,8 @@ public class ServiceService {
 
         Service serviceData = serviceMsg.getData();
 
+        serviceData.setName(utils.capitalizeWords(serviceData.getName()));
+
         if (serviceRepository.findServiceByName(serviceData.getName()).isPresent()) {
 
             LOG.errorf("@saveServiceDataMongo SERV > El servicio con el nombre: %s ya esta registrado en mongo", serviceData.getName());
@@ -59,8 +61,6 @@ public class ServiceService {
 
         LOG.infof("@saveServiceDataMongo SERV > Finaliza validacion de la informacion. El servicio con nombre: %s " +
                 "no ha sido almacenado. Inicia almacenamiento del registro en mongo con la data: %s", serviceData.getName(), serviceData);
-
-        serviceData.setName(utils.capitalizeWords(serviceData.getName()));
 
         serviceMsg.setMeta(utils.getMetaToEntity());
         serviceData.setIdService(UUID.randomUUID().toString());

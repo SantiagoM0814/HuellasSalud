@@ -48,7 +48,7 @@ public class Service implements Serializable {
             "permite detectar de manera temprana enfermedades o condiciones que puedan afectar el " +
             "bienestar de la mascota, recomendando los cuidados preventivos o tratamientos necesarios.")
     @NotBlank(message = "El campo descripcion larga no puede ser nulo o vacio")
-    @Size(min = 100, max = 500, message = "El campo descripcion corta debe contener entre 100 y 500 caracteres")
+    @Size(min = 100, max = 500, message = "El campo descripcion larga debe contener entre 100 y 500 caracteres")
     private String longDescription;
 
     @BsonProperty("precioBase")

@@ -125,7 +125,7 @@ public class UserApi {
     @Tag(name = "Gestión de usuarios")
     @Operation(
             summary = "Creación de un usuario nuevo",
-            description = "Permite crear el registro de un usuario nuevo en la base de datos con la información dad"
+            description = "Permite crear el registro de un usuario nuevo en la base de datos con la información dada"
     )
     public Response createUserData(
             @RequestBody(

@@ -46,11 +46,11 @@ public class ServiceApi {
     @Tag(name = "Gestión de servicios")
     @APIResponses(
             value = {
-                    @APIResponse(
-                            responseCode = "200",
-                            description = "Se retorna el listado de los servicios registrados correctamente",
-                            content = @Content(schema  = @Schema(implementation = ServiceMsg.class, type = SchemaType.ARRAY))
-                    )
+                @APIResponse(
+                        responseCode = "200",
+                        description = "Se retorna el listado de los servicios registrados correctamente",
+                        content = @Content(schema = @Schema(implementation = ServiceMsg.class, type = SchemaType.ARRAY))
+                )
             }
     )
     @Operation(
@@ -63,9 +63,40 @@ public class ServiceApi {
 
         List<ServiceMsg> services = serviceService.getListServiceMsg();
 
-        LOG.infof("@getListServices API > Finaliza servicio para obtener listado de todos los servicios " +
-                "registrados. Se encontraron: %s registros", services.size());
+        LOG.infof("@getListServices API > Finaliza servicio para obtener listado de todos los servicios "
+                + "registrados. Se encontraron: %s registros", services.size());
 
         return Response.ok().entity(services).build();
+    }
+
+    @POST
+    @Path("/create")
+    @Tag(name = "Gestión de servicios")
+    @Operation(
+            summary = "Creación de un servicio nuevo",
+            description = "Permite crear el registro de un servicio nuevo en la base de datos con la información dada"
+    )
+    public Response createServiceData(
+            @RequestBody(
+                    name = "serviceMsg",
+                    description = "Objeto con la información del servicio que se va a crear",
+                    required = true
+            )
+            @NotNull(message = "Debe ingresar el objeto data con la información del servicio a registrar")
+            @Valid @ConvertGroup(to = ValidationGroups.Post.class) ServiceMsg serviceMsg
+    ) throws UnknownHostException, HSException {
+
+        LOG.debugf("@createServiceData API > Inicia ejecucion del servicio para crear el registro de un servicio "
+                + "en base de datos con la data: %s", serviceMsg.getData());
+
+        ServiceMsg serviceCreated = serviceService.saveServiceDataMongo(serviceMsg);
+
+        LOG.debugf("@createServiceData API > Finaliza ejecucion del servicio para crear el registro de un servicio "
+                + "en base de datos. Se registro la siguiente informacion: %s", serviceMsg);
+
+        return Response.ok()
+                .status(Response.Status.CREATED)
+                .entity(serviceCreated)
+                .build();
     }
 }
