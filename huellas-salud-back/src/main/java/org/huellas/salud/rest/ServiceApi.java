@@ -99,4 +99,64 @@ public class ServiceApi {
                 .entity(serviceCreated)
                 .build();
     }
+
+    @PUT
+    @Path("/update")
+    @Tag(name = "Gestión de servicios")
+    @Operation(
+            summary = "Actualización de la información de un servicio",
+            description = "Permite actualizar la información de un servicio registrado en la base de datos"
+    )
+    public Response updateServiceData(
+            @RequestBody(
+                    name = "serviceMsg",
+                    description = "Información con la que se actualizará el servicio",
+                    required = true
+            )
+            @NotNull(message = "Debe ingresar los datos del servicio a actualizar")
+            @ConvertGroup(to = ValidationGroups.Put.class) @Valid ServiceMsg serviceMsg
+    ) throws HSException {
+
+        LOG.infof("@updateServiceData API > Inicia ejecucion del servicio para actualizar el registro de un servicio "
+                + "en base de datos con la data: %s", serviceMsg);
+
+        serviceService.updateServiceDataMongo(serviceMsg);
+
+        LOG.infof("@updateServiceData API > Finaliza ejecucion del servicio para actualizar el registro de un servicio "
+                + "en base de datos con id: %s", serviceMsg.getData().getIdService());
+
+        return Response.ok()
+                .status(Response.Status.NO_CONTENT)
+                .build();
+    }
+
+    @DELETE
+    @Path("/delete")
+    @Tag(name = "Gestión de servicios")
+    @Operation(
+            summary = "Eliminación de un servicio",
+            description = "Permite eliminar el registro de un servicio en la base de datos"
+    )
+    public Response deleteServiceData(
+            @Parameter(
+                    name = "idService",
+                    description = "Identificador del servicio a eliminar",
+                    required = true,
+                    example = "26ec4a57-f43b-4230-a169-b0ef1fd6ade1"
+            )
+            @NotBlank(message = "Debe ingresar el identificador (idService) del servicio a eliminar")
+            @QueryParam("idService") String idService
+    ) throws HSException {
+
+        LOG.infof("@deleteServiceData API > Inicia ejecucion del servicio para eliminar el registro de un servicio "
+                + "en base de datos con id: %s", idService);
+
+        serviceService.deleteServiceDataMongo(idService);
+
+        LOG.infof("@deleteServiceData API > Finaliza ejecucion del servicio para eliminar el registro de un servicio "
+                + "en base de datos con id: %s", idService);
+
+        return Response.status(Response.Status.NO_CONTENT).build();
+    }
+
 }

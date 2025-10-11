@@ -21,6 +21,14 @@ export const tableProductColumns: string[] = [
     "Acciones",
 ];
 
+export const tableServiceColumns: string[] = [
+    "Nombre",
+    "Descripción corta",
+    "Precio base",
+    "Estado",
+    "Acciones",
+];
+
 const optionsDate: Intl.DateTimeFormatOptions = {
     day: "2-digit",
     month: "2-digit",

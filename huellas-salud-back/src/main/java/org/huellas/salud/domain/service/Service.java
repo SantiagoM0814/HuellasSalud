@@ -61,6 +61,12 @@ public class Service implements Serializable {
     @Schema(example = "true")
     private boolean priceByWeight;
 
+    @BsonProperty("estado")
+    @NotNull(message = "El campo state no debe ser nulo", groups = ValidationGroups.Put.class)
+    @Null(message = "No debe enviar datos para el campo state", groups = {ValidationGroups.Post.class,
+            ValidationGroups.Post_Get.class})
+    private boolean state;
+
     private List<WeightPriceRule> weightPriceRules;
 
     private MediaFile mediaFile;

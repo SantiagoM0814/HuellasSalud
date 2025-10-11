@@ -104,6 +104,10 @@ export const BtnsLogRegister = () => {
         navigate("/productos-admin");
     };
 
+    const handleServicesAdmin = () => {
+        navigate("/servicios-admin");
+    };
+
     const handleClickOutside = (e: MouseEvent) => {
         if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
             setOpenModal(false);
@@ -151,6 +155,11 @@ export const BtnsLogRegister = () => {
                     {
                         hasRole(user, ["ADMINISTRADOR"]) && (
                                 <button className={styles.btnProducts} onClick={handleProductsAdmin}>Productos</button>
+                        )
+                    }
+                    {
+                        hasRole(user, ["ADMINISTRADOR"]) && (
+                                <button className={styles.btnProducts} onClick={handleServicesAdmin}>Servicios</button>
                         )
                     }
                     <button className={styles.logoutButton} onClick={handleLogout}>

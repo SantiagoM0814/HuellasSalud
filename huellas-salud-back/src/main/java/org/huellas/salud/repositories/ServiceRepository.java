@@ -26,7 +26,7 @@ public class ServiceRepository implements PanacheMongoRepository<ServiceMsg> {
 
         LOG.infof("@findServiceById REPO > Inicia busqueda del registro del servicio con id: %s", idService);
 
-        return find("data.idService = ?1", idService).firstResultOptional();
+        return find("data.idServicio = ?1", idService).firstResultOptional();
     }
 
     public Optional<ServiceMsg> findServiceByName(String name) {
@@ -42,6 +42,6 @@ public class ServiceRepository implements PanacheMongoRepository<ServiceMsg> {
         LOG.infof("@deleteServiceDataMongo REPO > Inicia servicio de eliminacion del servicio con el id: %s " +
                 "en mongo", ServiceId);
 
-        return delete("data.idService = ?1", ServiceId);
+        return delete("data.idServicio = ?1", ServiceId);
     }
 }

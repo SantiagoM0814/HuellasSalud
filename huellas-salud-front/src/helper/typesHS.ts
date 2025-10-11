@@ -51,6 +51,29 @@ export interface ProductData {
     meta: Meta
 }
 
+export interface Service {
+    idService: string;
+    name: string;
+    shortDescription: string;
+    longDescription: string;
+    basePrice: number;
+    priceByWeight: boolean;
+    weightPriceRules?: WeightPriceRule[];
+    state: boolean;
+    mediaFile?: MediaFile;
+}
+
+export interface WeightPriceRule {
+    minWeight: number;
+    maxWeight: number;
+    price: number;
+}
+
+export interface ServiceData {
+    data: Service,
+    meta: Meta
+}
+
 export interface User {
     name: string;
     lastName: string;
@@ -203,6 +226,14 @@ export interface ProductFiltersProps {
     onStatusFilterChange: (value: string) => void;
 }
 
+export interface ServiceFiltersProps {
+    searchTerm: string
+    statusFilter: string
+    setModalCreateService: (close: boolean) => void;
+    onSearchChange: (value: string) => void;
+    onStatusFilterChange: (value: string) => void;
+}
+
 export interface UserTableProps {
     users: UserData[] | undefined;
     setUsersData: Dispatch<SetStateAction<UserData[] | undefined>>;
@@ -211,6 +242,11 @@ export interface UserTableProps {
 export interface ProductTableProps {
     products: ProductData[] | undefined;
     setProductsData: Dispatch<SetStateAction<ProductData[] | undefined>>;
+}
+
+export interface ServiceTableProps {
+    services: ServiceData[] | undefined;
+    setServicesData: Dispatch<SetStateAction<ServiceData[] | undefined>>;
 }
 
 export interface PetCardProps { 
@@ -294,6 +330,14 @@ export interface CreateProductModalProps {
     productSelected?: ProductData
 }
 
+export interface FormServiceProps extends CreateServiceModalProps { }
+
+export interface CreateServiceModalProps {
+    setModalService?: (close: boolean) => void;
+    setServicesData?: Dispatch<SetStateAction<ServiceData[] | undefined>>;
+    serviceSelected?: ServiceData
+}
+
 export interface InputFieldPetRegister {
     label: string;
     type?: HTMLInputTypeAttribute;
@@ -312,6 +356,16 @@ export interface InputFieldProductRegister {
     inputFull?: boolean;
     register: UseFormRegister<Product>;
     errors: FieldErrors<Product>;
+}
+
+export interface InputFieldServiceRegister {
+    label: string;
+    type?: HTMLInputTypeAttribute;
+    idInput: keyof Service;
+    required?: boolean;
+    inputFull?: boolean;
+    register: UseFormRegister<Service>;
+    errors: FieldErrors<Service>;
 }
 
 export interface InputFieldHistoryRegister {
