@@ -62,10 +62,9 @@ public class Service implements Serializable {
     private boolean priceByWeight;
 
     @BsonProperty("estado")
-    @NotNull(message = "El campo state no debe ser nulo", groups = ValidationGroups.Put.class)
-    @Null(message = "No debe enviar datos para el campo state", groups = {ValidationGroups.Post.class,
-            ValidationGroups.Post_Get.class})
-    private boolean state;
+    @NotNull(message = "El valor del campo state no puede ser nulo o vacío")
+    @AssertTrue(message = "El valor del campo state debe ser true", groups = ValidationGroups.Post.class)
+    private Boolean state;
 
     private List<WeightPriceRule> weightPriceRules;
 

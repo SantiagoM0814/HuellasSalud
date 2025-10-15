@@ -1,6 +1,6 @@
 import { useState } from "react";
 import axiosInstance from "../../context/axiosInstance";
-import { Product, ProductData, Service, ServiceData } from "../../helper/typesHS";
+import { Service, ServiceData } from "../../helper/typesHS";
 import { toast } from "react-toastify";
 import { handleError } from "../../helper/utils";
 import Swal from "sweetalert2";
@@ -15,10 +15,10 @@ export const useServiceService = () => {
         },
         updateService: async (service: Service) => {
             const dataUpdate = { data: service }
-            await axiosInstance.put(`product/update`, dataUpdate)
+            await axiosInstance.put(`service/update`, dataUpdate)
         },
         deleteService: async (service: Service) => {
-            await axiosInstance.delete(`product/delete`, {
+            await axiosInstance.delete(`service/delete`, {
                 params: {
                     idService: service.idService
                 }

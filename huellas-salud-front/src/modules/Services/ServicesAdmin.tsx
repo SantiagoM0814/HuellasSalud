@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ProductData, ServiceData } from "../../helper/typesHS";
 import { useServiceService } from "./servicesService";
 import { ServiceFilters, ServiceModal, ServiceTable } from "./serviceComponents";
-import styles from './productsAdmin.module.css';
+import styles from './servicesAdmin.module.css';
 
 const ServicesAdmin = () => {
   const [isModalCreateService, setIsModalCreateService] = useState<boolean>(false);

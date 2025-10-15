@@ -1,44 +1,100 @@
 import styles from './services.module.css';
-import imgConsulta from '../../assets/ConsultaMedica.webp';
-import imgTratamientos from '../../assets/TratamientosEspecializados.webp';
-import imgSalud from '../../assets/SaludPreventiva.webp';
-import imgPeluqueria from '../../assets/PeluqueriaBienestar.webp';
+import defaultServiceImg from '../../assets/default_service.png';
+import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Service, ServiceCardProps, ServiceData } from '../../helper/typesHS';
+import { useServiceService } from './servicesService';
+import { formatCurrencyCOP } from '../../helper/formatter.ts';
+import { SearchBar } from './serviceComponents.tsx';
+import Spinner from '../../components/spinner/Spinner.tsx';
 
 const Services = () => {
-    return (
-        <section id="servicios">
-            <h1 className={styles.titulo}>Nuestros Servicios 🐾</h1>
-            <div className={styles.serviciosContenedor}>
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [servicesData, setServicesData] = useState<ServiceData[] | undefined>([]);
 
-                <div className={`${styles.servicio} ${styles.abrirModal}`}>
-                    <img src={imgConsulta} className={styles.consulta} alt="Consulta médica" />
-                    <br />
-                    <h1>Consulta <br /> Médica</h1>
-                </div>
+  const { loading, handleGetServices } = useServiceService();
 
-                <div className={styles.servicio}>
+  useEffect(() => {
+    const fetchProductData = async () => {
+      let data = await handleGetServices();
+      setServicesData(data);
+    }
+    fetchProductData();
+  }, []);
 
-                        <img src={imgTratamientos} className={styles.consulta} alt="Tratamientos Especializados" />
-                    <br />
-                    <h1>Tratamientos Especializados</h1>
-                </div>
+  const handlerFormatCoin = (precio: number): string => {
+    return new Intl.NumberFormat("es-CO", {
+      style: "currency",
+      currency: "COP",
+      minimumFractionDigits: 0
+    }).format(precio);
+  }
 
-                <div className={styles.servicio}>
-                        <img src={imgSalud} className={styles.consulta} alt="Salud Preventiva" />
-                    <br />
-                    <h1>Salud <br /> Preventiva</h1>
-                </div>
+  const filteredServices = useMemo(() => {
+    return servicesData?.filter(({ data: service }) => {
+      const matchesSearch = service.name.toLowerCase().includes(searchTerm.toLowerCase())
 
-                <div className={styles.servicio}>
-                    <img src={imgPeluqueria} className={styles.consulta} alt="Peluquería y Bienestar Animal" />
-                    
-                    <br />
-                    <h1>Peluquería y Bienestar Animal</h1>
-                </div>
+      return matchesSearch;
+    })
+  }, [servicesData, searchTerm]);
+  
+  if (loading) return (<Spinner />);
 
-            </div>
+  return (
+    <main className={styles.containServices}>
+      <section className={styles.filters}>
+        <SearchBar
+          placeholder="Buscar servicio..."
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+        />
+      </section>
+      <section className={styles.serviceCardContainer}>
+        <ServiceCard services={filteredServices} />
+      </section>
+    </main>
+  );
+}
+
+const ServiceCard = ({ services }: { services?: ServiceData[] }) => {
+  if (!services || services.length === 0) {
+    return <h2>No hay servicios registrados</h2>;
+  }
+
+  return (
+    <main className={styles.cardServicesContainer}>
+      {services.map(({ data: service }) => (
+        <section className={styles.cardService} key={service.idService}>
+          <aside className={styles.imgCardService}>
+            <img
+              src={getServiceImage(service)}
+              alt={service.name}
+              className={styles.cardImage}
+            />
+          </aside>
+
+          <aside className={styles.nameService}>
+            <h3>{service.name}</h3>
+          </aside>
+
+          <p className={styles.description}>{service.shortDescription}</p>
+          <span className={styles.price}>
+            {service.priceByWeight
+              ? `Desde ${formatCurrencyCOP(service.basePrice)} • Precio según peso`
+              : `Precio fijo: ${formatCurrencyCOP(service.basePrice)}`}
+          </span>
+          <button className={styles.btnAppointment}>Agendar Cita</button>
         </section>
-    );
+      ))}
+    </main>
+  );
+};
+
+const getServiceImage = (service: Service) => {
+  if (service.mediaFile) {
+    return `data:${service.mediaFile.contentType};base64,${service.mediaFile.attachment}`;
+  }
+  return defaultServiceImg;
 }
 
 export default Services;

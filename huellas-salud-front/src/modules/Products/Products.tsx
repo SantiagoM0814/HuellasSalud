@@ -1,7 +1,7 @@
 import { carrito, categorias, marcas, productos } from './data.ts';
 import styles from './products.module.css';
 import imgComida from '../../assets/dogchow.webp';
-import defaultPetImage from "../../assets/simba.webp";
+import defaultPetImage from "../../assets/default_pet.webp";
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Product, ProductCardProps, ProductData } from '../../helper/typesHS';
@@ -10,6 +10,7 @@ import { formatCurrencyCOP } from '../../helper/formatter.ts';
 import ButtonComponent from '../../components/Button/Button.tsx';
 import { CartContext } from '../Cart/types/cart.types.ts';
 import Cart from '../Cart/Cart.tsx';
+import Spinner from '../../components/spinner/Spinner.tsx';
 
 const Products = () => {
 
@@ -46,7 +47,7 @@ const Products = () => {
     })
   }, [productsData, searchTerm])
 
-  if (loading) return (<div style={{ marginTop: "125px" }}>Cargando productos...</div>);
+  if (loading) return (<Spinner />);
 
   return (
       <main className={styles.containProducts}>

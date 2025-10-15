@@ -146,6 +146,7 @@ public class ServiceService {
         serviceMongo.setLongDescription(serviceRequest.getLongDescription());
         serviceMongo.setBasePrice(serviceRequest.getBasePrice());
         serviceMongo.setPriceByWeight(serviceRequest.isPriceByWeight());
+        serviceMongo.setState(serviceRequest.getState());
         serviceMongo.setWeightPriceRules(serviceRequest.getWeightPriceRules());
         
         metaMongo.setLastUpdate(LocalDateTime.now());
@@ -166,5 +167,28 @@ public class ServiceService {
                 return new HSException(Response.Status.NOT_FOUND, "No se encontro el registro del servicio con id: " + idService +
                         " en la base de datos");
         });
+    }
+
+    public ServiceMsg getServiceById(String idService) {
+
+        LOG.infof("@getServiceById SERV > Inicia la ejecucion del servicio para obtener el servicio con id:" +
+                " %s. Inicia consulta en mongo.", idService);
+
+        Optional<ServiceMsg> optionalService = serviceRepository.findServiceById(idService);
+
+        if (optionalService.isEmpty()) {
+            LOG.warnf("@getServiceById SERV > No se encontro ningun servicio con el id: %s", idService);
+            return null;
+        }
+
+        ServiceMsg service = optionalService.get();
+
+        mediaFileRepository.getMediaByEntityTypeAndId("SERVICE", service.getData().getIdService())
+                .ifPresent(media -> service.getData().setMediaFile(media.getData()));
+
+        LOG.infof("@getServiceById SERV > Finaliza consulta de mascota en mongo. Se obtuvo el registro " +
+                "del servicio con id: %s", idService);
+
+        return service;
     }
 }

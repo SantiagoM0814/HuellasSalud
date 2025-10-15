@@ -26,6 +26,11 @@ import org.huellas.salud.repositories.EmailDeliveryRepository;
 import org.huellas.salud.repositories.PasswordRecoveryRepository;
 import org.huellas.salud.repositories.UserRepository;
 import org.jboss.logging.Logger;
+import org.json.JSONObject;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.core.MediaType;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -42,6 +47,9 @@ public class MailService {
 
     @ConfigProperty(name = "PARAMETER.HUELLAS_SALUD.APP_PASSWORD")
     String smtpPassword;
+
+    @ConfigProperty(name = "PARAMETER.HUELLAS_SALUD.BREVO_API")
+    String apiBrevo;
 
     @Inject
     UserService userService;
@@ -122,44 +130,49 @@ public class MailService {
     }
 
     private void sendEmail(String userEmail, String subject, String htmlContent, String textContent, String type) throws HSException {
-        LOG.infof("@sendEmail SERV > Inicia servicio de envio de correo al email: %s", userEmail);
-
-        Properties props = new Properties();
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.host", "smtp.gmail.com");
-        props.put("mail.smtp.port", "465");
-        props.put("mail.smtp.ssl.enable", "true");
-        props.put("mail.smtp.ssl.protocols", "TLSv1.2");
-
-        Session session = Session.getInstance(props, new Authenticator() {
-            @Override
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(smtpUser, smtpPassword);
-            }
-        });
+        LOG.infof("@sendEmail SERV > Inicia servicio de envío de correo a: %s mediante Brevo API", userEmail);
 
         try {
-            Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(smtpUser));
-            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(userEmail));
-            message.setSubject(subject);
-            message.setContent(htmlContent, "text/html; charset=utf-8"); // HTML
-            // También puedes enviar textContent con message.setText(textContent) si quieres texto plano
+            // Construir cuerpo del JSON
+            JSONObject body = new JSONObject()
+                    .put("sender", new JSONObject()
+                            .put("email", "huellassalud@gmail.com")
+                            .put("name", "Huellas & Salud"))
+                    .put("to", new org.json.JSONArray()
+                            .put(new JSONObject().put("email", userEmail)))
+                    .put("subject", subject)
+                    .put("htmlContent", htmlContent)
+                    .put("textContent", textContent);
 
-            Transport.send(message);
+            // Crear cliente HTTP
+            Client client = ClientBuilder.newClient();
 
-            String description = "Correo entregado correctamente via Gmail";
-            saveEmailDelivery(description, userEmail, "OK", subject, type);
+            Response response = client.target("https://api.brevo.com/v3/smtp/email")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .header("api-key", apiBrevo) // tu API Key de Brevo
+                    .post(Entity.entity(body.toString(), MediaType.APPLICATION_JSON_TYPE));
 
-            LOG.infof("@sendEmail SERV > Correo enviado correctamente a: %s", userEmail);
+            // Evaluar la respuesta
+            if (response.getStatus() == 201 || response.getStatus() == 200) {
+                LOG.infof("@sendEmail SERV > Correo enviado correctamente a: %s usando Brevo API", userEmail);
+                saveEmailDelivery("Correo entregado correctamente via Brevo API", userEmail, "OK", subject, type);
+            } else {
+                String errorMsg = response.readEntity(String.class);
+                LOG.errorf("@sendEmail SERV > Error al enviar correo a %s: %s", userEmail, errorMsg);
+                saveEmailDelivery("Error en envío de correo via Brevo: " + errorMsg, userEmail, "ERROR", subject, type);
+                throw new HSException(Response.Status.INTERNAL_SERVER_ERROR, "Error al enviar correo de recuperación");
+            }
 
-        } catch (MessagingException e) {
-            LOG.errorf(e, "@sendEmail SERV > Error al enviar correo a: %s", userEmail);
-            String description = "Error en envío de correo: " + e.getMessage();
-            saveEmailDelivery(description, userEmail, "ERROR", subject, type);
+            response.close();
+            client.close();
+
+        } catch (Exception e) {
+            LOG.errorf(e, "@sendEmail SERV > Error inesperado al enviar correo a: %s", userEmail);
+            saveEmailDelivery("Error inesperado en envío de correo via Brevo: " + e.getMessage(), userEmail, "ERROR", subject, type);
             throw new HSException(Response.Status.INTERNAL_SERVER_ERROR, "Error al enviar correo de recuperación");
         }
     }
+
 
     private void saveEmailDelivery(String description, String userEmail, String status, String subject, String type) {
 

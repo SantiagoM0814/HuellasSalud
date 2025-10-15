@@ -121,12 +121,12 @@ public class ServiceApi {
                 + "en base de datos con la data: %s", serviceMsg);
 
         serviceService.updateServiceDataMongo(serviceMsg);
+        ServiceMsg serviceUpdated = serviceService.getServiceById(serviceMsg.getData().getIdService());
 
-        LOG.infof("@updateServiceData API > Finaliza ejecucion del servicio para actualizar el registro de un servicio "
-                + "en base de datos con id: %s", serviceMsg.getData().getIdService());
+        LOG.debugf("@updateServiceData API > Finaliza ejecucion del servicio para actualizar el registro de un servicio "
+                + "en base de datos con la informacion: %s", serviceMsg);
 
-        return Response.ok()
-                .status(Response.Status.NO_CONTENT)
+        return Response.ok(serviceUpdated)
                 .build();
     }
 

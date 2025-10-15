@@ -61,7 +61,7 @@ export const productValidationRules: ProductValidationRules = {
       message: "Debe ser un número de entre 6 y 13 dígitos",
     },
   },
-  status: {
+  active: {
     required: "El estado es obligatorio",
   },
   supplier: {

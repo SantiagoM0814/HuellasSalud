@@ -15,6 +15,7 @@ import ProtectedRoute from "./context/ProtectedRoute";
 import PasswordRecovery from "./modules/PasswordRecovery/PasswordRecovery";
 import ResetPassword from "./modules/PasswordRecovery/ResetPassword";
 import PetDetails from "./modules/PetDetails/PetDetails";
+import ServicesAdmin from "./modules/Services/ServicesAdmin";
 
 const AppRoutes = () => {
 
@@ -35,7 +36,7 @@ const AppRoutes = () => {
       path: "/servicios-admin",
       element: (
         <ProtectedRoute requiredRole={["ADMINISTRADOR"]}>
-          <ProductsAdmin />
+          <ServicesAdmin />
         </ProtectedRoute>
       )
     },

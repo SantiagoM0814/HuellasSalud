@@ -259,6 +259,10 @@ export interface ProductCardProps {
     setProductsData: Dispatch<SetStateAction<ProductData[] | undefined>>;
 }
 
+export interface ServiceCardProps {
+    setServicesData: Dispatch<SetStateAction<ServiceData[] | undefined>>;
+}
+
 interface AuthContextType {
     user: User | null;
     token: string | null;

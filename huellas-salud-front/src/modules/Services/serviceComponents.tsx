@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { AuthContext, CreateProductModalProps, CreateServiceModalProps, FormProductProps, FormServiceProps, InputFieldProductRegister, InputFieldServiceRegister, Meta, Product, ProductData, ProductTableProps, SearchBarProps, Service, ServiceData, ServiceFiltersProps, ServiceTableProps } from "../../helper/typesHS";
-import styles from './productsAdmin.module.css';
+import styles from './servicesAdmin.module.css';
 import { categorys, species, statusOptions, tableProductColumns, tableServiceColumns, unitOfMeasure } from "../Users/UserManagement/usersUtils";
 import { formatCurrencyCOP } from "../../helper/formatter";
 import { useServiceRegister } from "./serviceRegisterService";
@@ -141,7 +141,7 @@ export const ServiceTable = ({ services, setServicesData }: ServiceTableProps) =
           <section className={styles.modal}>
             <button className={styles.closeButton} onClick={() => setIsModalEditService && setIsModalEditService(false)}>x</button>
             <section className={styles.backgroundModalEdit} />
-            <FormService setModalService={setIsModalEditService} setServicesData={setServicesData} productSelected={serviceSelected} />
+            <FormService setModalService={setIsModalEditService} setServicesData={setServicesData} serviceSelected={serviceSelected} />
           </section>
         </main>
       )}
@@ -188,7 +188,7 @@ export const FormService = ({ setModalService, setServicesData, serviceSelected 
               : {}
           }
         >
-          {!previewImg && (<i className="fa-solid fa-box-open"></i>)}
+          {!previewImg && (<i className="fa-solid fa-stethoscope"></i>)}
         </label>
         <input
           type="file"
@@ -208,12 +208,12 @@ export const FormService = ({ setModalService, setServicesData, serviceSelected 
           {...register("shortDescription", {
             required: "La descripción es obligatoria",
             minLength: {
-              value: 10,
-              message: "Minimo 10 caracteres"
+              value: 20,
+              message: "Minimo 20 caracteres"
             },
             maxLength: {
-              value: 200,
-              message: "Máximo 200 caracteres",
+              value: 250,
+              message: "Máximo 250 caracteres",
             },
           })}
         />
@@ -228,12 +228,12 @@ export const FormService = ({ setModalService, setServicesData, serviceSelected 
           {...register("longDescription", {
             required: "La descripción es obligatoria",
             minLength: {
-              value: 10,
-              message: "Minimo 10 caracteres"
+              value: 100,
+              message: "Minimo 100 caracteres"
             },
             maxLength: {
-              value: 200,
-              message: "Máximo 200 caracteres",
+              value: 500,
+              message: "Máximo 500 caracteres",
             },
           })}
         />

@@ -1,69 +1,68 @@
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { CreateProductModalProps, MediaFile, Product, ProductData } from "../../helper/typesHS";
+import { CreateServiceModalProps, MediaFile, Service, ServiceData } from "../../helper/typesHS";
 import axiosInstance from "../../context/axiosInstance";
 import axios from "axios";
 import Swal from "sweetalert2";
 
-export const useServiceRegister = ({ setModalProduct, setProductsData, productSelected }: CreateProductModalProps) => {
+export const useServiceRegister = ({ setModalService, setServicesData, serviceSelected }: CreateServiceModalProps) => {
     const fileInput = useRef<HTMLInputElement>(null);
 
     const [errorMsg, setErrorMsg] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(false);
     const [previewImg, setPreviewImg] = useState<string | undefined>();
-    const [fileName, setFileName] = useState<string>("Cargar imagen del producto");
+    const [fileName, setFileName] = useState<string>("Cargar imagen del servicio");
 
     const {
         register,
         handleSubmit,
         formState: { errors },
         reset
-    } = useForm<Product>({ defaultValues: { active: true } })
+    } = useForm<Service>({ defaultValues: { state: true } })
 
     useEffect(() => {
-        if (productSelected?.data.mediaFile) {
-            setPreviewImg(`data:${productSelected.data.mediaFile.contentType};base64,${productSelected.data.mediaFile.attachment}`); // Base64 si lo tienes
-            setFileName(productSelected.data.mediaFile.fileName);
+        if (serviceSelected?.data.mediaFile) {
+            setPreviewImg(`data:${serviceSelected.data.mediaFile.contentType};base64,${serviceSelected.data.mediaFile.attachment}`);
+            setFileName(serviceSelected.data.mediaFile.fileName);
         }
-        if (productSelected?.data) {
-            reset(productSelected.data);
+        if (serviceSelected?.data) {
+            reset(serviceSelected.data);
         }
-    }, [productSelected, reset]);
+    }, [serviceSelected, reset]);
 
 
-    const createProduct = async (productData: Product) => {
-        const payload = { data: productData };
-        console.log(payload);
-        toast.info(`Creando registro del producto ${productData.name.toUpperCase()}... ⌛`, { autoClose: 1200 });
+    const createService = async (serviceData: Service) => {
+        const payload = { data: serviceData };
+        toast.info(`Creando registro del servicio ${serviceData.name.toUpperCase()}... ⌛`, { autoClose: 1200 });
 
         const file = fileInput.current?.files?.[0];
-        const { data: createdProduct } = await axiosInstance.post<ProductData>("product/register", payload);
+        const { data: createdService } = await axiosInstance.post<ServiceData>("service/create", payload);
 
-        if (file && createdProduct?.data?.idProduct) {
+        if (file && createdService?.data?.idService) {
 
             const formData = new FormData();
             formData.append("file", file);
 
             try {
                 const { data: mediaFile } = await axiosInstance.post<MediaFile>(
-                    `/avatar-user/PRODUCT/${createdProduct.data.idProduct}`,
+                    `/avatar-user/SERVICE/${createdService.data.idService}`,
                     formData,
                     { headers: { "Content-Type": "multipart/form-data" } }
                 );
-                createdProduct.data.mediaFile = mediaFile;
+                createdService.data.mediaFile = mediaFile;
             } catch (err) {
-                toast.error("Producto creado, pero falló el envío de imagen");
+                toast.error("Servicio creado, pero falló el envío de imagen");
             }
         }
 
-        setProductsData && setProductsData(prev => [...(prev ?? []), createdProduct]);
-        return createdProduct;
+        setServicesData && setServicesData(prev => [...(prev ?? []), createdService]);
+        return createdService;
     };
 
     const handleError = (error: unknown) => {
-        setErrorMsg("Error en servicio de creación de producto");
-        let errorMessage = "Error desconocido al crear producto nuevo";
+        setErrorMsg("Error en servicio de creación de servicio");
+        let errorMessage = "Error desconocido al crear servicio nuevo";
 
         if (axios.isAxiosError(error)) {
             errorMessage = error.response?.data?.title
@@ -75,21 +74,21 @@ export const useServiceRegister = ({ setModalProduct, setProductsData, productSe
         toast.error(`${errorMessage} ❌`);
     }
 
-    const onSubmit = async (product: Product) => {
+    const onSubmit = async (service: Service) => {
         const file = fileInput.current?.files?.[0];
         if (!file) {
-            toast.error("¡Debe subir una imagen del producto!");
+            toast.error("¡Debe subir una imagen del servicio!");
             return;
         }
 
         setLoading(true);
 
         try {
-            await createProduct(product);
-            toast.success("Producto registrado con éxito! 🎉");
+            await createService(service);
+            toast.success("Servicio registrado con éxito! 🎉");
             setErrorMsg("");
             reset();
-            setModalProduct && setModalProduct(false);
+            setModalService && setModalService(false);
         } catch (error) { handleError(error); }
         finally { setLoading(false); }
     }
@@ -115,10 +114,10 @@ export const useServiceRegister = ({ setModalProduct, setProductsData, productSe
         setFileName(file.name);
     }
 
-    const handleUpdateProduct = async (product: Product) => {
-        const payload = { data: product };
+    const handleUpdateService = async (service: Service) => {
+        const payload = { data: service };
         setLoading(true);
-        toast.info("Actualizando producto... ⌛", { autoClose: 1000 });
+        toast.info("Actualizando servicio... ⌛", { autoClose: 1000 });
 
         try {
             const file = fileInput.current?.files?.[0];
@@ -127,39 +126,39 @@ export const useServiceRegister = ({ setModalProduct, setProductsData, productSe
                 formData.append("file", file);
 
                 try {
-                    await axiosInstance.get(`/avatar-user/PRODUCT/${payload.data.idProduct}`);
+                    await axiosInstance.get(`/avatar-user/SERVICE/${payload.data.idService}`);
 
                     await axiosInstance.put(
-                        `/avatar-user/update/PRODUCT/${payload.data.idProduct}`,
+                        `/avatar-user/update/SERVICE/${payload.data.idService}`,
                         formData,
                         { headers: { "Content-Type": "multipart/form-data" } }
                     );
                 } catch (error: any) {
                     if (error.response?.status === 404) {
                         await axiosInstance.post(
-                            `/avatar-user/PRODUCT/${payload.data.idProduct}`,
+                            `/avatar-user/SERVICE/${payload.data.idService}`,
                             formData,
                             { headers: { "Content-Type": "multipart/form-data" } }
                         );
                     } else {
-                        toast.error("Producto actualizado, pero falló el envío de imagen");
+                        toast.error("Servicio actualizado, pero falló el envío de imagen");
                     }
                 }
             }
-            const { data: productUpdated } = await axiosInstance.put(`/product/update`, payload);
+            const { data: serviceUpdated } = await axiosInstance.put(`/service/update`, payload);
 
-            setProductsData &&
-                setProductsData(prev =>
-                    prev?.map(p =>
-                        p.data.idProduct === productUpdated.data.idProduct ? productUpdated : p
+            setServicesData &&
+                setServicesData(prev =>
+                    prev?.map(s =>
+                        s.data.idService === serviceUpdated.data.idService ? serviceUpdated : s
                     )
                 );
 
-            toast.success("Producto actualizado con éxito! 🎉", { autoClose: 1500 });
-            setModalProduct && setModalProduct(false);
+            toast.success("Servicio actualizado con éxito! 🎉", { autoClose: 1500 });
+            setModalService && setModalService(false);
             return payload.data;
         } catch (error) {
-            handleError("Error al actualizar el producto");
+            handleError("Error al actualizar el servicio");
             throw error;
         } finally {
             setLoading(false);
@@ -167,30 +166,30 @@ export const useServiceRegister = ({ setModalProduct, setProductsData, productSe
     };
 
 
-    const confirmUpdate = async (product: Product): Promise<boolean> => {
+    const confirmUpdate = async (service: Service): Promise<boolean> => {
         const file = fileInput.current?.files?.[0];
 
         if (
-            productSelected?.data &&
-            JSON.stringify(productSelected.data) === JSON.stringify(product) &&
+            serviceSelected?.data &&
+            JSON.stringify(serviceSelected.data) === JSON.stringify(service) &&
             !file
         ) {
-            toast.info("No realizaste ningún cambio en el producto.");
+            toast.info("No realizaste ningún cambio en el servicio.");
             return false;
         }
 
         const result = await Swal.fire({
             title: "¿Estás seguro?",
-            text: `¿Deseas actualizar el producto ${product.name}?`,
+            text: `¿Deseas actualizar el servicio ${service.name}?`,
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: `Actualizar Producto`,
+            confirmButtonText: `Actualizar Servicio`,
             cancelButtonText: "Cancelar",
         });
         if (result.isConfirmed) {
-            handleUpdateProduct(product);
+            handleUpdateService(service);
             return true;
         }
         return false;
@@ -200,7 +199,7 @@ export const useServiceRegister = ({ setModalProduct, setProductsData, productSe
     return {
         confirmUpdate,
         errorMsg,
-        handleCreateProductSubmit: onSubmit,
+        handleCreateServiceSubmit: onSubmit,
         loading,
         register,
         errors,

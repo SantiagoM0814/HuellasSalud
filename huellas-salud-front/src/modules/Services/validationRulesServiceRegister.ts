@@ -1,22 +1,11 @@
 import { RegisterOptions } from "react-hook-form";
+import { Service } from "../../helper/typesHS";
 
-type WeightPriceRule = {
-  minWeight: number;
-  maxWeight: number;
-  price: number;
-};
+type ServiceValidationRules = {
+  [key in keyof Service]?: RegisterOptions<Service, key>;
+}
 
-type Service = {
-  idService?: string;
-  name: string;
-  shortDescription: string;
-  longDescription: string;
-  basePrice: number;
-  priceByWeight: boolean;
-  weightPriceRules?: WeightPriceRule[];
-};
-
-export const serviceValidationRules: { [K in keyof Service]?: RegisterOptions<Service, K> } = {
+export const serviceValidationRules: ServiceValidationRules = {
   name: {
     required: "El campo nombre no puede ser nulo o vacío",
     minLength: { value: 5, message: "El campo nombre debe tener al menos 5 caracteres" },
@@ -42,32 +31,5 @@ export const serviceValidationRules: { [K in keyof Service]?: RegisterOptions<Se
   },
   priceByWeight: {
     required: "Debe especificar si el precio depende del peso",
-  },
-  weightPriceRules: {
-    validate: (rules: WeightPriceRule[] | undefined) => {
-      if (!rules || rules.length === 0) {
-        return "Debe definir al menos una regla de precio por peso";
-      }
-      for (let i = 0; i < rules.length; i++) {
-        const rule = rules[i];
-        if (
-          typeof rule.minWeight !== "number" ||
-          typeof rule.maxWeight !== "number" ||
-          typeof rule.price !== "number"
-        ) {
-          return `La regla #${i + 1} debe tener minWeight, maxWeight y price como números`;
-        }
-        if (rule.minWeight < 0) {
-          return `minWeight en regla #${i + 1} no puede ser negativo`;
-        }
-        if (rule.maxWeight <= rule.minWeight) {
-          return `maxWeight debe ser mayor que minWeight en regla #${i + 1}`;
-        }
-        if (rule.price < 0) {
-          return `price no puede ser negativo en regla #${i + 1}`;
-        }
-      }
-      return true;
-    },
-  },
+  }
 };
