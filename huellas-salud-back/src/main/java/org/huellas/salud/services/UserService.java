@@ -95,7 +95,7 @@ public class UserService {
     @CacheResult(cacheName = "users-list-cache")
     public List<UserMsg> getListRegisteredUser() {
 
-        LOG.info("@getListRegisteredUser SERV > Inicia servicio para obtener listado de usuarios registrados en mongo");
+        LOG.infof("@getListRegisteredUser SERV > Inicia servicio para obtener listado de usuarios registrados en mongo");
 
         List<UserMsg> users = getUserData();
 

@@ -74,7 +74,7 @@ public class ServiceApi {
     @Tag(name = "Gestión de servicios")
     @Operation(
             summary = "Creación de un servicio nuevo",
-            description = "Permite crear el registro de un servicio nuevo en la base de datos con la información dada"
+            description = "Permite crear el registro de un servicio nuevo en la base de datos con la información suministrada"
     )
     public Response createServiceData(
             @RequestBody(

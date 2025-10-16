@@ -22,7 +22,7 @@ public class Appointment implements Serializable {
 
     @BsonProperty("idCita")
     @Schema(example = "faf32d41-65b2-431b-a468-0dbc6650ae47")
-    @Null(message = "No debe enviar ningún valor en el campo idService", groups = ValidationGroups.Post.class)
+    @Null(message = "No debe enviar ningún valor en el campo idAppointment", groups = ValidationGroups.Post.class)
     private String idAppointment;
 
     @BsonProperty("idPropietario")
@@ -36,18 +36,18 @@ public class Appointment implements Serializable {
     private String idPet;
 
     @BsonProperty("servicios")
-    @Schema(example = "Revisión general")
+    @Schema(example = "[\"Revisión general\", \"Vacunación\"]")
     @NotNull(message = "Debe incluir al menos un servicio")
     private List<String> services;
 
     @BsonProperty("fechaHora")
-    @Schema(example = "12/10/2025:12:00:00")
+    @Schema(example = "2025-12-05T16:11:27.34")
     @FutureOrPresent(message = "La fecha debe ser actual o futura")
     private LocalDateTime dateTime;
 
     @BsonProperty("estado")
-    @Schema(example = "pendiente")
-    private String status;
+    @Schema(example = "PENDIENTE")
+    private AppointmentStatus status;
 
     @BsonProperty("observaciones")
     @Schema(example = "La mascota presenta tos y falta de apetito")

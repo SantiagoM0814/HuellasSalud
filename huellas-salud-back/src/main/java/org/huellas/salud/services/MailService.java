@@ -42,12 +42,6 @@ public class MailService {
 
     private static final Logger LOG = Logger.getLogger(MailService.class);
 
-    @ConfigProperty(name = "PARAMETER.HUELLAS_SALUD.EMAIL")
-    String smtpUser;
-
-    @ConfigProperty(name = "PARAMETER.HUELLAS_SALUD.APP_PASSWORD")
-    String smtpPassword;
-
     @ConfigProperty(name = "PARAMETER.HUELLAS_SALUD.BREVO_API")
     String apiBrevo;
 

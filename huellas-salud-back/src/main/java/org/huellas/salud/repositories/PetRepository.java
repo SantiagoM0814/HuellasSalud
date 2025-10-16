@@ -4,7 +4,6 @@ import io.quarkus.mongodb.panache.PanacheMongoRepository;
 import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.huellas.salud.domain.pet.PetMsg;
-import org.huellas.salud.services.PetService;
 import org.jboss.logging.Logger;
 
 import java.util.List;
@@ -13,7 +12,7 @@ import java.util.Optional;
 @ApplicationScoped
 public class PetRepository implements PanacheMongoRepository<PetMsg> {
 
-    private static final Logger LOG = Logger.getLogger(PetService.class);
+    private static final Logger LOG = Logger.getLogger(PetRepository.class);
 
     public Optional<PetMsg> findPetByNameAndOwner(String ownerDocument, String petName) {
 

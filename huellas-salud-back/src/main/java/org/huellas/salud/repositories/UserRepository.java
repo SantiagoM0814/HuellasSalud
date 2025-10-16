@@ -16,7 +16,7 @@ public class UserRepository implements PanacheMongoRepository<UserMsg> {
 
     public List<UserMsg> getRegisteredUsersMongo() {
 
-        LOG.info("@getRegisteredUsersMongo REPO > Inicia obtencion de los usuarios registrados en mongo. estos se " +
+        LOG.infof("@getRegisteredUsersMongo REPO > Inicia obtencion de los usuarios registrados en mongo. estos se " +
                 "retornaran ordenados de manera descendente por el campo de fecha de creacion");
 
         return listAll(Sort.descending("meta.fechaCreacion"));
