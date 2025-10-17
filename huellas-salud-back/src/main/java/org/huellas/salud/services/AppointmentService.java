@@ -89,6 +89,26 @@ public class AppointmentService {
         return appointmentMsg;
     }
 
+    public AppointmentMsg getAppointmentById(String idAppointment) {
+
+        LOG.infof("@getAppointmentById SERV > Inicia ejecucion del servicio para obtener la cita con id: %s."
+            + " Inicia consulta en mongo.", idAppointment);
+
+        Optional<AppointmentMsg> optionalAppointment = appointmentRepository.findAppointmentById(idAppointment);
+
+        if (optionalAppointment.isEmpty()) {
+            LOG.warnf("@getAppointmentById SERV > No se encontro ninguna cita con el id: %s", idAppointment);
+            return null;
+        }
+
+        AppointmentMsg appointment = optionalAppointment.get();
+
+        LOG.infof("@getAppointmentById SERV > Finaliza consulta de la cita en mongo. Se obtuvo el registro "
+            + "de la cita con el id: %s", idAppointment);
+
+        return appointment;
+    }
+
     @CacheResult(cacheName = "appointments-list-cache")
     public List<AppointmentMsg> getListAppointmentMsg() {
 
@@ -116,6 +136,7 @@ public class AppointmentService {
         return appointments;
     }
 
+    @CacheInvalidateAll(cacheName = "appointments-list-cache")
     public void updateAppointmentDataMongo(AppointmentMsg appointmentMsg) throws HSException {
 
         LOG.infof("@updateAppointmentDataMongo SERV > Inicia la ejecucion del servicio para actualizar registro de "

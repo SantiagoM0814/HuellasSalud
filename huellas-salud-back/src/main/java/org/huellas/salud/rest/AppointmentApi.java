@@ -4,10 +4,11 @@ import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
-import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.huellas.salud.domain.appointment.AppointmentMsg;
 import org.huellas.salud.services.AppointmentService;
+import jakarta.validation.constraints.NotBlank;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.huellas.salud.helper.exceptions.HSException;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -88,9 +89,67 @@ public class AppointmentApi {
         LOG.infof("@createAppointmentData API > Finaliza ejecucion del servicio para crear el registro de una cita "
             + "en base de datos. Se registro la siguiente informacion: %s", appointmentMsg);
 
-        return Response.ok()
-                .status(Response.Status.CREATED)
+        return Response.status(Response.Status.CREATED)
                 .entity(appointmentCreated)
                 .build();
+    }
+
+    @PUT
+    @Path("/update")
+    @Tag(name = "Gestión de citas")
+    @Operation(
+            summary = "Actualización de la información de una cita",
+            description = "Permite actualizar la información de una cita registrada en la base de datos"
+    )
+    public Response updateAppointmentData(
+            @RequestBody(
+                    name = "citaMsg",
+                    description = "Información con la que se actualizara la cita",
+                    required = true
+            )
+            @NotNull(message = "Debe ingresar los datos de la cita a actualizar")
+            @ConvertGroup(to = ValidationGroups.Put.class) @Valid AppointmentMsg appointmentMsg
+    ) throws HSException {
+
+        LOG.infof("@updateAppointmentData API > Inicia ejecucion del servicio para actualiazr el registro de una cita "
+            + "en la base de datos con la data: %s", appointmentMsg);
+
+        appointmentService.updateAppointmentDataMongo(appointmentMsg);
+        AppointmentMsg appointmentUpdated = appointmentService.getAppointmentById(appointmentMsg.getData().getIdAppointment());
+
+        LOG.debugf("@updateAppointmentData API > Finaliza ejecucion del servicio para actualizar el registro de una cita "
+            + "en base de datos con la informacion: %s", appointmentMsg);
+
+        return Response.ok(appointmentUpdated)
+                .build();
+    }
+
+    @DELETE
+    @Path("/delete")
+    @Tag(name = "Gestión de citas")
+    @Operation(
+            summary = "Eliminación de una cita",
+            description = "Permite eliminar el registro de una cita en la base de datos"
+    )
+    public Response deleteAppointmentData(
+            @Parameter(
+                    name = "idAppointment",
+                    description = "Identificador de la cita a eliminar",
+                    required = true,
+                    example = "faf32d41-65b2-431b-a468-0dbc6650ae47"
+            )
+            @NotBlank(message = "Debe ingresar el identificador (idAppointment) de la cita a eliminar")
+            @QueryParam("idAppointment") String idAppointment
+    ) throws HSException {
+
+        LOG.infof("@deleteAppointmentData API > Inicia ejecucion del servicio para eliminar el registro de una cita "
+            + "en la base de datos con id: %s", idAppointment);
+
+        appointmentService.deleteAppointmentDataMongo(idAppointment);
+
+        LOG.infof("@deleteAppointmentData API > Finaliza ejecucion del servicio para eliminar el registro de una cita "
+            + "en la base de datos con id: %s", idAppointment);
+
+        return Response.status(Response.Status.NO_CONTENT).build();
     }
 }
