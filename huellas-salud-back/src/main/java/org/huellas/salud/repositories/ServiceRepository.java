@@ -16,8 +16,8 @@ public class ServiceRepository implements PanacheMongoRepository<ServiceMsg> {
 
     public List<ServiceMsg> getRegisteredServicesMongo() {
 
-        LOG.infof("@getRegisteredServicesMongo REPO > Inicia obtencion de los servicios registrados en mongo, estos se " +
-                "retornaran ordenados de manera descendente por el campo de fecha de creacion");
+        LOG.infof("@getRegisteredServicesMongo REPO > Inicia obtencion de los servicios registrados en mongo, estos se "
+                + "retornaran ordenados de manera descendente por el campo de fecha de creacion");
 
         return listAll(Sort.descending("meta.fechaCreacion"));
     }
@@ -31,16 +31,16 @@ public class ServiceRepository implements PanacheMongoRepository<ServiceMsg> {
 
     public Optional<ServiceMsg> findServiceByName(String name) {
 
-        LOG.infof("@findServiceByName REPO > Inicia busqueda del registro del servicio con nombre " +
-                "%s en mongo", name);
+        LOG.infof("@findServiceByName REPO > Inicia busqueda del registro del servicio con nombre "
+                + "%s en mongo", name);
 
         return find("data.nombre = ?1", name).firstResultOptional();
     }
 
     public long deleteServiceDataMongo(String ServiceId) {
 
-        LOG.infof("@deleteServiceDataMongo REPO > Inicia servicio de eliminacion del servicio con el id: %s " +
-                "en mongo", ServiceId);
+        LOG.infof("@deleteServiceDataMongo REPO > Inicia servicio de eliminacion del servicio con el id: %s "
+                + "en mongo", ServiceId);
 
         return delete("data.idServicio = ?1", ServiceId);
     }

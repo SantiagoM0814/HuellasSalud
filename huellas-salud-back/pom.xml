@@ -61,6 +61,11 @@
             <artifactId>quarkus-resteasy-client-jackson</artifactId>
             <version>3.14.1</version>
         </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-scheduler</artifactId>
+            <version>3.14.1</version>
+        </dependency>
 
 
         <!-- Resend Email -->
