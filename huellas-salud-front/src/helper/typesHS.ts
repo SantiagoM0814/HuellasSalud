@@ -5,6 +5,7 @@ import { UnitOfMeasure } from "../modules/Users/UserManagement/usersUtils";
 export type Sex = "MACHO" | "HEMBRA" | "INDETERMINADO";
 export type Species = "PERRO" | "GATO" | "AVE" | "ROEDOR" | "REPTIL" | "PESCADO";
 export type Role = "ADMINISTRADOR" | "VETERINARIO" | "CLIENTE" | "RECEPCIONISTA";
+export type Status = "PENDIENTE" | "CONFIRMADA" | "CANCELADA" | "FINALIZADA";
 
 export interface ListItemNavProps extends NavLinkProps {
     path: string;
@@ -74,6 +75,24 @@ export interface ServiceData {
     meta: Meta
 }
 
+export interface Appointment {
+    idAppointment: string;
+    idOwner: string;
+    idPet: string;
+    services: string[];
+    dateTime: string;
+    status: Status;
+    notes: string;
+    idVeterinarian: string;
+    date?: string;
+    hour?: string;
+}
+
+export interface AppointmentData {
+    data: Appointment,
+    meta: Meta
+}
+
 export interface User {
     name: string;
     lastName: string;
@@ -98,7 +117,7 @@ export interface Vaccine {
 
 export interface MedicalHistory {
   idHistory: string;
-  date: string; // Usar string porque el backend te enviará un ISO 8601 (ej: "2025-09-19T13:45:00")
+  date: string;
   diagnostic: string;
   treatment?: string;
   veterinarian: string;
@@ -234,6 +253,14 @@ export interface ServiceFiltersProps {
     onStatusFilterChange: (value: string) => void;
 }
 
+export interface AppointmentFiltersProps {
+    searchTerm: string
+    statusFilter: string
+    setModalCreateAppointment: (close: boolean) => void;
+    onSearchChange: (value: string) => void;
+    onStatusFilterChange: (value: string) => void;
+}
+
 export interface UserTableProps {
     users: UserData[] | undefined;
     setUsersData: Dispatch<SetStateAction<UserData[] | undefined>>;
@@ -247,6 +274,11 @@ export interface ProductTableProps {
 export interface ServiceTableProps {
     services: ServiceData[] | undefined;
     setServicesData: Dispatch<SetStateAction<ServiceData[] | undefined>>;
+}
+
+export interface AppointmentTableProps {
+    appointments: AppointmentData[] | undefined;
+    setAppointmentsData: Dispatch<SetStateAction<AppointmentData[] | undefined>>;
 }
 
 export interface PetCardProps { 
@@ -342,6 +374,15 @@ export interface CreateServiceModalProps {
     serviceSelected?: ServiceData
 }
 
+export interface FormAppointmentProps extends CreateAppointmentModalProps { }
+
+export interface CreateAppointmentModalProps {
+    setModalAppointment?: (close: boolean) => void;
+    setAppointmentsData?: Dispatch<SetStateAction<AppointmentData[] | undefined>>;
+    appointmentSelected?: AppointmentData;
+    selectedServiceId?: string; 
+}
+
 export interface InputFieldPetRegister {
     label: string;
     type?: HTMLInputTypeAttribute;
@@ -370,6 +411,16 @@ export interface InputFieldServiceRegister {
     inputFull?: boolean;
     register: UseFormRegister<Service>;
     errors: FieldErrors<Service>;
+}
+
+export interface InputFieldAppointmentRegister {
+    label: string;
+    type?: HTMLInputTypeAttribute;
+    idInput: keyof Appointment;
+    required?: boolean;
+    inputFull?: boolean;
+    register: UseFormRegister<Appointment>;
+    errors: FieldErrors<Appointment>;
 }
 
 export interface InputFieldHistoryRegister {

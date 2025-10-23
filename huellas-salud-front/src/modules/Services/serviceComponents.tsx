@@ -70,9 +70,9 @@ export const ServiceTable = ({ services, setServicesData }: ServiceTableProps) =
   }
 
   const deleteService = async (service: Service) => {
-      const idService = await confirmDelete(service);
-      if (idService) setServicesData(prev => prev?.filter(p => p.data.idService !== idService));
-    };
+    const idService = await confirmDelete(service);
+    if (idService) setServicesData(prev => prev?.filter(p => p.data.idService !== idService));
+  };
 
   return (
     <section className={styles.tableContainer}>
@@ -168,16 +168,49 @@ export const ServiceImg = ({ service }: { service: Service }) => {
 export const FormService = ({ setModalService, setServicesData, serviceSelected }: FormServiceProps) => {
   const { user } = useContext(AuthContext);
 
+  const [weightPriceRules, setWeightPriceRules] = useState<
+    { minWeight: number; maxWeight: number; price: number }[]
+  >([]);
+
   const {
     errorMsg, handleCreateServiceSubmit, confirmUpdate, loading, register, errors,
     handleSubmit, fileName, fileInput, previewImg, handleChangeImg, reset
   } = useServiceRegister({ setModalService, setServicesData, serviceSelected });
 
+  useEffect(() => {
+    if (serviceSelected && serviceSelected.data.priceByWeight && serviceSelected.data.weightPriceRules) {
+      setWeightPriceRules(serviceSelected.data.weightPriceRules);
+    } else {
+      setWeightPriceRules([]); // si no tiene, se limpia
+    }
+  }, [serviceSelected]);
+
+  // 👇 Adaptamos el envío de datos para incluir los rangos
+  const onSubmit = (data: any) => {
+    let payload: any = {
+      ...data,
+    };
+
+    // Solo agregamos los campos si hay reglas de peso válidas
+    if (weightPriceRules && weightPriceRules.length > 0) {
+      payload.priceByWeight = true;
+      payload.weightPriceRules = weightPriceRules;
+    }
+
+    if (serviceSelected) {
+      confirmUpdate(payload);
+    } else {
+      handleCreateServiceSubmit(payload);
+    }
+  };
+
+
   return (
     <form
       className={styles.formRegisterService}
-      onSubmit={handleSubmit(serviceSelected ? confirmUpdate : handleCreateServiceSubmit)}
+      onSubmit={handleSubmit(onSubmit)}
     >
+      {/* Imagen */}
       <section className={styles.selectImg}>
         <label
           htmlFor="loadImg"
@@ -188,7 +221,7 @@ export const FormService = ({ setModalService, setServicesData, serviceSelected 
               : {}
           }
         >
-          {!previewImg && (<i className="fa-solid fa-stethoscope"></i>)}
+          {!previewImg && <i className="fa-solid fa-stethoscope"></i>}
         </label>
         <input
           type="file"
@@ -200,21 +233,17 @@ export const FormService = ({ setModalService, setServicesData, serviceSelected 
         />
         <span>{fileName}</span>
       </section>
+
       <InputField label="Nombre del servicio" idInput="name" register={register} errors={errors} />
+      <InputField label="Precio Base" idInput="basePrice" type="number" register={register} errors={errors} />
       <aside className={styles.inputField}>
         <label htmlFor="shortDescription">Descripción corta<span className={styles.required}>*</span></label>
         <textarea
           id="shortDescription"
           {...register("shortDescription", {
             required: "La descripción es obligatoria",
-            minLength: {
-              value: 20,
-              message: "Minimo 20 caracteres"
-            },
-            maxLength: {
-              value: 250,
-              message: "Máximo 250 caracteres",
-            },
+            minLength: { value: 20, message: "Mínimo 20 caracteres" },
+            maxLength: { value: 250, message: "Máximo 250 caracteres" },
           })}
         />
         {errors.shortDescription && (
@@ -227,27 +256,126 @@ export const FormService = ({ setModalService, setServicesData, serviceSelected 
           id="longDescription"
           {...register("longDescription", {
             required: "La descripción es obligatoria",
-            minLength: {
-              value: 100,
-              message: "Minimo 100 caracteres"
-            },
-            maxLength: {
-              value: 500,
-              message: "Máximo 500 caracteres",
-            },
+            minLength: { value: 100, message: "Mínimo 100 caracteres" },
+            maxLength: { value: 500, message: "Máximo 500 caracteres" },
           })}
         />
         {errors.longDescription && (
           <p className={styles.errorMsg}>{errors.longDescription.message}</p>
         )}
       </aside>
-      <InputField label="Precio Base" idInput="basePrice" type="number" register={register} errors={errors} />
+
+      <section className={styles.weightRulesContainer}>
+        <h4>Rangos de precio por peso</h4>
+
+        {weightPriceRules.map((rule, index) => (
+          <div key={index} className={styles.ruleGroup}>
+            <aside className={styles.ruleField}>
+              <label>Peso mínimo (kg)</label>
+              <input
+                type="number"
+                placeholder="0"
+                value={rule.minWeight === 0 ? "" : rule.minWeight}
+                onChange={(e) => {
+                  const updated = [...weightPriceRules];
+                  updated[index].minWeight = e.target.value === "" ? 0 : Number(e.target.value);
+                  setWeightPriceRules(updated);
+                }}
+                onBlur={() => {
+                  const updated = [...weightPriceRules];
+                  const current = updated[index];
+
+                  if (index > 0 && current.minWeight <= updated[index - 1].maxWeight) {
+                    alert("El peso mínimo debe ser mayor al máximo del rango anterior");
+                    current.minWeight = updated[index - 1].maxWeight + 1;
+                  }
+
+                  setWeightPriceRules(updated);
+                }}
+              />
+            </aside>
+
+            {/* Peso máximo */}
+            <aside className={styles.ruleField}>
+              <label>Peso máximo (kg)</label>
+              <input
+                type="number"
+                placeholder="0"
+                value={rule.maxWeight === 0 ? "" : rule.maxWeight}
+                onChange={(e) => {
+                  const updated = [...weightPriceRules];
+                  updated[index].maxWeight = e.target.value === "" ? 0 : Number(e.target.value);
+                  setWeightPriceRules(updated);
+                }}
+                onBlur={() => {
+                  const updated = [...weightPriceRules];
+                  const current = updated[index];
+                  if (current.maxWeight <= current.minWeight) {
+                    alert("El peso máximo debe ser mayor al mínimo");
+                    current.maxWeight = current.minWeight + 1;
+                  }
+                  setWeightPriceRules(updated);
+                }}
+              />
+            </aside>
+
+            {/* Precio */}
+            <aside className={styles.ruleField}>
+              <label>Precio (COP)</label>
+              <input
+                type="number"
+                placeholder="0"
+                value={rule.price === 0 ? "" : rule.price}
+                onChange={(e) => {
+                  const updated = [...weightPriceRules];
+                  updated[index].price = e.target.value === "" ? 0 : Number(e.target.value);
+                  setWeightPriceRules(updated);
+                }}
+                onBlur={() => {
+                  const updated = [...weightPriceRules];
+                  const current = updated[index];
+                  if (index > 0 && current.price <= updated[index - 1].price) {
+                    alert("El precio debe ser mayor al del rango anterior");
+                    current.price = updated[index - 1].price + 1000;
+                  }
+                  setWeightPriceRules(updated);
+                }}
+              />
+            </aside>
+          </div>
+        ))}
+
+        <button
+          type="button"
+          className={styles.btnAddRule}
+          onClick={() => {
+            const last = weightPriceRules[weightPriceRules.length - 1];
+            setWeightPriceRules([
+              ...weightPriceRules,
+              {
+                minWeight: last ? last.maxWeight + 1 : 0,
+                maxWeight: 0,
+                price: last ? last.price + 1000 : 0,
+              },
+            ]);
+          }}
+        >
+          + Añadir rango
+        </button>
+      </section>
+
+      {/* Botón final */}
       <aside className={`${styles.containerButtons} ${styles.inputFull}`}>
-        <ButtonComponent type="submit" contain={serviceSelected ? "Actualizar Servicio" : "Crear Servicio"} loading={loading} />
+        <ButtonComponent
+          type="submit"
+          contain={serviceSelected ? "Actualizar Servicio" : "Crear Servicio"}
+          loading={loading}
+        />
       </aside>
     </form>
-  )
-}
+  );
+};
+
 
 export const ServiceModal = ({ setModalService, setServicesData }: CreateServiceModalProps) => {
   return (

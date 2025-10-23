@@ -43,15 +43,14 @@ export const productValidationRules: ProductValidationRules = {
   },
   expirationDate: {
     validate: (value) => {
-    if (!value) return true; // ✅ Permitir vacío
-    const selectedDate = new Date(value); // ✅ Convertir string a Date
+    if (!value) return true;
+    const selectedDate = new Date(value);
     const today = new Date();
-
-    // Poner la hora en 00:00:00 para evitar errores de comparación por la hora
+    
     selectedDate.setHours(0, 0, 0, 0);
     today.setHours(0, 0, 0, 0);
 
-    return selectedDate > today || "La fecha de vencimiento debe ser futura";
+    return selectedDate > today || "La fecha debe ser futura";
   },
   },
   barcode: {

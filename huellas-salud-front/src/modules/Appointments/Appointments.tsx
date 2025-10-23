@@ -5,9 +5,8 @@ import { Link } from 'react-router-dom';
 import { Service, ServiceCardProps, ServiceData } from '../../helper/typesHS';
 import { useServiceService } from './servicesService';
 import { formatCurrencyCOP } from '../../helper/formatter.ts';
-import { SearchBar } from './serviceComponents.tsx';
+import { SearchBar } from './appointmentComponents.tsx';
 import Spinner from '../../components/spinner/Spinner.tsx';
-import { AppointmentModal } from '../Appointments/appointmentComponents.tsx';
 
 const Services = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -38,7 +37,7 @@ const Services = () => {
       return matchesSearch;
     })
   }, [servicesData, searchTerm]);
-  
+
   if (loading) return (<Spinner />);
 
   return (
@@ -58,46 +57,36 @@ const Services = () => {
 }
 
 const ServiceCard = ({ services }: { services?: ServiceData[] }) => {
-  const [modalAppointment, setModalAppointment] = useState<boolean>(false);
-  const [serviceSelected, setServiceSelected] = useState<string>();
   if (!services || services.length === 0) {
     return <h2>No hay servicios registrados</h2>;
-  }
-
-  const handleModal = (idService: string) => {
-    setModalAppointment(prev => !prev);
-    setServiceSelected(idService);
   }
 
   return (
     <main className={styles.cardServicesContainer}>
       {services?.filter(({ data: service }) => service.state)
-        .map(({ data: service}) => (
-        <section className={styles.cardService} key={service.idService}>
-          <aside className={styles.imgCardService}>
-            <img
-              src={getServiceImage(service)}
-              alt={service.name}
-              className={styles.cardImage}
-            />
-          </aside>
+        .map(({ data: service }) => (
+          <section className={styles.cardService} key={service.idService}>
+            <aside className={styles.imgCardService}>
+              <img
+                src={getServiceImage(service)}
+                alt={service.name}
+                className={styles.cardImage}
+              />
+            </aside>
 
-          <aside className={styles.nameService}>
-            <h3>{service.name}</h3>
-          </aside>
+            <aside className={styles.nameService}>
+              <h3>{service.name}</h3>
+            </aside>
 
-          <p className={styles.description}>{service.shortDescription}</p>
-          <span className={styles.price}>
-            {service.priceByWeight
-              ? `Desde ${formatCurrencyCOP(service.basePrice)} • Precio según peso`
-              : `Precio fijo: ${formatCurrencyCOP(service.basePrice)}`}
-          </span>
-          <button className={styles.btnAppointment} onClick={() => handleModal(service.idService)}>Agendar Cita</button>
-        </section>
-      ))}
-      {modalAppointment && (
-        <AppointmentModal setModalAppointment={setModalAppointment} selectedServiceId={serviceSelected}/>
-      )}
+            <p className={styles.description}>{service.shortDescription}</p>
+            <span className={styles.price}>
+              {service.priceByWeight
+                ? `Desde ${formatCurrencyCOP(service.basePrice)} • Precio según peso`
+                : `Precio fijo: ${formatCurrencyCOP(service.basePrice)}`}
+            </span>
+            <button className={styles.btnAppointment}>Agendar Cita</button>
+          </section>
+        ))}
     </main>
   );
 };

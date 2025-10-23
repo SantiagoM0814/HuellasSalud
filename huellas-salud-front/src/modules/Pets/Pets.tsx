@@ -11,6 +11,7 @@ import ButtonComponent from "../../components/Button/Button";
 import { RegisterOptions } from "react-hook-form";
 import { validationRules } from "./validationRulesPetRegister";
 import { useUserService } from "../Users/UserManagement/usersService";
+import Spinner from "../../components/spinner/Spinner";
 
 // export const FormPetRegister = () => (
 //   <section className={styles.containerFormPet}>
@@ -256,7 +257,7 @@ const Pets = () => {
     });
   }, [petsData, searchTerm, speciesFilter, sexFilter, statusFilter]);
 
-  if (loading) return (<div style={{ marginTop: "125px" }}>Cargando mascotas...</div>);
+  if (loading) return (<Spinner/>);
 
   return (
     <main className={styles.petsContainer}>

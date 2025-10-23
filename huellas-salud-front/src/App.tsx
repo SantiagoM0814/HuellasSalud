@@ -16,6 +16,7 @@ import PasswordRecovery from "./modules/PasswordRecovery/PasswordRecovery";
 import ResetPassword from "./modules/PasswordRecovery/ResetPassword";
 import PetDetails from "./modules/PetDetails/PetDetails";
 import ServicesAdmin from "./modules/Services/ServicesAdmin";
+import AppointmentsAdmin from "./modules/Appointments/AppointmentsAdmin";
 
 const AppRoutes = () => {
 
@@ -37,6 +38,14 @@ const AppRoutes = () => {
       element: (
         <ProtectedRoute requiredRole={["ADMINISTRADOR"]}>
           <ServicesAdmin />
+        </ProtectedRoute>
+      )
+    },
+    { 
+      path: "/citas-admin",
+      element: (
+        <ProtectedRoute requiredRole={["ADMINISTRADOR"]}>
+          <AppointmentsAdmin />
         </ProtectedRoute>
       )
     },

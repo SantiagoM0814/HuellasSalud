@@ -29,6 +29,15 @@ export const tableServiceColumns: string[] = [
     "Acciones",
 ];
 
+export const tableAppointmentColumns: string[] = [
+    "Nombre Cliente",
+    "Nombre Mascota",
+    "Fecha",
+    "Veterinario",
+    "Estado",
+    "Acciones",
+];
+
 const optionsDate: Intl.DateTimeFormatOptions = {
     day: "2-digit",
     month: "2-digit",

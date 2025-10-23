@@ -8,6 +8,9 @@ import jakarta.enterprise.context.ApplicationScoped;
 import java.util.Optional;
 
 import java.util.List;
+import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @ApplicationScoped
 public class AppointmentRepository implements PanacheMongoRepository<AppointmentMsg> {
@@ -21,10 +24,10 @@ public class AppointmentRepository implements PanacheMongoRepository<Appointment
         return find("data.idCita = ?1", idAppointment).firstResultOptional();
     }
 
-    public List<AppointmentMsg> getListAppointmentsUser (String userDocument) {
+    public List<AppointmentMsg> getListAppointmentsUser(String userDocument) {
 
         LOG.infof("@getListAppointmentsUser REPO > Inicia busqueda de las citas relacionadas con"
-            + " el usuario con numero de documento: %s", userDocument);
+                + " el usuario con numero de documento: %s", userDocument);
 
         return list("data.idPropietario = ?1", userDocument);
     }
@@ -32,15 +35,39 @@ public class AppointmentRepository implements PanacheMongoRepository<Appointment
     public List<AppointmentMsg> getListAppointmentsMongo() {
 
         LOG.infof("@getListAppointmentsMongo REPO > Inicia la obtencion del listado de citas registradas "
-            + "en mongo");
+                + "en mongo");
 
         return listAll(Sort.descending("meta.fechaCreacion"));
     }
 
-    public long deleteAppointmentDataMongo (String idAppointment) {
+    public long deleteAppointmentDataMongo(String idAppointment) {
 
         LOG.infof("@deleteAppointmentDataMongo REPO > Inicia eliminacion del registro de la cita con id: %s", idAppointment);
 
         return delete("data.idCita = ?1", idAppointment);
+    }
+
+    public boolean existsAppointmentInRange(String idVeterinarian, LocalDateTime newStart, LocalDateTime newEnd) {
+        LOG.infof("@existsAppointmentInRange REPO > Verificando citas que se crucen entre %s y %s para el veterinario %s",
+                newStart, newEnd, idVeterinarian);
+
+        return find("data.idVeterinario = ?1", idVeterinarian)
+                .stream()
+                .map(AppointmentMsg.class::cast)
+                .map(AppointmentMsg::getData)
+                .anyMatch(existing -> {
+                    LocalDateTime existingStart = existing.getDateTime();
+                    LocalDateTime existingEnd = existingStart.plusMinutes(30);
+                    // ✅ Solo hay conflicto si se cruzan de verdad
+                    return newStart.isBefore(existingEnd) && newEnd.isAfter(existingStart);
+                });
+    }
+
+    public List<AppointmentMsg> findAppointmentsByVeterinarianAndDate(String idVeterinarian, LocalDate date) {
+        LocalDateTime startOfDay = date.atStartOfDay();
+        LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
+
+        return list("data.idVeterinario = ?1 and data.fechaHora >= ?2 and data.fechaHora <= ?3",
+                idVeterinarian, startOfDay, endOfDay);
     }
 }
