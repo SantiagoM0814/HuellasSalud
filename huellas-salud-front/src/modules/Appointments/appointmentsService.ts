@@ -13,6 +13,15 @@ export const useAppointmentService = () => {
             const { data } = await axiosInstance.get<AppointmentData[]>(`/appointment/list-appointments`);
             return data
         },
+        getAppointmentAvailable: async (date: string, idVeterinarian: string) => {
+            const { data } = await axiosInstance.get('/appointment/available', {
+                params: {
+                    date: date,
+                    idVeterinarian: idVeterinarian
+                }
+            });
+            return data ;
+        },
         updateAppointment: async (appointment: Appointment) => {
             const dataUpdate = { data: appointment }
             await axiosInstance.put(`appointment/update`, dataUpdate)
@@ -36,6 +45,19 @@ export const useAppointmentService = () => {
             return appointments;
         } catch (error) {
             handleError(error, "Error al consultar las citas");
+        } finally { setLoading(false); }
+    }
+
+    const handleGetAppointmentAvailable = async (date: string, idVeterinarian: string) => {
+        setLoading(true);
+        toast.info("Cargando horarios disponibles... ⌛", { autoClose: 1000 });
+
+        try {
+            const response = await apiAppointment.getAppointmentAvailable(date, idVeterinarian);
+            toast.success("Horarios cargados con éxito! 🎉", { autoClose: 1500 });
+            return response;
+        } catch (error) {
+            handleError(error, "Error al consultar los horarios");
         } finally { setLoading(false); }
     }
 
@@ -98,6 +120,7 @@ export const useAppointmentService = () => {
     return {
         loading,
         handleGetAppointments,
+        handleGetAppointmentAvailable,
         confirmDelete
     }
 }

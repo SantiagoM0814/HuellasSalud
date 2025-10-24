@@ -57,25 +57,25 @@ export const SearchBar = ({ placeholder, searchTerm, onSearchChange }: SearchBar
   </aside>
 );
 
-export const AppointmentTable = ({ appointments, setAppointmentsData }: AppointmentTableProps) => {
+export const AppointmentTable = ({ appointments, setAppointmentsData, users, services, pets, vets }: AppointmentTableProps) => {
   const { handleGetUsers } = useUserService();
   const { handleGetPets } = usePetService();
   const [appointmentSelected, setAppointmentSelected] = useState<AppointmentData | undefined>(undefined)
   const [isModalEditAppointment, setIsModalEditAppointment] = useState<boolean>(false);
   const { confirmDelete } = useAppointmentService();
-  const [users, setUsers] = useState<UserData[] | undefined>([]);
-  const [pets, setPets] = useState<PetData[] | undefined>([]);
+  // const [users, setUsers] = useState<UserData[] | undefined>([]);
+  // const [pets, setPets] = useState<PetData[] | undefined>([]);
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      const data = await handleGetUsers();
-      const dataPet = await handleGetPets();
-      setUsers(data);
-      setPets(dataPet);
-    };
+  // useEffect(() => {
+  //   const fetchUserData = async () => {
+  //     const data = await handleGetUsers();
+  //     const dataPet = await handleGetPets();
+  //     setUsers(data);
+  //     setPets(dataPet);
+  //   };
 
-    fetchUserData();
-  }, [setAppointmentsData]);
+  //   fetchUserData();
+  // }, [setAppointmentsData]);
 
   const handleEditAppointment = (appointment: Appointment, meta: Meta) => {
     setIsModalEditAppointment(prev => !prev);
@@ -90,8 +90,16 @@ export const AppointmentTable = ({ appointments, setAppointmentsData }: Appointm
     return `${firstName} ${lastName}`;
   };
 
+  const getShortNameVet = (userId: string) => {
+    const v = vets?.find(v => v.data.documentNumber == userId);
+    if (!v) return "Cargando...";
+    const firstName = v.data.name.split(' ')[0];
+    const lastName = v.data.lastName.split(' ')[0];
+    return `${firstName} ${lastName}`;
+  };
 
-  if (!appointments || appointments.length === 0) return (<Spinner />);
+
+  // if (!appointments || appointments.length === 0) return (<Spinner />);
 
   // const changeAppointmentStatus = async (appointment: Appointment, meta: Meta) => {
   //   if (await confirmUpdate(appointment)) meta.lastUpdate = new Date().toString();
@@ -130,7 +138,7 @@ export const AppointmentTable = ({ appointments, setAppointmentsData }: Appointm
               </td>
               <td>{pets?.find(p => p.data.idPet == appointment.idPet)?.data.name || "Cargando..."}</td>
               <td>{formatDate(appointment.dateTime)}</td>
-              <td>{getShortName(appointment.idVeterinarian)}</td>
+              <td>{getShortNameVet(appointment.idVeterinarian)}</td>
               <td>
                 <span className={`${styles.status} ${appointment.status ? styles.active : styles.inactive}`}>
                   {appointment.status ? 'Activo' : 'Inactivo'}
@@ -170,7 +178,7 @@ export const AppointmentTable = ({ appointments, setAppointmentsData }: Appointm
           <section className={styles.modal}>
             <button className={styles.closeButton} onClick={() => setIsModalEditAppointment && setIsModalEditAppointment(false)}>x</button>
             <section className={styles.backgroundModalEdit} />
-            <FormAppointment setModalAppointment={setIsModalEditAppointment} setAppointmentsData={setAppointmentsData} appointmentSelected={appointmentSelected} />
+            <FormAppointment setModalAppointment={setIsModalEditAppointment} setAppointmentsData={setAppointmentsData} appointmentSelected={appointmentSelected} users={users} services={services} pets={pets} vets={vets} />
           </section>
         </main>
       )}
@@ -191,47 +199,27 @@ export const AppointmentImg = ({ appointment }: { appointment: Appointment }) =>
   );
 }
 
-export const FormAppointment = ({ setModalAppointment, setAppointmentsData, appointmentSelected, selectedServiceId }: FormAppointmentProps) => {
+export const FormAppointment = ({ setModalAppointment, setAppointmentsData, appointmentSelected, selectedServiceId, users, services, pets, vets }: FormAppointmentProps) => {
   const { user } = useContext(AuthContext);
-  const { handleGetUsers } = useUserService();
-  const { handleGetServices } = useServiceService();
   const { handleGetPetsOwner } = usePetService();
+  const { handleGetAppointmentAvailable } = useAppointmentService();
   const [petsByOwner, setPetsByOwner] = useState<PetData[] | undefined>([]);
   const [loadingPets, setLoadingPets] = useState(false);
-  const [users, setUsers] = useState<UserData[] | undefined>([]);
-  const [services, setServices] = useState<ServiceData[] | undefined>([]);
   const [availableHours, setAvailableHours] = useState<string[]>([]);
   const [loadingHours, setLoadingHours] = useState(false);
 
-  
-
-
   useEffect(() => {
     const loadInitialData = async () => {
-      if (!services || services.length === 0) {
-        const servicesData = await handleGetServices();
-        setServices(servicesData);
-      }
-
-      if (!users || users.length === 0) {
-        const usersData = await handleGetUsers();
-        setUsers(usersData);
-      }
-
       if (selectedServiceId) {
-    reset({
-      services: [selectedServiceId],
-    });
-    console.log("Servicio seleccionado:", selectedServiceId);
-  }
+        reset({
+          services: [selectedServiceId],
+        });
+        console.log("Servicio seleccionado:", selectedServiceId);
+      }
     };
 
     loadInitialData();
   }, [selectedServiceId]);
-
-  const [weightPriceRules, setWeightPriceRules] = useState<
-    { minWeight: number; maxWeight: number; price: number }[]
-  >([]);
 
   const handleOwnerChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const ownerId = e.target.value;
@@ -261,9 +249,6 @@ export const FormAppointment = ({ setModalAppointment, setAppointmentsData, appo
   const selectedOwner = watch("idOwner");
   const selectedVet = watch("idVeterinarian");
   const selectedDate = watch("date");
-  const selectedHour = watch("hour");
-  const selectedService = watch("services");
-
   useEffect(() => {
     const fetchAvailableHours = async () => {
       if (!selectedDate || !selectedVet) return;
@@ -274,16 +259,7 @@ export const FormAppointment = ({ setModalAppointment, setAppointmentsData, appo
       try {
         const formattedDate = new Date(selectedDate).toISOString().split("T")[0];
 
-        const response = await fetch(
-          `http://localhost:8080/internal/appointment/available?idVeterinarian=${selectedVet}&date=${formattedDate}`
-        );
-
-        if (!response.ok) {
-          toast.warning(`El veterinario no tiene horario disponible para el día seleccionado. 🐾`, { autoClose: 3000 });
-          setAvailableHours([]);
-          return;
-        }
-        const data = await response.json();
+        const data = await handleGetAppointmentAvailable(formattedDate, selectedVet);
         console.log("🕓 Horarios recibidos:", data);
 
         setAvailableHours(data.availableSlots || []);
@@ -298,46 +274,41 @@ export const FormAppointment = ({ setModalAppointment, setAppointmentsData, appo
   }, [selectedDate, selectedVet]);
 
   useEffect(() => {
-    const loadFormData = async () => {
-      if (!appointmentSelected?.data) return;
-      const appt = appointmentSelected.data;
+    if (!appointmentSelected?.data) return;
+    const appt = appointmentSelected.data;
 
-      if (!users || users.length === 0) {
-        const usersData = await handleGetUsers();
-        setUsers(usersData);
-      }
-
-      if (!services || services.length === 0) {
-        const servicesData = await handleGetServices();
-        setServices(servicesData);
-      }
-
-      const pets = await handleGetPetsOwner(appt.idOwner);
-      setPetsByOwner(pets);
-
-      const dateObj = new Date(appt.dateTime);
-      const date = dateObj.toISOString().split("T")[0];
-      const hour = dateObj.toTimeString().split(" ")[0].slice(0, 5);
-
-      reset({
-        ...appt,
-        date,
-        hour,
-        services: Array.isArray(appt.services) ? appt.services : [appt.services],
-      });
-
-      // 6️⃣ Guardar hora seleccionada temporalmente
-      setSelectedHourFromAppointment(hour);
+    const loadPets = async () => {
+      const localPets = pets?.filter(p => p.data.idOwner === appt.idOwner);
+      const resultPets = localPets?.length ? localPets : await handleGetPetsOwner(appt.idOwner);
+      setPetsByOwner(resultPets);
     };
 
-    loadFormData();
-  }, [appointmentSelected, reset]);
+    loadPets();
+  }, [appointmentSelected, pets]);
+
+
+  useEffect(() => {
+    if (!appointmentSelected?.data || petsByOwner?.length === 0) return;
+
+    const appt = appointmentSelected.data;
+    const dateObj = new Date(appt.dateTime);
+    const date = dateObj.toISOString().split("T")[0];
+    const hour = dateObj.toTimeString().split(" ")[0].slice(0, 5);
+
+    reset({
+      ...appt,
+      date,
+      hour,
+      services: Array.isArray(appt.services) ? appt.services : [appt.services],
+    });
+    setSelectedHourFromAppointment(hour);
+  }, [appointmentSelected, petsByOwner]);
+
 
   const [selectedHourFromAppointment, setSelectedHourFromAppointment] = useState<string | null>(null);
 
   useEffect(() => {
     if (!selectedHourFromAppointment) return;
-    if (availableHours.length === 0) return;
 
     setAvailableHours(prev => {
       if (!prev.includes(selectedHourFromAppointment)) {
@@ -345,7 +316,14 @@ export const FormAppointment = ({ setModalAppointment, setAppointmentsData, appo
       }
       return prev;
     });
-  }, [availableHours, selectedHourFromAppointment]);
+  }, [selectedHourFromAppointment, availableHours.length]);
+
+  useEffect(() => {
+    if (selectedHourFromAppointment && availableHours.includes(selectedHourFromAppointment)) {
+      setValue("hour", selectedHourFromAppointment);
+    }
+  }, [availableHours, selectedHourFromAppointment, setValue]);
+
 
   return (
     <form
@@ -421,9 +399,9 @@ export const FormAppointment = ({ setModalAppointment, setAppointmentsData, appo
         <select className={`${errors.idVeterinarian ? styles.errorInput : ''}`} {...register("idVeterinarian", { required: "Debe seleccionar un veterinario" })}
         >
           <option value="">Seleccione un veterinario</option>
-          {users?.map(user => (
-            <option key={user.data.documentNumber} value={user.data.documentNumber}>
-              {user.data.name} {user.data.lastName}
+          {vets?.map(vet => (
+            <option key={vet.data.documentNumber} value={vet.data.documentNumber}>
+              {vet.data.name} {vet.data.lastName}
             </option>
           ))}
         </select>
@@ -508,13 +486,48 @@ export const FormAppointment = ({ setModalAppointment, setAppointmentsData, appo
 };
 
 
-export const AppointmentModal = ({ setModalAppointment, setAppointmentsData, selectedServiceId }: CreateAppointmentModalProps) => {
+export const AppointmentModal = ({ setModalAppointment, setAppointmentsData, selectedServiceId, users, services, pets, vets }: CreateAppointmentModalProps) => {
+  const { handleGetPets } = usePetService();
+  const { handleGetUsers, handleGetVeterinarians } = useUserService();
+  const [localUsers, setLocalUsers] = useState(users);
+  const [localPets, setLocalPets] = useState(pets);
+  const [localVets, setLocalVets] = useState(vets);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchAppointmentData = async () => {
+      const needUsers = !localUsers || localUsers.length === 0;
+      const needPets = !localPets || localPets.length === 0;
+      const needVets = !localVets || localVets.length === 0;
+
+      if (needUsers || needPets || needVets) {
+        setLoading(true);
+        try {
+          const dataUser = await handleGetUsers();
+          const dataVet = await handleGetVeterinarians();
+
+          setLocalUsers(dataUser);
+          setLocalVets(dataVet);
+        } catch (error) {
+          console.error("❌ Error al cargar datos:", error);
+        } finally {
+          setLoading(false);
+        }
+      }
+
+    };
+
+    fetchAppointmentData();
+  }, []);
+
+  if (loading) return <Spinner />;
+
   return (
     <main className={styles.overlay}>
       <section className={styles.modal}>
         <button className={styles.closeButton} onClick={() => setModalAppointment && setModalAppointment(false)}>x</button>
         <section className={styles.backgroundModalEdit} />
-        <FormAppointment setModalAppointment={setModalAppointment} setAppointmentsData={setAppointmentsData} selectedServiceId={selectedServiceId}/>
+        <FormAppointment setModalAppointment={setModalAppointment} setAppointmentsData={setAppointmentsData} selectedServiceId={selectedServiceId} users={localUsers} services={services} pets={localPets} vets={localVets} />
       </section>
     </main>
   )

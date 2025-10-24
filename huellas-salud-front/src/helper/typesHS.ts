@@ -279,6 +279,10 @@ export interface ServiceTableProps {
 export interface AppointmentTableProps {
     appointments: AppointmentData[] | undefined;
     setAppointmentsData: Dispatch<SetStateAction<AppointmentData[] | undefined>>;
+    users?: UserData[] | undefined;
+    services?: ServiceData[] | undefined;
+    pets?: PetData[] | undefined;
+    vets?: UserData[] | undefined;
 }
 
 export interface PetCardProps { 
@@ -381,6 +385,10 @@ export interface CreateAppointmentModalProps {
     setAppointmentsData?: Dispatch<SetStateAction<AppointmentData[] | undefined>>;
     appointmentSelected?: AppointmentData;
     selectedServiceId?: string; 
+    users?: UserData[] | undefined;
+    services?: ServiceData[] | undefined;
+    pets?: PetData[] | undefined;
+    vets?: UserData[] | undefined;
 }
 
 export interface InputFieldPetRegister {

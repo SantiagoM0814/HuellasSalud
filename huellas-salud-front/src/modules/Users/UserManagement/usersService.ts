@@ -14,6 +14,10 @@ export const useUserService = () => {
             const { data } = await axiosInstance.get<UserData[]>("/user/list-users");
             return data;
         },
+        getVeterinarians: async () => {
+            const { data } = await axiosInstance.get<UserData[]>("/user/list-veterinarians");
+            return data;
+        },
         updateUser: async (user: User) => {
             const dataUpdate = { data: user }
             await axiosInstance.put(`/user/update`, dataUpdate);
@@ -37,6 +41,18 @@ export const useUserService = () => {
             return users;
         } catch (error) {
             handleError(error, "Error al consultar los usuarios");
+        } finally { setLoading(false); }
+    }
+
+    const handleGetVeterinarians = async () => {
+        setLoading(true);
+        toast.info("Cargando veterinarios... ⌛", { autoClose: 1000 });
+        try {
+            const users: UserData[] = await api.getVeterinarians();
+            toast.success("Veterinarios cargados con éxito! 🎉", { autoClose: 1500 });
+            return users;
+        } catch (error) {
+            handleError(error, "Error al consultar los veterinarios");
         } finally { setLoading(false); }
     }
 
@@ -96,5 +112,5 @@ export const useUserService = () => {
         if (result.isConfirmed) return handleDeleteUser(user);
     }
 
-    return { handleGetUsers, loading, confirmUpdate, confirmDelete };
+    return { handleGetUsers, handleGetVeterinarians, loading, confirmUpdate, confirmDelete };
 }

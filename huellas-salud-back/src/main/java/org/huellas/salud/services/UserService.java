@@ -105,6 +105,18 @@ public class UserService {
         return users;
     }
 
+    public List<UserMsg> getListVeterinarian(){
+
+        LOG.infof("@getListVeterinarian SERV > Inicia servicio para obtener listado de los veterinarios registrados en mongo");
+
+        List<UserMsg> veterinarians = userRepository.getVeterinariansMongo();
+
+        LOG.infof("@getListVeterinarian SERV > Finaliza consulta, se retorna un total de %s registros de mongo. " +
+                "Finaliza ejecucion del servicio para obtener el listado de veterinarios registrados", veterinarians.size());
+
+        return veterinarians;
+    }
+
     @CacheInvalidateAll(cacheName = "users-list-cache")
     public UserMsg saveUserDataInMongo(UserMsg userMsg) throws UnknownHostException, HSException {
 

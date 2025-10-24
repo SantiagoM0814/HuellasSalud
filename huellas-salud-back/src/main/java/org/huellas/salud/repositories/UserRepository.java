@@ -22,6 +22,14 @@ public class UserRepository implements PanacheMongoRepository<UserMsg> {
         return listAll(Sort.descending("meta.fechaCreacion"));
     }
 
+    public List<UserMsg> getVeterinariansMongo(){
+
+        LOG.infof("@getVeterinariansMongo REPO > Inicia obtencion de los usuarios con rol veterinario registrados en " +
+                "mongo.");
+
+        return list("data.rol = ?1 and data.activo = ?2", "VETERINARIO", true);
+    }
+
     public Optional<UserMsg> findUserByDocumentNumber(String documentNumber) {
 
         LOG.infof("@findUserByDocumentNumber REPO > Inicia busqueda del registro del usuario con numero de " +

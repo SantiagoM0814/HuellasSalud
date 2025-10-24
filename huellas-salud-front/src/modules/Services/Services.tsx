@@ -96,7 +96,7 @@ const ServiceCard = ({ services }: { services?: ServiceData[] }) => {
         </section>
       ))}
       {modalAppointment && (
-        <AppointmentModal setModalAppointment={setModalAppointment} selectedServiceId={serviceSelected}/>
+        <AppointmentModal setModalAppointment={setModalAppointment} selectedServiceId={serviceSelected} services={services}/>
       )}
     </main>
   );

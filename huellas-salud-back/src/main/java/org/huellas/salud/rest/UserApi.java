@@ -120,6 +120,35 @@ public class UserApi {
         return Response.ok().entity(users).build();
     }
 
+    @GET
+    @Path("/list-veterinarians")
+    //@RolesAllowed("ADMINISTRADOR")
+    @Tag(name = "Gestión de usuarios")
+    @APIResponses(
+            value = {
+                    @APIResponse(
+                            responseCode = "200",
+                            description = "Se retorna el listado de veterinarios registrados correctamente",
+                            content = @Content(schema = @Schema(implementation = UserMsg.class, type = SchemaType.ARRAY))
+                    )
+            }
+    )
+    @Operation(
+            summary = "Obtención de todos los veterinarios registrados",
+            description = "Permite obtener un listado con la información de los veterinarios registrados en la base de datos"
+    )
+    public Response getListVeterinarians() {
+
+        LOG.infof("@getListVeterinarians API > Inicia servicio para obtener listado de todos los veterinarios registrados en mongo");
+
+        List<UserMsg> veterinarians = userService.getListVeterinarian();
+
+        LOG.infof("@getListVeterinarians API > Finaliza servicio para obtener listado de todos los veterinarios " +
+                "registrados. Se encontraron: %s registros", veterinarians.size());
+
+        return Response.ok().entity(veterinarians).build();
+    }
+
     @POST
     @Path("/register")
     @Tag(name = "Gestión de usuarios")
