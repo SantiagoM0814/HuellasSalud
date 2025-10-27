@@ -209,6 +209,25 @@ export const FormAppointment = ({ setModalAppointment, setAppointmentsData, appo
   const [loadingHours, setLoadingHours] = useState(false);
 
   useEffect(() => {
+  const loadClientPets = async () => {
+    if (user?.role === "CLIENTE" && user?.documentNumber) {
+      try {
+        setLoadingPets(true);
+        const pets = await handleGetPetsOwner(user.documentNumber);
+        setPetsByOwner(pets);
+        setValue("idOwner", user.documentNumber); // asegura que quede registrado en el form
+      } catch (error) {
+        console.error("Error al cargar mascotas del cliente:", error);
+      } finally {
+        setLoadingPets(false);
+      }
+    }
+  };
+
+  loadClientPets();
+}, [user]);
+
+  useEffect(() => {
     const loadInitialData = async () => {
       if (selectedServiceId) {
         reset({
@@ -487,12 +506,18 @@ export const FormAppointment = ({ setModalAppointment, setAppointmentsData, appo
 
 
 export const AppointmentModal = ({ setModalAppointment, setAppointmentsData, selectedServiceId, users, services, pets, vets }: CreateAppointmentModalProps) => {
+  const { user } = useContext(AuthContext);
   const { handleGetPets } = usePetService();
   const { handleGetUsers, handleGetVeterinarians } = useUserService();
   const [localUsers, setLocalUsers] = useState(users);
   const [localPets, setLocalPets] = useState(pets);
   const [localVets, setLocalVets] = useState(vets);
   const [loading, setLoading] = useState(false);
+
+  if (!user) {
+    toast.info("Debes iniciar sesión para agendar una cita", {autoClose: 3000})
+    return null;
+  }
 
   useEffect(() => {
     const fetchAppointmentData = async () => {

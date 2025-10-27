@@ -1,16 +1,16 @@
-package org.huellas.salud.domain.appointment;
+package org.huellas.salud.domain.invoice;
 
 import lombok.Getter;
 
 @Getter
-public enum AppointmentStatus {
+public enum InvoiceStatus {
     PENDIENTE("Pendiente"),
     CANCELADA("Cancelada"),
-    FINALIZADA("Finalizada");
+    PAGADA("Pagada");
 
     private final String value;
 
-    AppointmentStatus(String value) {
+    InvoiceStatus(String value) {
         this.value = value;
     }
 }
