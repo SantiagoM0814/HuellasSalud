@@ -17,6 +17,7 @@ import ResetPassword from "./modules/PasswordRecovery/ResetPassword";
 import PetDetails from "./modules/PetDetails/PetDetails";
 import ServicesAdmin from "./modules/Services/ServicesAdmin";
 import AppointmentsAdmin from "./modules/Appointments/AppointmentsAdmin";
+import Invoice from "./modules/Invoices/Invoices";
 
 const AppRoutes = () => {
 
@@ -49,6 +50,7 @@ const AppRoutes = () => {
         </ProtectedRoute>
       )
     },
+    { path: "/facturas", element: <Invoice/>},
     { path: "/recuperar-contrasena", element: <PasswordRecovery /> },
     { path: "/reset-password", element: <ResetPassword /> },
     {

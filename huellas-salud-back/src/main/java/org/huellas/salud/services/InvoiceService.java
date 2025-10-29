@@ -13,9 +13,8 @@ import org.huellas.salud.repositories.InvoiceRepository;
 import org.huellas.salud.domain.product.Product;
 import org.huellas.salud.domain.product.ProductMsg;
 import org.huellas.salud.repositories.ProductRepository;
+import org.huellas.salud.services.ProductService;
 
-import org.huellas.salud.domain.appointment.Appointment;
-import org.huellas.salud.repositories.AppointmentRepository;
 import org.huellas.salud.domain.pet.Pet;
 import org.huellas.salud.repositories.PetRepository;
 import org.huellas.salud.domain.service.Service;
@@ -69,6 +68,9 @@ public class InvoiceService {
     @Inject
     ServiceRepository serviceRepository;
 
+    @Inject
+    ProductService productService;
+
     @CacheInvalidateAll(cacheName = "invoices-list-cache")
     public InvoiceMsg saveInvoiceDataMongo(InvoiceMsg invoiceMsg) throws HSException, UnknownHostException {
 
@@ -97,12 +99,27 @@ public class InvoiceService {
             }
 
             if (hasProduct) {
-                Optional<ProductMsg> optionalProduct = productRepository.findProductById(idProduct);
-                if (optionalProduct.isEmpty()) {
-                    LOG.warnf("@saveInvoiceDataMongo SERV > No se encontró ningún producto con el id: %s", idProduct);
-                    throw new HSException(Response.Status.BAD_REQUEST,
-                            "No se encontró el producto con id: " + idProduct);
+
+                ProductMsg productMsg = productService.getProductById(idProduct);
+                if (productMsg == null) {
+                    throw new HSException(Response.Status.BAD_REQUEST, "No se encontró el producto con id: " + idProduct);
                 }
+
+                int stockActual = productMsg.getData().getQuantityAvailable();
+                int cantidadComprada = item.getQuantity();
+
+                if (stockActual < cantidadComprada) {
+                    throw new HSException(Response.Status.BAD_REQUEST,
+                            "No hay suficiente stock del producto: " + productMsg.getData().getName());
+                }
+
+                int nuevoStock = stockActual - cantidadComprada;
+                productMsg.getData().setQuantityAvailable(nuevoStock);
+
+                productService.updateProductDataInMongo(productMsg);
+
+                LOG.infof("@saveInvoiceDataMongo SERV > Stock actualizado para producto %s: %d → %d",
+                        productMsg.getData().getName(), stockActual, nuevoStock);
             }
 
             if (hasService) {
@@ -118,6 +135,7 @@ public class InvoiceService {
         LOG.infof("@saveInvoiceDataMongo SERV > Inicia formato de la info enviada y se agrega metadata");
 
         invoiceData.setIdInvoice(UUID.randomUUID().toString());
+        invoiceData.setDate(LocalDateTime.now());
         invoiceMsg.setMeta(utils.getMetaToEntity());
 
         LOG.infof("@saveInvoiceDataMongo SERV > Finaliza formato de la data. Se realiza el registro de la factura "

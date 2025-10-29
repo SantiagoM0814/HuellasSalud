@@ -112,6 +112,10 @@ export const BtnsLogRegister = () => {
         navigate("/citas-admin");
     };
 
+    const handleInvoices = () => {
+        navigate("/facturas");
+    };
+
     const handleClickOutside = (e: MouseEvent) => {
         if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
             setOpenModal(false);
@@ -166,11 +170,8 @@ export const BtnsLogRegister = () => {
                                 <button className={styles.btnProducts} onClick={handleServicesAdmin}>Servicios</button>
                         )
                     }
-                    {
-                        hasRole(user, ["ADMINISTRADOR"]) && (
-                                <button className={styles.btnProducts} onClick={handleAppointmentsAdmin}>Citas</button>
-                        )
-                    }
+                    <button className={styles.btnProducts} onClick={handleAppointmentsAdmin}>Citas</button>
+                    <button className={styles.btnProducts} onClick={handleInvoices}>Facturas</button>
                     <button className={styles.logoutButton} onClick={handleLogout}>
                         Cerrar sesión
                     </button>

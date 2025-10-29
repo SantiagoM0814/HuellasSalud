@@ -27,7 +27,7 @@ public class Invoice implements Serializable {
     private String idInvoice;
 
     @BsonProperty("fecha")
-    @NotNull(message = "La fecha es obligatoria")
+//    @NotNull(message = "La fecha es obligatoria")
     private LocalDateTime date;
 
     @BsonProperty("idCliente")
@@ -50,4 +50,4 @@ public class Invoice implements Serializable {
     @BsonProperty("itemFactura")
     @NotEmpty(message = "Debe incluir al menos un ítem en la factura")
     private List<ItemInvoice> itemInvoice;
-}
+} 

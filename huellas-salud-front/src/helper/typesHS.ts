@@ -6,6 +6,7 @@ export type Sex = "MACHO" | "HEMBRA" | "INDETERMINADO";
 export type Species = "PERRO" | "GATO" | "AVE" | "ROEDOR" | "REPTIL" | "PESCADO";
 export type Role = "ADMINISTRADOR" | "VETERINARIO" | "CLIENTE" | "RECEPCIONISTA";
 export type Status = "PENDIENTE" | "CONFIRMADA" | "CANCELADA" | "FINALIZADA";
+export type StatusInvoice = "PENDIENTE" | "PAGADA" | "CANCELADA";
 
 export interface ListItemNavProps extends NavLinkProps {
     path: string;
@@ -91,6 +92,30 @@ export interface Appointment {
 export interface AppointmentData {
     data: Appointment,
     meta: Meta
+}
+
+export interface InvoiceData {
+    data: Invoice,
+    meta: Meta
+}
+
+export interface Invoice {
+    idInvoice: string;
+    idClient: string;
+    date: string;
+    total: number;
+    typeInvoice: "PRODUCTO" | "SERVICIO";
+    status: StatusInvoice;
+    itemInvoice: ItemInvoice;
+}
+
+export interface ItemInvoice {
+    idProduct?: string;
+    idService?: string;
+    idPet?: string;
+    quantity: number;
+    unitPrice: number;
+    subTotal: number; 
 }
 
 export interface User {
@@ -261,6 +286,14 @@ export interface AppointmentFiltersProps {
     onStatusFilterChange: (value: string) => void;
 }
 
+export interface InvoiceFiltersProps {
+    searchTerm: string
+    statusFilter: string
+    setModalCreateInvoice: (close: boolean) => void;
+    onSearchChange: (value: string) => void;
+    onStatusFilterChange: (value: string) => void;
+}
+
 export interface UserTableProps {
     users: UserData[] | undefined;
     setUsersData: Dispatch<SetStateAction<UserData[] | undefined>>;
@@ -283,6 +316,15 @@ export interface AppointmentTableProps {
     services?: ServiceData[] | undefined;
     pets?: PetData[] | undefined;
     vets?: UserData[] | undefined;
+}
+
+export interface InvoiceTableProps {
+    invoices: InvoiceData[] | undefined;
+    setInvoicesData: Dispatch<SetStateAction<InvoiceData[] | undefined>>;
+    users?: UserData[] | undefined;
+    services?: ServiceData[] | undefined;
+    pets?: PetData[] | undefined;
+    prods?: ProductData[] | undefined;
 }
 
 export interface PetCardProps { 
@@ -389,6 +431,18 @@ export interface CreateAppointmentModalProps {
     services?: ServiceData[] | undefined;
     pets?: PetData[] | undefined;
     vets?: UserData[] | undefined;
+}
+
+export interface FormInvoiceProps extends CreateInvoiceModalProps { }
+
+export interface CreateInvoiceModalProps {
+    setModalInvoice?: (close: boolean) => void;
+    setInvoicesData?: Dispatch<SetStateAction<InvoiceData[] | undefined>>;
+    invoiceSelected?: InvoiceData;
+    users?: UserData[] | undefined;
+    services?: ServiceData[] | undefined;
+    pets?: PetData[] | undefined;
+    prods?: ProductData[] | undefined;
 }
 
 export interface InputFieldPetRegister {
