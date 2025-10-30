@@ -206,15 +206,21 @@
     font-weight: 600;
 }
 
-.active {
-    background-color: #e8f5e9;
+.paid {
+  background-color: #e8f5e9;
     color: #388e3c;
 }
 
-.inactive {
-    background-color: #ffebee;
+.pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.cancelled {
+  background-color: #ffebee;
     color: #d32f2f;
 }
+
 
 /* Estilos para los botones de acción */
 .actions {

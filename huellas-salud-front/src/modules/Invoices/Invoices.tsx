@@ -20,8 +20,9 @@ const Invoice = () => {
   const [servicesData, setServicesData] = useState<ServiceData[] | undefined>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
+  const [loading, setLoading] = useState<boolean>(true);
 
-  const { handleGetInvoices, loading } = useInvoiceService();
+  const { handleGetInvoices } = useInvoiceService();
   const { handleGetUsers } = useUserService();
   const { handleGetPets } = usePetService();
   const { handleGetServices } = useServiceService();
@@ -40,24 +41,56 @@ const Invoice = () => {
       setPetsData(dataPet);
       setServicesData(dataService);
       setProdsData(dataProduct);
+
+      setLoading(false);
     };
 
     fetchAppointmentData();
   }, []);
 
-  const filteredInvoices = useMemo(() => {
-    return invoicesData?.filter(({ data: invoice }) => {
-      const matchesSearch = invoice.idInvoice.toLowerCase().includes(searchTerm.toLowerCase())
+  const invoicesWithNames = useMemo(() => {
+    if (!invoicesData) return [];
 
-      const matchesStatus = statusFilter === 'ALL'
-        || (statusFilter === 'PENDIENTE' && invoice.status)
-        || (statusFilter === 'FINALIZADA' && !invoice.status);
+    return invoicesData.map(invoiceMsg => {
+      const invoice = invoiceMsg.data;
+
+      const itemsWithNames = invoice.itemInvoice.map(item => {
+        let name = "";
+
+        if (item.idProduct) {
+          const product = prodsData?.find(p => p.data.idProduct === item.idProduct);
+          name = product ? product.data.name : "Producto no encontrado";
+        } else if (item.idService) {
+          const service = servicesData?.find(s => s.data.idService === item.idService);
+          name = service ? service.data.name : "Servicio no encontrado";
+        }
+
+        return { ...item, name };
+      });
+
+      return {
+        ...invoiceMsg,
+        data: { ...invoice, itemInvoice: itemsWithNames }
+      };
+    });
+  }, [invoicesData, setProdsData, setServicesData]);
+
+  const filteredInvoices = useMemo(() => {
+    return invoicesWithNames?.filter(({ data: invoice }) => {
+      const matchesSearch =
+      invoice.idInvoice.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      invoice.itemInvoice.some(item =>
+        item.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+
+      const matchesStatus = statusFilter === 'ALL' || invoice.status.toLowerCase() === statusFilter.toLowerCase();
 
       return matchesSearch && matchesStatus;
     })
   }, [invoicesData, searchTerm, statusFilter]);
 
-  if (loading) return (<Spinner/>);
+
+  if (loading) return (<Spinner />);
 
   return (
     <main >
@@ -74,7 +107,7 @@ const Invoice = () => {
           onSearchChange={setSearchTerm}
           onStatusFilterChange={setStatusFilter}
         />
-        <InvoiceTable invoices={filteredInvoices} setInvoicesData={setInvoicesData} users={usersData} services={servicesData} pets={petsData} prods={prodsData}/>
+        <InvoiceTable invoices={filteredInvoices} setInvoicesData={setInvoicesData} users={usersData} services={servicesData} pets={petsData} prods={prodsData} />
         {/* {isModalCreateAppointment && (<AppointmentModal setModalAppointment={setIsModalCreateAppointment} setAppointmentsData={setAppointmentsData} users={usersData} services={servicesData} pets={petsData} vets={vetsData}/>)} */}
       </section>
     </main>

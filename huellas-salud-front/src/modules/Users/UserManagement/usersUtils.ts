@@ -38,6 +38,15 @@ export const tableAppointmentColumns: string[] = [
     "Acciones",
 ];
 
+export const tableInvoiceColumns: string[] = [
+    "Nombre Cliente",
+    "Productos o servicios",
+    "Fecha facturación",
+    "Valor total",
+    "Estado",
+    "Acciones",
+];
+
 const optionsDate: Intl.DateTimeFormatOptions = {
     day: "2-digit",
     month: "2-digit",
@@ -110,6 +119,13 @@ export const statusOptions = [
     { value: "ALL", label: "Todos los estados" },
     { value: "ACTIVE", label: "Activo" },
     { value: "INACTIVE", label: "Inactivo" },
+];
+
+export const statusInvoices = [
+    { value: "ALL", label: "Todos los estados" },
+    { value: "PAGADA", label: "Pagada" },
+    { value: "PENDIENTE", label: "Pendiente" },
+    { value: "CANCELADA", label: "Cancelada" },
 ];
 
 export const userEmpty: User = {

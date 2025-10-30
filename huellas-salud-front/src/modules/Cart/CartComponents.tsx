@@ -109,6 +109,7 @@ export const CartSummary = () => {
         idClient: user?.documentNumber,
         typeInvoice: "PRODUCTO",
         total: total,
+        status: "PAGADA",
         itemInvoice: items.map(i => ({
           idProduct: i.product.idProduct,
           idService: null,
@@ -119,19 +120,8 @@ export const CartSummary = () => {
         })),
       };
 
-      // ✅ Crear la factura usando tu hook
       await handleCreateInvoiceSubmit(invoiceData as unknown as Invoice);
 
-      // 🔄 Disminuir stock de productos
-      // await Promise.all(
-      //   items.map((i) =>
-      //     axiosInstance.put(`/product/update-stock/${i.product.idProduct}`, {
-      //       quantity: i.quantity
-      //     })
-      //   )
-      // );
-
-      // 🧹 Limpiar carrito
       clearCart();
 
       toast.success("Compra completada 🎉");

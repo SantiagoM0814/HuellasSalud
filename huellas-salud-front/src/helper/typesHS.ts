@@ -106,10 +106,11 @@ export interface Invoice {
     total: number;
     typeInvoice: "PRODUCTO" | "SERVICIO";
     status: StatusInvoice;
-    itemInvoice: ItemInvoice;
+    itemInvoice: ItemInvoice[];
 }
 
 export interface ItemInvoice {
+    name?: string
     idProduct?: string;
     idService?: string;
     idPet?: string;
@@ -371,6 +372,7 @@ export interface EditUserModalProps {
 export interface InputEditProps {
     label: string;
     value: string | undefined;
+    onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
     isEditable?: boolean;
 }
 

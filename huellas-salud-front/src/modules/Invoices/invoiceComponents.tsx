@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { Appointment, AuthContext, FormInvoiceProps, InputFieldAppointmentRegister, Invoice, InvoiceData, InvoiceFiltersProps, InvoiceTableProps, Meta, SearchBarProps } from "../../helper/typesHS";
 import styles from './invoice.module.css';
-import { formatDate, statusOptions, tableAppointmentColumns, tableProductColumns, tableServiceColumns, unitOfMeasure } from "../Users/UserManagement/usersUtils";
+import { formatDate, statusInvoices, tableAppointmentColumns, tableInvoiceColumns, tableProductColumns, tableServiceColumns, unitOfMeasure } from "../Users/UserManagement/usersUtils";
 import { formatCurrencyCOP } from "../../helper/formatter";
 import { useInvoiceRegister } from "./invoiceRegisterService";
 import { appointmentValidationRules } from "./validationRulesAppointmentRegister";
@@ -35,7 +35,7 @@ export const InvoicesFilters = ({
         onChange={(e) => onStatusFilterChange(e.target.value)}
         className={styles.filterSelect}
       >
-        {statusOptions.map(option => (
+        {statusInvoices.map(option => (
           <option key={option.value} value={option.value}>
             {option.label}
           </option>
@@ -90,7 +90,7 @@ export const InvoiceTable = ({ invoices, setInvoicesData, users, services, pets,
       <table className={styles.serviceTable}>
         <thead>
           <tr>
-            {tableAppointmentColumns.map(column => (<th key={column}>{column}</th>))}
+            {tableInvoiceColumns.map(column => (<th key={column}>{column}</th>))}
           </tr>
         </thead>
         <tbody>
@@ -99,22 +99,32 @@ export const InvoiceTable = ({ invoices, setInvoicesData, users, services, pets,
               <td>
                 <aside className={styles.serviceInfo}>
                   <span className={styles.imgService}>
-                    <InvoiceImg invoice={invoice} shortName={getShortName(invoice.idClient)}/>
+                    <InvoiceImg invoice={invoice} shortName={getShortName(invoice.idClient)} />
                   </span>
                   <div className={styles.serviceDetails}>
                     <span className={styles.serviceName}>
                       {getShortName(invoice.idClient)}
                     </span>
-                    <span className={styles.servicetDate}>
-                      Registro: {new Date(meta.creationDate).toLocaleDateString()}
-                    </span>
                   </div>
                 </aside>
               </td>
+              <td>{invoice.itemInvoice.map(i => i.name).join(", ")}</td>
               <td>{formatDate(invoice.date)}</td>
+              <td>{formatCurrencyCOP(invoice.total)}</td>
               <td>
-                <span className={`${styles.status} ${invoice.status ? styles.active : styles.inactive}`}>
-                  {invoice.status ? 'Activo' : 'Inactivo'}
+                <span
+                  className={`${styles.status} ${invoice.status === "PAGADA"
+                      ? styles.paid
+                      : invoice.status === "PENDIENTE"
+                        ? styles.pending
+                        : styles.cancelled
+                    }`}
+                >
+                  {invoice.status === "PAGADA"
+                    ? "Pagada"
+                    : invoice.status === "PENDIENTE"
+                      ? "Pendiente"
+                      : "Cancelada"}
                 </span>
               </td>
               <td>

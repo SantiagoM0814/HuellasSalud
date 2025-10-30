@@ -45,6 +45,7 @@ public class Invoice implements Serializable {
 
     @BsonProperty("estado")
     @Schema(example = "PAGADA")
+    @NotNull(message = "El estado en obligatorio")
     private InvoiceStatus status;
 
     @BsonProperty("itemFactura")
