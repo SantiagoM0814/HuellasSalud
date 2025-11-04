@@ -262,7 +262,11 @@ const Pets = () => {
   return (
     <main className={styles.petsContainer}>
       <section className={styles.sectionPets}>
-        <h1 className={styles.headerTitle}>Panel de administración - Mascotas</h1>
+        {user?.role === "ADMINISTRADOR" || user?.role === "VETERINARIO" ?(
+          <h1 className={styles.headerTitle}>Panel de administración - Mascotas</h1>
+        ) : (
+          <h1 className={styles.headerTitle}>Mis Mascotas</h1>
+        )}
         <PetsFilters
           searchTerm={searchTerm}
           sexFilter={sexFilter}

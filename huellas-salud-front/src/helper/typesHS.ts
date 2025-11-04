@@ -5,7 +5,7 @@ import { UnitOfMeasure } from "../modules/Users/UserManagement/usersUtils";
 export type Sex = "MACHO" | "HEMBRA" | "INDETERMINADO";
 export type Species = "PERRO" | "GATO" | "AVE" | "ROEDOR" | "REPTIL" | "PESCADO";
 export type Role = "ADMINISTRADOR" | "VETERINARIO" | "CLIENTE" | "RECEPCIONISTA";
-export type Status = "PENDIENTE" | "CONFIRMADA" | "CANCELADA" | "FINALIZADA";
+export type Status = "PENDIENTE" | "CANCELADA" | "FINALIZADA";
 export type StatusInvoice = "PENDIENTE" | "PAGADA" | "CANCELADA";
 
 export interface ListItemNavProps extends NavLinkProps {
@@ -282,9 +282,11 @@ export interface ServiceFiltersProps {
 export interface AppointmentFiltersProps {
     searchTerm: string
     statusFilter: string
+    dateFilter: string
     setModalCreateAppointment: (close: boolean) => void;
     onSearchChange: (value: string) => void;
     onStatusFilterChange: (value: string) => void;
+    onDateFilterChange: (value: string) => void;
 }
 
 export interface InvoiceFiltersProps {

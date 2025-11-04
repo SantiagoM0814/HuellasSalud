@@ -59,9 +59,10 @@ const optionsDate: Intl.DateTimeFormatOptions = {
 
 export const formatDate = (date: string | Date): string => {
     return new Date(date)
-        .toLocaleString("en-US", optionsDate)
+        .toLocaleString("es-ES", optionsDate)
         .replaceAll("/", "-")
-        .replace(",", " -");
+        .replace(",", " -")
+        .replace(/\s?a\.?\s*m\.?/i, " A.M.").replace(/\s?p\.?\s*m\.?/i, " P.M.");
 };
 
 export const roles = [
@@ -127,6 +128,14 @@ export const statusInvoices = [
     { value: "PENDIENTE", label: "Pendiente" },
     { value: "CANCELADA", label: "Cancelada" },
 ];
+
+export const statusAppointments = [
+    { value: "ALL", label: "Todos los estados" },
+    { value: "FINALIZADA", label: "Finalizada" },
+    { value: "PENDIENTE", label: "Pendiente" },
+    { value: "CANCELADA", label: "Cancelada" },
+];
+
 
 export const userEmpty: User = {
     name: "",

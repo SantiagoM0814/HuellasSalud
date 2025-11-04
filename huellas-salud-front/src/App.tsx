@@ -42,14 +42,7 @@ const AppRoutes = () => {
         </ProtectedRoute>
       )
     },
-    { 
-      path: "/citas-admin",
-      element: (
-        <ProtectedRoute requiredRole={["ADMINISTRADOR"]}>
-          <AppointmentsAdmin />
-        </ProtectedRoute>
-      )
-    },
+    { path: "/citas", element: <AppointmentsAdmin />},
     { path: "/facturas", element: <Invoice/>},
     { path: "/recuperar-contrasena", element: <PasswordRecovery /> },
     { path: "/reset-password", element: <ResetPassword /> },
@@ -63,7 +56,7 @@ const AppRoutes = () => {
     },
     {
       path: "/mascotas", element: (
-        <ProtectedRoute requiredRole={["CLIENTE", "ADMINISTRADOR"]}>
+        <ProtectedRoute requiredRole={["CLIENTE", "VETERINARIO", "ADMINISTRADOR"]}>
           <Pets />
         </ProtectedRoute>
       )
@@ -71,7 +64,7 @@ const AppRoutes = () => {
     {
     path: "/mascotas/:idPet", // ruta dinámica para detalle
     element: (
-      <ProtectedRoute requiredRole={["CLIENTE", "ADMINISTRADOR"]}>
+      <ProtectedRoute requiredRole={["CLIENTE", "VETERINARIO", "ADMINISTRADOR"]}>
         <PetDetails />
       </ProtectedRoute>
       ),

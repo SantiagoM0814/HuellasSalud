@@ -20,30 +20,37 @@ export const InvoicesFilters = ({
   setModalCreateInvoice,
   onSearchChange,
   onStatusFilterChange
-}: InvoiceFiltersProps) => (
-  <section className={styles.filters}>
-    <SearchBar
-      placeholder="Buscar por producto o servicio..."
-      searchTerm={searchTerm}
-      onSearchChange={onSearchChange}
-    />
+}: InvoiceFiltersProps) => {
+  const { user } = useContext(AuthContext);
 
-    <aside className={styles.selectFilters}>
-      <button className={styles.btnCreateService} onClick={() => setModalCreateInvoice(true)}>Registrar factura</button>
-      <select
-        value={statusFilter}
-        onChange={(e) => onStatusFilterChange(e.target.value)}
-        className={styles.filterSelect}
-      >
-        {statusInvoices.map(option => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-    </aside>
-  </section>
-);
+  return (
+    <section className={styles.filters}>
+      <SearchBar
+        placeholder="Buscar por producto o servicio..."
+        searchTerm={searchTerm}
+        onSearchChange={onSearchChange}
+      />
+
+      <aside className={styles.selectFilters}>
+
+        {/* {user?.role === "ADMINISTRADOR" && (
+          <button className={styles.btnCreateService} onClick={() => setModalCreateInvoice(true)}>Registrar factura</button>
+        )} */}
+        <select
+          value={statusFilter}
+          onChange={(e) => onStatusFilterChange(e.target.value)}
+          className={styles.filterSelect}
+        >
+          {statusInvoices.map(option => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </aside>
+    </section>
+  )
+}
 
 export const SearchBar = ({ placeholder, searchTerm, onSearchChange }: SearchBarProps) => (
   <aside className={styles.searchBar}>
@@ -58,10 +65,10 @@ export const SearchBar = ({ placeholder, searchTerm, onSearchChange }: SearchBar
 );
 
 export const InvoiceTable = ({ invoices, setInvoicesData, users, services, pets, prods }: InvoiceTableProps) => {
-
+  const { user } = useContext(AuthContext);
   const [invoiceSelected, setInvoiceSelected] = useState<InvoiceData | undefined>(undefined)
   const [isModalEditInvoice, setIsModalEditInvoice] = useState<boolean>(false);
-  const { confirmDelete } = useInvoiceService();
+  const { confirmDelete, confirmCancel, confirmPay } = useInvoiceService();
 
   const handleEditInvoice = (invoice: Invoice, meta: Meta) => {
     setIsModalEditInvoice(prev => !prev);
@@ -76,9 +83,13 @@ export const InvoiceTable = ({ invoices, setInvoicesData, users, services, pets,
     return `${firstName} ${lastName}`;
   };
 
-  // const changeAppointmentStatus = async (appointment: Appointment, meta: Meta) => {
-  //   if (await confirmUpdate(appointment)) meta.lastUpdate = new Date().toString();
-  // }
+  const cancelInvoice = async (invoice: Invoice, meta: Meta) => {
+    if (await confirmCancel(invoice)) meta.lastUpdate = new Date().toString();
+  }
+
+  const payInvoice = async (invoice: Invoice, meta: Meta) => {
+    if (await confirmPay(invoice)) meta.lastUpdate = new Date().toString();
+  }
 
   const deleteInvoice = async (invoice: Invoice) => {
     const idInvoice = await confirmDelete(invoice);
@@ -114,10 +125,10 @@ export const InvoiceTable = ({ invoices, setInvoicesData, users, services, pets,
               <td>
                 <span
                   className={`${styles.status} ${invoice.status === "PAGADA"
-                      ? styles.paid
-                      : invoice.status === "PENDIENTE"
-                        ? styles.pending
-                        : styles.cancelled
+                    ? styles.paid
+                    : invoice.status === "PENDIENTE"
+                      ? styles.pending
+                      : styles.cancelled
                     }`}
                 >
                   {invoice.status === "PAGADA"
@@ -129,27 +140,46 @@ export const InvoiceTable = ({ invoices, setInvoicesData, users, services, pets,
               </td>
               <td>
                 <aside className={styles.actions}>
-                  <button
-                    title="Editar"
-                    className={`${styles.btn} ${styles.edit}`}
-                    onClick={() => handleEditInvoice(invoice, meta)}
-                  >
-                    <i className="fa-regular fa-pen-to-square" />
-                  </button>
-                  <button
-                    title="Eliminar"
-                    className={`${styles.btn} ${styles.delete}`}
-                    onClick={() => deleteInvoice(invoice)}
-                  >
-                    <i className="fa-regular fa-trash-can" />
-                  </button>
-                  {/* <button
-                    title="Cambiar Estado"
-                    className={`${styles.btn} ${styles.toggleStatus}`}
-                    onClick={() => changeAppointmentStatus(appointment, meta)}
-                  >
-                    <i className="fa-solid fa-power-off" />
-                  </button> */}
+                  {invoice.status === "CANCELADA" || invoice.status === "PAGADA" ? (
+                    <span className={styles.noActions}>Sin acciones disponibles</span>
+                  ) : (
+                    <>
+                      {user?.role === "ADMINISTRADOR" && (
+                        <>
+                          <button
+                            title="Editar Factura"
+                            className={`${styles.btn} ${styles.edit}`}
+                            onClick={() => handleEditInvoice(invoice, meta)}
+                          >
+                            <i className="fa-regular fa-pen-to-square" />
+                          </button>
+                          <button
+                            title="Eliminar Factura"
+                            className={`${styles.btn} ${styles.delete}`}
+                            onClick={() => deleteInvoice(invoice)}
+                          >
+                            <i className="fa-regular fa-trash-can" />
+                          </button>
+                        </>
+                      )}
+                      <button
+                        title="Cancelar Factura"
+                        className={`${styles.btn} ${styles.toggleStatus}`}
+                        onClick={() => cancelInvoice(invoice, meta)}
+                      >
+                        <i className="fa-solid fa-ban"></i>
+                      </button>
+                      {user?.role === "ADMINISTRADOR" && (
+                        <button
+                          title="Factura pagada"
+                          className={`${styles.btn} ${styles.pay}`}
+                          onClick={() => payInvoice(invoice, meta)}
+                        >
+                          <i className="fa-solid fa-check"></i>
+                        </button>
+                      )}
+                    </>
+                  )}
                 </aside>
               </td>
             </tr>
@@ -171,21 +201,29 @@ export const InvoiceTable = ({ invoices, setInvoicesData, users, services, pets,
 
 interface InvoiceImgProps {
   invoice: Invoice;
-  shortName?: string;
+  shortName: string;
 }
 
 export const InvoiceImg = ({ invoice, shortName }: InvoiceImgProps) => {
+  // Si no hay nombre, usa "U" como valor por defecto
+  const getInitials = (name: string) => {
+    if (!name) return "U";
+    const parts = name.trim().split(" ");
+    const first = parts[0]?.charAt(0)?.toUpperCase() || "";
+    const second = parts[1]?.charAt(0)?.toUpperCase() || "";
+    return `${first}${second}` || first; // si solo hay un nombre
+  };
 
-  const initials = (shortName || "U").charAt(0).toUpperCase();
+  const initials = getInitials(shortName);
   const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#A37AFC', '#FFA07A'];
   const color = colors[initials.charCodeAt(0) % colors.length];
 
   return (
-    <div className={`${styles.imgDefault}`} style={{ backgroundColor: color }}>
+    <div className={styles.imgDefault} style={{ backgroundColor: color }}>
       {initials}
     </div>
   );
-}
+};
 
 // export const FormInvoice = ({ setModalInvoice, setInvoicesData, invoiceSelected, users, services, pets, prods }: FormInvoiceProps) => {
 //   const { user } = useContext(AuthContext);

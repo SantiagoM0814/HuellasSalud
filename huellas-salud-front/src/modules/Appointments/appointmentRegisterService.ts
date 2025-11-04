@@ -29,6 +29,7 @@ export const useAppointmentRegister = ({ setModalAppointment, setAppointmentsDat
 
     const createAppointment = async (appointmentData: Appointment) => {
         const payload = { data: appointmentData };
+        console.log(payload)
         toast.info(`Creando registro de la cita ${appointmentData.idPet.toUpperCase()}... ⌛`, { autoClose: 1200 });
 
         const { data: createdAppointment } = await axiosInstance.post<AppointmentData>("appointment/create", payload);

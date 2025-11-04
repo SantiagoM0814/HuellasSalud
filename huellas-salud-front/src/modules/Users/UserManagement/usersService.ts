@@ -91,7 +91,9 @@ export const useUserService = () => {
             cancelButtonText: "Cancelar",
         });
         if (result.isConfirmed) {
-            user.active = !user.active;
+            if (action === "estado") {
+                user.active = !user.active;
+            }
             handleUpdateUser(user);
             return true;
         }

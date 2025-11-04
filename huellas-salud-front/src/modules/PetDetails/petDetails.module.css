@@ -607,3 +607,196 @@
   color: #94a3b8;
   text-align: center;
 }
+
+.formRegister {
+    padding: 25px;
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 1fr 1fr;
+}
+
+.inputField {
+    font-size: 16px;
+}
+
+.midInput {
+    grid-column: span 2;
+    width: 50%;
+    margin: 0 auto;
+}
+
+.inputField label{
+    display: flex;
+    width: 95%;
+    padding-left: 8px;
+    margin-bottom: 4px;
+    color: #555;
+    font-weight: 600;
+}
+
+.inputField input,
+.inputField select,
+.inputField textarea {
+    width: 97%;
+    font-size: 15px;
+    resize: none;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 2px solid #ccc;
+    background: #fff;
+}
+
+.inputField input:hover,
+.inputField select:hover,
+.inputField input:focus,
+.inputField select:focus {
+    outline: none;
+    border: 2px solid #000000;
+}
+
+.required {
+    font-size: .8rem;
+    padding-left: 3px;
+    color: red;
+}
+
+.errorMsg {
+    text-align: center;
+    color: red;
+    padding: 5px 0 15px;
+}
+
+.validationError {
+    height: auto;
+    color: red;
+    text-shadow: none;
+}
+
+.errorInput {
+    border: 2px solid red !important;
+    box-shadow: 0px 0px 8px red;
+}
+
+.inputFull {
+    grid-column: span 2;
+}
+
+.surgeriesVaccinesContainer {
+  grid-column: span 2;
+  background: #f8f8f8;
+  border-radius: 12px;
+  padding: 15px 20px;
+  box-shadow: 0 0 6px #00000030;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.surgeriesVaccinesContainer h4 {
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+  color: #333;
+  font-weight: 600;
+}
+
+.surgeryInput {
+  width: 100%;
+  padding: 8px 10px;
+  border: 2px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  background: #fff;
+  margin-bottom: 10px;
+  transition: border 0.2s ease;
+}
+
+.surgeryInput:focus {
+  outline: none;
+  border-color: #000;
+}
+
+.vaccineGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px 12px;
+  align-items: center;
+  box-shadow: 0 1px 4px #00000010;
+}
+
+.vaccineGroup input[type="text"],
+.vaccineGroup input[type="date"] {
+  flex: 1;
+  min-width: 150px;
+  padding: 8px 10px;
+  border: 2px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  background: #fff;
+  transition: border 0.2s ease;
+}
+
+.vaccineGroup input:focus {
+  border-color: #000;
+  outline: none;
+}
+
+.vaccineGroup label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: #444;
+  font-weight: 500;
+}
+
+.addButton {
+  background-color: #000;
+  color: #fff;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.addButton i {
+  font-size: 1rem;
+}
+
+.addButton:hover {
+  background-color: #333;
+}
+
+.addHistory {
+  background-color: #000;
+  color: #fff;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.addHistory i {
+  font-size: 1rem;
+}
+
+.addHistory:hover {
+  background-color: #333;
+}
+
+

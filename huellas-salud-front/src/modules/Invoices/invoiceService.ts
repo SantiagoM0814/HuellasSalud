@@ -13,6 +13,10 @@ export const useInvoiceService = () => {
             const { data } = await axiosInstance.get<InvoiceData[]>(`/invoice/list-invoices`);
             return data
         },
+        getInvoicesUser: async (idUser: string) => {
+            const { data } = await axiosInstance.get<InvoiceData[]>(`/invoice/list-invoices-client/${idUser}`);
+            return data;
+        },
         updateInvoice: async (invoice: Invoice) => {
             const dataUpdate = { data: invoice }
             await axiosInstance.put(`invoice/update`, dataUpdate)
@@ -28,14 +32,27 @@ export const useInvoiceService = () => {
 
     const handleGetInvoices = async () => {
         setLoading(true);
-        toast.info("Cargando registros... ⌛", { autoClose: 1000 });
+        toast.info("Cargando facturas... ⌛", { autoClose: 1000 });
 
         try {
             const invoices: InvoiceData[] = await apiInvoice.getInvoices();
-            toast.success("¡Registros cargados con éxito! 🎉", { autoClose: 1500 });
+            toast.success("Facturas cargadas con éxito! 🎉", { autoClose: 1500 });
             return invoices;
         } catch (error) {
             handleError(error, "Error al consultar las facturas");
+        } finally { setLoading(false); }
+    }
+
+    const handleGetInvoicesUser = async (idUser: string) => {
+        setLoading(true);
+        toast.info("Cargando tus facturas... ⌛", { autoClose: 1000 });
+
+        try {
+            const invoices: InvoiceData[] = await apiInvoice.getInvoicesUser(idUser);
+            toast.success("Facturas cargadas con éxito! 🎉", { autoClose: 1500 });
+            return invoices;
+        } catch (error) {
+            handleError(error, "Error al consultar tus facturas");
         } finally { setLoading(false); }
     }
 
@@ -62,24 +79,43 @@ export const useInvoiceService = () => {
         } finally { setLoading(false); }
     }
 
-    // const confirmUpdate = async (appointment: Appointment): Promise<boolean> => {
-    //     const result = await Swal.fire({
-    //         title: "¿Estás seguro?",
-    //         text: `¿Deseas cambiar el estado de la cita a ${appointment.status ? "Inactivo" : "Activo"}?`,
-    //         icon: "warning",
-    //         showCancelButton: true,
-    //         confirmButtonColor: "#3085d6",
-    //         cancelButtonColor: "#d33",
-    //         confirmButtonText: `Actualizar estado de la cita`,
-    //         cancelButtonText: "Cancelar",
-    //     });
-    //     if (result.isConfirmed) {
-    //         appointment.status = !appointment.status;
-    //         handleUpdateService(service);
-    //         return true;
-    //     }
-    //     return false;
-    // }
+    const confirmCancel = async (invoice: Invoice): Promise<boolean> => {
+        const result = await Swal.fire({
+            title: "¿Cancelar factura?",
+            text: "Esta acción marcara la factura como CANCELADA",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: `Si, cancelar factura`,
+            cancelButtonText: "Cancelar",
+        });
+        if (result.isConfirmed) {
+            invoice.status = "CANCELADA"
+            handleUpdateInvoice(invoice);
+            return true;
+        }
+        return false;
+    }
+
+    const confirmPay = async (invoice: Invoice): Promise<boolean> => {
+        const result = await Swal.fire({
+            title: "¿Marcar factura como pagada?",
+            text: "Confirma que el cliente realizó el pago.",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: `Si, marcar como pagada`,
+            cancelButtonText: "Cancelar",
+        });
+        if (result.isConfirmed) {
+            invoice.status = "PAGADA"
+            handleUpdateInvoice(invoice);
+            return true;
+        }
+        return false;
+    }
 
     const confirmDelete = async (invoice: Invoice): Promise<string | undefined> => {
         const result = await Swal.fire({
@@ -98,6 +134,9 @@ export const useInvoiceService = () => {
     return {
         loading,
         handleGetInvoices,
-        confirmDelete
+        handleGetInvoicesUser,
+        confirmDelete,
+        confirmCancel,
+        confirmPay
     }
 }

@@ -50,7 +50,7 @@ export const NavLinks = ({ setOptionHover, setShowSubMenu }: NavLinkProps) => {
                 )
             }
             {
-                hasRole(user, ["ADMINISTRADOR", "CLIENTE"]) && (
+                hasRole(user, ["ADMINISTRADOR", "VETERINARIO", "CLIENTE"]) && (
                     <>
                         <ListItemNav path="/mascotas" name="Mascotas" icon="fa-solid fa-paw" />
                     </>
@@ -109,7 +109,7 @@ export const BtnsLogRegister = () => {
     };
 
     const handleAppointmentsAdmin = () => {
-        navigate("/citas-admin");
+        navigate("/citas");
     };
 
     const handleInvoices = () => {

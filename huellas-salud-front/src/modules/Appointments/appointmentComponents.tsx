@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { Appointment, AppointmentData, AppointmentFiltersProps, AppointmentTableProps, AuthContext, CreateAppointmentModalProps, CreateProductModalProps, CreateServiceModalProps, FormAppointmentProps, FormProductProps, FormServiceProps, InputFieldAppointmentRegister, InputFieldProductRegister, InputFieldServiceRegister, Meta, Pet, PetData, Product, ProductData, ProductTableProps, SearchBarProps, Service, ServiceData, ServiceFiltersProps, ServiceTableProps, UserData, WeightPriceRule } from "../../helper/typesHS";
 import styles from './appointmentsAdmin.module.css';
-import { formatDate, statusOptions, tableAppointmentColumns, tableProductColumns, tableServiceColumns, unitOfMeasure } from "../Users/UserManagement/usersUtils";
+import { formatDate, statusAppointments, statusOptions, tableAppointmentColumns, tableProductColumns, tableServiceColumns, unitOfMeasure } from "../Users/UserManagement/usersUtils";
 import { formatCurrencyCOP } from "../../helper/formatter";
 import { useAppointmentRegister } from "./appointmentRegisterService";
 import { appointmentValidationRules } from "./validationRulesAppointmentRegister";
@@ -17,25 +17,33 @@ import { toast } from "react-toastify";
 export const AppointmentsFilters = ({
   searchTerm,
   statusFilter,
+  dateFilter,
   setModalCreateAppointment,
   onSearchChange,
-  onStatusFilterChange
+  onStatusFilterChange,
+  onDateFilterChange
 }: AppointmentFiltersProps) => (
   <section className={styles.filters}>
     <SearchBar
-      placeholder="Buscar por nombre..."
+      placeholder="Buscar por nombre dueño, veterinario o mascota..."
       searchTerm={searchTerm}
       onSearchChange={onSearchChange}
     />
 
     <aside className={styles.selectFilters}>
       <button className={styles.btnCreateService} onClick={() => setModalCreateAppointment(true)}>Registrar cita</button>
+      <input
+        type="date"
+        value={dateFilter}
+        onChange={(e) => onDateFilterChange(e.target.value)}
+        className={styles.dateFilter}
+      />
       <select
         value={statusFilter}
         onChange={(e) => onStatusFilterChange(e.target.value)}
         className={styles.filterSelect}
       >
-        {statusOptions.map(option => (
+        {statusAppointments.map(option => (
           <option key={option.value} value={option.value}>
             {option.label}
           </option>
@@ -58,24 +66,12 @@ export const SearchBar = ({ placeholder, searchTerm, onSearchChange }: SearchBar
 );
 
 export const AppointmentTable = ({ appointments, setAppointmentsData, users, services, pets, vets }: AppointmentTableProps) => {
+  const { user } = useContext(AuthContext);
   const { handleGetUsers } = useUserService();
   const { handleGetPets } = usePetService();
   const [appointmentSelected, setAppointmentSelected] = useState<AppointmentData | undefined>(undefined)
   const [isModalEditAppointment, setIsModalEditAppointment] = useState<boolean>(false);
-  const { confirmDelete } = useAppointmentService();
-  // const [users, setUsers] = useState<UserData[] | undefined>([]);
-  // const [pets, setPets] = useState<PetData[] | undefined>([]);
-
-  // useEffect(() => {
-  //   const fetchUserData = async () => {
-  //     const data = await handleGetUsers();
-  //     const dataPet = await handleGetPets();
-  //     setUsers(data);
-  //     setPets(dataPet);
-  //   };
-
-  //   fetchUserData();
-  // }, [setAppointmentsData]);
+  const { confirmDelete, confirmCancel, confirmComplete } = useAppointmentService();
 
   const handleEditAppointment = (appointment: Appointment, meta: Meta) => {
     setIsModalEditAppointment(prev => !prev);
@@ -99,11 +95,15 @@ export const AppointmentTable = ({ appointments, setAppointmentsData, users, ser
   };
 
 
-  // if (!appointments || appointments.length === 0) return (<Spinner />);
+  if (!appointments || appointments.length === 0) return (<h2>No hay citas registradas</h2>);
 
-  // const changeAppointmentStatus = async (appointment: Appointment, meta: Meta) => {
-  //   if (await confirmUpdate(appointment)) meta.lastUpdate = new Date().toString();
-  // }
+  const cancelAppointment = async (appointment: Appointment, meta: Meta) => {
+    if (await confirmCancel(appointment)) meta.lastUpdate = new Date().toString();
+  }
+
+  const completeAppointment = async (appointment: Appointment, meta: Meta) => {
+    if (await confirmComplete(appointment)) meta.lastUpdate = new Date().toString();
+  }
 
   const deleteAppointment = async (appointment: Appointment) => {
     const idAppointment = await confirmDelete(appointment);
@@ -124,7 +124,7 @@ export const AppointmentTable = ({ appointments, setAppointmentsData, users, ser
               <td>
                 <aside className={styles.serviceInfo}>
                   <span className={styles.imgService}>
-                    <AppointmentImg appointment={appointment} />
+                    <AppointmentImg appointment={appointment} shortName={getShortName(appointment.idOwner)}/>
                   </span>
                   <div className={styles.serviceDetails}>
                     <span className={styles.serviceName}>
@@ -140,35 +140,74 @@ export const AppointmentTable = ({ appointments, setAppointmentsData, users, ser
               <td>{formatDate(appointment.dateTime)}</td>
               <td>{getShortNameVet(appointment.idVeterinarian)}</td>
               <td>
-                <span className={`${styles.status} ${appointment.status ? styles.active : styles.inactive}`}>
-                  {appointment.status ? 'Activo' : 'Inactivo'}
+                <span
+                  className={`${styles.status} ${appointment.status === "FINALIZADA"
+                    ? styles.paid
+                    : appointment.status === "PENDIENTE"
+                      ? styles.pending
+                      : styles.cancelled
+                    }`}
+                >
+                  {appointment.status === "FINALIZADA"
+                    ? "Finalizada"
+                    : appointment.status === "PENDIENTE"
+                      ? "Pendiente"
+                      : "Cancelada"}
                 </span>
               </td>
               <td>
                 <aside className={styles.actions}>
-                  <button
-                    title="Editar"
-                    className={`${styles.btn} ${styles.edit}`}
-                    onClick={() => handleEditAppointment(appointment, meta)}
-                  >
-                    <i className="fa-regular fa-pen-to-square" />
-                  </button>
-                  <button
-                    title="Eliminar"
-                    className={`${styles.btn} ${styles.delete}`}
-                    onClick={() => deleteAppointment(appointment)}
-                  >
-                    <i className="fa-regular fa-trash-can" />
-                  </button>
-                  {/* <button
-                    title="Cambiar Estado"
-                    className={`${styles.btn} ${styles.toggleStatus}`}
-                    onClick={() => changeAppointmentStatus(appointment, meta)}
-                  >
-                    <i className="fa-solid fa-power-off" />
-                  </button> */}
+                  {/* Si la cita está cancelada o finalizada, no hay acciones */}
+                  {appointment.status === "CANCELADA" || appointment.status === "FINALIZADA" ? (
+                    <span className={styles.noActions}>Sin acciones disponibles</span>
+                  ) : (
+                    <>
+                      {/* Botón editar — solo si no está cancelada */}
+                      <button
+                        title="Editar cita"
+                        className={`${styles.btn} ${styles.edit}`}
+                        onClick={() => handleEditAppointment(appointment, meta)}
+                      >
+                        <i className="fa-regular fa-pen-to-square" />
+                      </button>
+
+                      {/* Botón eliminar — solo visible para administrador */}
+                      {user?.role === "ADMINISTRADOR" && (
+                        <button
+                          title="Eliminar cita"
+                          className={`${styles.btn} ${styles.delete}`}
+                          onClick={() => deleteAppointment(appointment)}
+                        >
+                          <i className="fa-regular fa-trash-can" />
+                        </button>
+                      )}
+
+                      {/* Botón cancelar — visible para ADMINISTRADOR o CLIENTE */}
+                      {(user?.role === "ADMINISTRADOR" || user?.role === "CLIENTE") && (
+                        <button
+                          title="Cancelar cita"
+                          className={`${styles.btn} ${styles.toggleStatus}`}
+                          onClick={() => cancelAppointment(appointment, meta)}
+                        >
+                          <i className="fa-solid fa-ban"></i>
+                        </button>
+                      )}
+
+                      {/* Botón finalizar — visible solo para ADMINISTRADOR o VETERINARIO */}
+                      {(user?.role === "ADMINISTRADOR" || user?.role === "VETERINARIO") && (
+                        <button
+                          title="Finalizar cita"
+                          className={`${styles.btn} ${styles.complete}`}
+                          onClick={() => completeAppointment(appointment, meta)}
+                        >
+                          <i className="fa-solid fa-check"></i>
+                        </button>
+                      )}
+                    </>
+                  )}
                 </aside>
               </td>
+
             </tr>
           ))}
         </tbody>
@@ -186,14 +225,28 @@ export const AppointmentTable = ({ appointments, setAppointmentsData, users, ser
   );
 }
 
-export const AppointmentImg = ({ appointment }: { appointment: Appointment }) => {
+interface AppoitnmentImgProps {
+  appointment: Appointment;
+  shortName: string;
+}
 
-  const initials = appointment.idAppointment.charAt(0).toUpperCase();
+
+export const AppointmentImg = ({ appointment, shortName }: AppoitnmentImgProps) => {
+
+  const getInitials = (name: string) => {
+    if (!name) return "U";
+    const parts = name.trim().split(" ");
+    const first = parts[0]?.charAt(0)?.toUpperCase() || "";
+    const second = parts[1]?.charAt(0)?.toUpperCase() || "";
+    return `${first}${second}` || first; // si solo hay un nombre
+  };
+
+  const initials = getInitials(shortName);
   const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#A37AFC', '#FFA07A'];
   const color = colors[initials.charCodeAt(0) % colors.length];
 
   return (
-    <div className={`${styles.imgDefault}`} style={{ backgroundColor: color }}>
+    <div className={styles.imgDefault} style={{ backgroundColor: color }}>
       {initials}
     </div>
   );
@@ -209,29 +262,30 @@ export const FormAppointment = ({ setModalAppointment, setAppointmentsData, appo
   const [loadingHours, setLoadingHours] = useState(false);
 
   useEffect(() => {
-  const loadClientPets = async () => {
-    if (user?.role === "CLIENTE" && user?.documentNumber) {
-      try {
-        setLoadingPets(true);
-        const pets = await handleGetPetsOwner(user.documentNumber);
-        setPetsByOwner(pets);
-        setValue("idOwner", user.documentNumber); // asegura que quede registrado en el form
-      } catch (error) {
-        console.error("Error al cargar mascotas del cliente:", error);
-      } finally {
-        setLoadingPets(false);
+    const loadClientPets = async () => {
+      if (user?.role === "CLIENTE" && user?.documentNumber) {
+        try {
+          setLoadingPets(true);
+          const pets = await handleGetPetsOwner(user.documentNumber);
+          setPetsByOwner(pets);
+          setValue("idOwner", user.documentNumber); // asegura que quede registrado en el form
+        } catch (error) {
+          console.error("Error al cargar mascotas del cliente:", error);
+        } finally {
+          setLoadingPets(false);
+        }
       }
-    }
-  };
+    };
 
-  loadClientPets();
-}, [user]);
+    loadClientPets();
+  }, [user]);
 
   useEffect(() => {
     const loadInitialData = async () => {
       if (selectedServiceId) {
         reset({
           services: [selectedServiceId],
+          status: "PENDIENTE"
         });
         console.log("Servicio seleccionado:", selectedServiceId);
       }
@@ -349,6 +403,7 @@ export const FormAppointment = ({ setModalAppointment, setAppointmentsData, appo
       className={styles.formRegisterService}
       onSubmit={handleSubmit(appointmentSelected ? confirmUpdate : handleCreateAppointmentSubmit)}
     >
+      <input type="hidden" {...register("status")} value="PENDIENTE" readOnly />
       <section className={`${styles.inputField}`}>
         {(user?.role === "ADMINISTRADOR" || user?.role === "VETERINARIO") ? (
           <>
@@ -496,7 +551,7 @@ export const FormAppointment = ({ setModalAppointment, setAppointmentsData, appo
       <aside className={`${styles.containerButtons} ${styles.inputFull}`}>
         <ButtonComponent
           type="submit"
-          contain={appointmentSelected ? "Actualizar Servicio" : "Crear Servicio"}
+          contain={appointmentSelected ? "Actualizar Cita" : "Agendar Cita"}
           loading={loading}
         />
       </aside>
@@ -515,7 +570,7 @@ export const AppointmentModal = ({ setModalAppointment, setAppointmentsData, sel
   const [loading, setLoading] = useState(false);
 
   if (!user) {
-    toast.info("Debes iniciar sesión para agendar una cita", {autoClose: 3000})
+    toast.info("Debes iniciar sesión para agendar una cita", { autoClose: 3000 })
     return null;
   }
 

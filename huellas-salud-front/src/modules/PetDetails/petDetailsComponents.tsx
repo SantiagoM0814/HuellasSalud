@@ -1,11 +1,12 @@
 import styles from "./petDetails.module.css";
 import { formatDate } from "../Users/UserManagement/usersUtils";
-import { PetData, Pet, InputEditProps, MedicalHistory, FormHistoryProps, CreateHistoryModalProps, InputFieldHistoryRegister, Vaccine } from "../../helper/typesHS";
-import { memo, useState } from "react";
+import { PetData, Pet, InputEditProps, MedicalHistory, FormHistoryProps, CreateHistoryModalProps, InputFieldHistoryRegister, Vaccine, AuthContext, UserData } from "../../helper/typesHS";
+import { memo, useContext, useEffect, useState } from "react";
 import { useHistoryRegister } from "./petDetailsService";
 import ButtonComponent from "../../components/Button/Button";
 import { medicalHistoryValidationRules } from "./medicalHistoryValidationRules";
 import { RegisterOptions } from "react-hook-form";
+import { useUserService } from "../Users/UserManagement/usersService";
 
 export const PetDetails = ({ pet }: { pet: PetData }) => {
   const petData = pet.data;
@@ -33,6 +34,7 @@ export const PetDetails = ({ pet }: { pet: PetData }) => {
 }
 
 const InfoPet = ({ pet, option }: { pet: Pet; option: number }) => {
+  const { user } = useContext(AuthContext);
   const [modal, setModal] = useState(false);
   const [petHistory, setPetHistory] = useState<MedicalHistory[] | undefined>(pet.medicalHistory);
 
@@ -99,7 +101,9 @@ const InfoPet = ({ pet, option }: { pet: Pet; option: number }) => {
             </ul>
           </div>
 
-          <button className={styles.addHistory} onClick={() => setModal(true)}>Añadir historial</button>
+          {(user?.role === "VETERINARIO" || user?.role === "ADMINISTRADOR") && (
+            <button className={styles.addHistory} onClick={() => setModal(true)}>Añadir historial</button>
+          )}
 
           <h3 className={styles.subTitle}>🩺 Procedimientos</h3>
 
@@ -200,10 +204,24 @@ export const ModalCreateHistory = ({ setModalHistory, setPetData }: CreateHistor
 }
 
 export const FormHistory = ({ setModalHistory, setPetData }: FormHistoryProps) => {
+  const { user } = useContext(AuthContext);
   const { errorMsg, handleCreateHistorySubmit, loading, register, errors, handleSubmit, reset } = useHistoryRegister({ setModalHistory, setPetData })
+  const { handleGetVeterinarians } = useUserService();
 
   const [surgeries, setSurgeries] = useState<string[]>([]);
   const [vaccines, setVaccines] = useState<Vaccine[]>([]);
+  const [users, setUsers] = useState<UserData[] | undefined>([]);
+
+  useEffect(() => {
+    const fetchVeterinarians = async () => {
+      const data = await handleGetVeterinarians();
+      setUsers(data);
+    }
+
+    if (user?.role === "ADMINISTRADOR") {
+      fetchVeterinarians();
+    }
+  }, []);
 
   const addSurgery = () => setSurgeries((prev) => [...prev, ""]);
   const handleSurgeryChange = (i: number, value: string) => {
@@ -220,81 +238,129 @@ export const FormHistory = ({ setModalHistory, setPetData }: FormHistoryProps) =
     setVaccines(updated);
   };
   return (
-    <form onSubmit={handleSubmit(handleCreateHistorySubmit)}>
-      <h3>Agregar Historial Médico</h3>
+    <form className={styles.formRegister} onSubmit={handleSubmit(handleCreateHistorySubmit)}>
+      <h3 className={styles.inputFull}>Agregar Historial Médico</h3>
 
-      <InputField
-        label="Diagnóstico"
-        idInput="diagnostic"
-        register={register}
-        errors={errors}
-      />
-
-      <InputField
-        label="Tratamiento"
-        idInput="treatment"
-        register={register}
-        errors={errors}
-        required={false}
-      />
-
-      <InputField
-        label="Veterinario"
-        idInput="veterinarian"
-        register={register}
-        errors={errors}
-      />
-
-      {surgeries.map((s, i) => (
-        <input
-          key={`surgery-${i}`}
-          type="text"
-          value={s}
-          {...register(`surgeries.${i}`)}
-          placeholder={`Cirugía ${i + 1}`}
-          onChange={(e) => handleSurgeryChange(i, e.target.value)}
-          className={styles.surgeryInput}
+      {/* <InputField label="Diagnóstico" idInput="diagnostic" register={register} errors={errors}/>
+      <InputField label="Tratamiento" idInput="treatment" register={register} errors={errors} required={false}/> */}
+      <aside className={styles.inputField}>
+        <label htmlFor="treatment">Tratamiento<span className={styles.required}>*</span></label>
+        <textarea
+          id="treatment"
+          {...register("treatment", {
+            required: "El tratamiento es obligatorio",
+            minLength: {
+              value: 10,
+              message: "Minimo 10 caracteres"
+            },
+            maxLength: {
+              value: 200,
+              message: "Máximo 200 caracteres",
+            },
+          })}
         />
-      ))}
-      <button type="button" onClick={addSurgery} className={styles.addButton}>
-        <i className="fa-solid fa-square-plus"></i> Agregar cirugía
-      </button>
+        {errors.treatment && (
+          <p className={styles.errorMsg}>{errors.treatment.message}</p>
+        )}
+      </aside>
+      <aside className={styles.inputField}>
+        <label htmlFor="diagnostic">Diagnóstico<span className={styles.required}>*</span></label>
+        <textarea
+          id="diagnostic"
+          {...register("diagnostic", {
+            required: "El diagnostico es obligatorio",
+            minLength: {
+              value: 10,
+              message: "Minimo 10 caracteres"
+            },
+            maxLength: {
+              value: 200,
+              message: "Máximo 200 caracteres",
+            },
+          })}
+        />
+        {errors.diagnostic && (
+          <p className={styles.errorMsg}>{errors.diagnostic.message}</p>
+        )}
+      </aside>
+      <section className={`${styles.inputField} ${styles.midInput}`}>
+        {user?.role === "ADMINISTRADOR" ? (
+          <>
+            <label>Veterinario<span className={styles.required}>*</span></label>
+            <select className={`${errors.veterinarian ? styles.errorInput : ''}`} {...register("veterinarian", { required: "Debe seleccionar un veterinario" })}>
+              <option value="">Seleccione un veterinario</option>
+              {users?.map(user => (
+                <option key={user.data.documentNumber} value={`${user.data.name} ${user.data.lastName}`}>
+                  {user.data.name} {user.data.lastName}
+                </option>
+              ))}
+            </select>
+            {errors.veterinarian && (
+              <p className={styles.errorMsg}>{errors.veterinarian.message}</p>
+            )}
+          </>
+        ) : (
+          <>
+            <input type="hidden" id="veterinarian" value={`${user?.name} ${user?.lastName}`} {...register("veterinarian")}></input>
+          </>
+        )}
+      </section>
 
-      {vaccines.map((v, i) => (
-        <div key={`vaccine-${i}`} className={styles.vaccineGroup}>
+      <section className={styles.surgeriesVaccinesContainer}>
+        <h4>Cirugías</h4>
+        {surgeries.map((s, i) => (
           <input
+            key={`surgery-${i}`}
             type="text"
-            placeholder="Nombre de vacuna"
-            value={v.name}
-            {...register(`vaccines.${i}.name`)}
-            onChange={(e) => handleVaccineChange(i, "name", e.target.value)}
+            value={s}
+            {...register(`surgeries.${i}`)}
+            placeholder={`Cirugía ${i + 1}`}
+            onChange={(e) => handleSurgeryChange(i, e.target.value)}
+            className={styles.surgeryInput}
           />
-          <input
-            type="date"
-            value={v.dateApplied}
-            {...register(`vaccines.${i}.dateApplied`)}
-            onChange={(e) => handleVaccineChange(i, "dateApplied", e.target.value)}
-          />
-          <input
-            type="date"
-            value={v.validUntil}
-            {...register(`vaccines.${i}.validUntil`)}
-            onChange={(e) => handleVaccineChange(i, "validUntil", e.target.value)}
-          />
-          <label>
+        ))}
+        <button type="button" onClick={addSurgery} className={styles.addButton}>
+          <i className="fa-solid fa-square-plus"></i> Agregar cirugía
+        </button>
+
+        <h4>Vacunas</h4>
+        {vaccines.map((v, i) => (
+          <div key={`vaccine-${i}`} className={styles.vaccineGroup}>
             <input
-              type="checkbox"
-              checked={v.singleDose}
-              {...register(`vaccines.${i}.singleDose`)}
-              onChange={(e) => handleVaccineChange(i, "singleDose", e.target.checked)}
+              type="text"
+              placeholder="Nombre de vacuna"
+              value={v.name}
+              {...register(`vaccines.${i}.name`)}
+              onChange={(e) => handleVaccineChange(i, "name", e.target.value)}
             />
-            Dosis única
-          </label>
-        </div>
-      ))}
-      <button type="button" onClick={addVaccine} className={styles.addButton}>
-        <i className="fa-solid fa-square-plus"></i> Agregar vacuna
-      </button>
+            <input
+              type="date"
+              value={v.dateApplied}
+              {...register(`vaccines.${i}.dateApplied`)}
+              onChange={(e) => handleVaccineChange(i, "dateApplied", e.target.value)}
+            />
+            <input
+              type="date"
+              value={v.validUntil}
+              {...register(`vaccines.${i}.validUntil`)}
+              onChange={(e) => handleVaccineChange(i, "validUntil", e.target.value)}
+            />
+            <label>
+              <input
+                type="checkbox"
+                checked={v.singleDose}
+                {...register(`vaccines.${i}.singleDose`)}
+                onChange={(e) => handleVaccineChange(i, "singleDose", e.target.checked)}
+              />
+              Dosis única
+            </label>
+          </div>
+        ))}
+        <button type="button" onClick={addVaccine} className={styles.addButton}>
+          <i className="fa-solid fa-square-plus"></i> Agregar vacuna
+        </button>
+      </section>
+
 
       {/* Botones */}
       <aside className={`${styles.containerButtons} ${styles.inputFull}`}>

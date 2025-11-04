@@ -94,12 +94,12 @@ public class InvoiceApi {
 
         List<InvoiceMsg> invoices = invoiceService.getListInvoicesUser(idClient);
 
-        if (invoices == null || invoices.isEmpty()) {
-            LOG.warnf("@getListInvoicesUser API > No se encontraron facturas para el usuario con documento: %s", idClient);
-            return Response.status(Response.Status.NOT_FOUND)
-                    .entity("No se encontraron facturas para el usuario con documento: " + idClient)
-                    .build();
-        }
+//        if (invoices == null || invoices.isEmpty()) {
+//            LOG.warnf("@getListInvoicesUser API > No se encontraron facturas para el usuario con documento: %s", idClient);
+//            return Response.status(Response.Status.NOT_FOUND)
+//                    .entity("No se encontraron facturas para el usuario con documento: " + idClient)
+//                    .build();
+//        }
 
         LOG.infof("@getListInvoicesUser API > Finaliza servicio. Se encontraron %s facturas para el usuario con documento: %s", invoices.size(), idClient);
 

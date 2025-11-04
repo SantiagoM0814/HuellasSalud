@@ -28,10 +28,14 @@ public class Utils {
     Provider<HttpServerRequest> httpServerRequestProvider;
 
     public String capitalizeWords(String input) {
-
         LOG.infof("@capitalizeWords SERV > Inicia formato capitalize al valor: %s", input);
 
-        return Arrays.stream(input.toLowerCase().split(" "))
+        if (input == null || input.trim().isEmpty()) {
+            return "";
+        }
+
+        return Arrays.stream(input.trim().toLowerCase().split("\\s+")) // divide por cualquier cantidad de espacios
+                .filter(word -> !word.isEmpty())                      // ignora palabras vacías
                 .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1))
                 .collect(Collectors.joining(" "));
     }

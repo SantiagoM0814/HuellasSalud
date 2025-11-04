@@ -9,6 +9,7 @@ import org.huellas.salud.domain.schedule.ScheduleMsg;
 import org.huellas.salud.repositories.ScheduleRepository;
 import org.huellas.salud.domain.appointment.Appointment;
 import org.huellas.salud.repositories.AppointmentRepository;
+import org.huellas.salud.domain.appointment.AppointmentStatus;
 import org.huellas.salud.domain.pet.Pet;
 import org.huellas.salud.repositories.PetRepository;
 import org.huellas.salud.domain.service.Service;
@@ -170,13 +171,26 @@ public class AppointmentService {
 
     public List<AppointmentMsg> getListAppointmentsUser(String idOwner) {
 
-        LOG.infof("@getListAppointmentsUser SERV > Inicia la ejecucion del servicio para obetner el listado de citas "
+        LOG.infof("@getListAppointmentsUser SERV > Inicia la ejecucion del servicio para obtener el listado de citas "
                 + "del usuario con numero de documento: %s", idOwner);
 
         List<AppointmentMsg> appointments = appointmentRepository.getListAppointmentsUser(idOwner);
 
         LOG.infof("@getListAppointmentsUser SERV > Finaliza la consulta de citas en mongo. Se obtuvo: %s registros "
                 + "de citas relacionadas al usuario con numero de documento: %s", appointments.size(), idOwner);
+
+        return appointments;
+    }
+
+    public List<AppointmentMsg> getListAppointmentsVeterinarian(String idVeterinarian) {
+
+        LOG.infof("@getListAppointmentsVeterinarian SERV > Inicia la ejecucion del servicio para obtener el listado de citas "
+                + "del veterinario con numero de documento: %s", idVeterinarian);
+
+        List<AppointmentMsg> appointments = appointmentRepository.getListAppointmentsVeterinarian(idVeterinarian);
+
+        LOG.infof("@getListAppointmentsVeterinarian SERV > Finaliza la consulta de citas en mongo. Se obtuvo: %s registros "
+                + "de citas relacionadas al veterinario con numero de documento: %s", appointments.size(), idVeterinarian);
 
         return appointments;
     }
@@ -210,9 +224,21 @@ public class AppointmentService {
         Appointment appointmentMongo = appointmentMsgMongo.getData();
         Meta metaMongo = appointmentMsgMongo.getMeta();
 
-        appointmentMongo.setIdPet(appointmentRequest.getIdPet());
-        appointmentMongo.setServices(appointmentRequest.getServices());
-        appointmentMongo.setDateTime(appointmentRequest.getDateTime());
+        // Solo actualizar si se envía uno nuevo
+        if (appointmentRequest.getIdPet() != null) {
+            appointmentMongo.setIdPet(appointmentRequest.getIdPet());
+        }
+
+        if (appointmentRequest.getServices() != null && !appointmentRequest.getServices().isEmpty()) {
+            appointmentMongo.setServices(appointmentRequest.getServices());
+        }
+
+        // 👇 Aquí el cambio clave:
+        if (appointmentRequest.getDateTime() != null &&
+                !appointmentRequest.getDateTime().equals(appointmentMongo.getDateTime())) {
+            appointmentMongo.setDateTime(appointmentRequest.getDateTime());
+        }
+
         appointmentMongo.setStatus(appointmentRequest.getStatus());
         appointmentMongo.setNotes(appointmentRequest.getNotes());
         appointmentMongo.setIdVeterinarian(appointmentRequest.getIdVeterinarian());
@@ -224,6 +250,7 @@ public class AppointmentService {
 
         LOG.infof("@setAppointmentInformation SERV > Finaliza set de los datos de la cita con id: %s", idAppointment);
     }
+
 
     @CacheInvalidateAll(cacheName = "appointments-list-cache")
     public void deleteAppointmentDataMongo(String idAppointment) throws HSException {
@@ -337,11 +364,23 @@ public class AppointmentService {
                     }
 
                     // Evitar cruces con citas existentes
-                    boolean overlapsAppointment = appointments.stream().anyMatch(appt -> {
-                        LocalDateTime apptStart = appt.getData().getDateTime();
-                        LocalDateTime apptEnd = apptStart.plusMinutes(30);
-                        return (slot.isBefore(apptEnd) && slotEnd.isAfter(apptStart));
-                    });
+                    boolean overlapsAppointment = appointments.stream()
+                            .anyMatch(appt -> {
+                                Appointment appointment = appt.getData();
+
+                                // Ignorar citas canceladas
+                                if (appointment.getStatus() == AppointmentStatus.CANCELADA) {
+                                    return false;
+                                }
+
+
+                                LocalDateTime apptStart = appointment.getDateTime();
+                                LocalDateTime apptEnd = apptStart.plusMinutes(30);
+
+                                // Verificar cruce de horario
+                                return slot.isBefore(apptEnd) && slotEnd.isAfter(apptStart);
+                            });
+
 
                     return !overlapsAppointment;
                 })

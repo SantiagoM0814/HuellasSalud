@@ -38,7 +38,7 @@ const Services = () => {
       return matchesSearch;
     })
   }, [servicesData, searchTerm]);
-  
+
   if (loading) return (<Spinner />);
 
   return (
@@ -65,38 +65,39 @@ const ServiceCard = ({ services }: { services?: ServiceData[] }) => {
   }
 
   const handleModal = (idService: string) => {
-    setModalAppointment(prev => !prev);
     setServiceSelected(idService);
+    setModalAppointment(true);
   }
+
 
   return (
     <main className={styles.cardServicesContainer}>
       {services?.filter(({ data: service }) => service.state)
-        .map(({ data: service}) => (
-        <section className={styles.cardService} key={service.idService}>
-          <aside className={styles.imgCardService}>
-            <img
-              src={getServiceImage(service)}
-              alt={service.name}
-              className={styles.cardImage}
-            />
-          </aside>
+        .map(({ data: service }) => (
+          <section className={styles.cardService} key={service.idService}>
+            <aside className={styles.imgCardService}>
+              <img
+                src={getServiceImage(service)}
+                alt={service.name}
+                className={styles.cardImage}
+              />
+            </aside>
 
-          <aside className={styles.nameService}>
-            <h3>{service.name}</h3>
-          </aside>
+            <aside className={styles.nameService}>
+              <h3>{service.name}</h3>
+            </aside>
 
-          <p className={styles.description}>{service.shortDescription}</p>
-          <span className={styles.price}>
-            {service.priceByWeight
-              ? `Desde ${formatCurrencyCOP(service.basePrice)} • Precio según peso`
-              : `Precio fijo: ${formatCurrencyCOP(service.basePrice)}`}
-          </span>
-          <button className={styles.btnAppointment} onClick={() => handleModal(service.idService)}>Agendar Cita</button>
-        </section>
-      ))}
+            <p className={styles.description}>{service.shortDescription}</p>
+            <span className={styles.price}>
+              {service.priceByWeight
+                ? `Desde ${formatCurrencyCOP(service.basePrice)} • Precio según peso`
+                : `Precio fijo: ${formatCurrencyCOP(service.basePrice)}`}
+            </span>
+            <button className={styles.btnAppointment} onClick={() => handleModal(service.idService)}>Agendar Cita</button>
+          </section>
+        ))}
       {modalAppointment && (
-        <AppointmentModal setModalAppointment={setModalAppointment} selectedServiceId={serviceSelected} services={services}/>
+        <AppointmentModal setModalAppointment={setModalAppointment} selectedServiceId={serviceSelected} services={services} />
       )}
     </main>
   );

@@ -22,15 +22,23 @@ const Invoice = () => {
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [loading, setLoading] = useState<boolean>(true);
 
-  const { handleGetInvoices } = useInvoiceService();
+  const { handleGetInvoices, handleGetInvoicesUser } = useInvoiceService();
   const { handleGetUsers } = useUserService();
   const { handleGetPets } = usePetService();
   const { handleGetServices } = useServiceService();
   const { handleGetProducts } = useProductService();
 
   useEffect(() => {
+    if (!user) return;
+
     const fetchAppointmentData = async () => {
-      const data = await handleGetInvoices();
+      let data;
+      if (user?.role === "ADMINISTRADOR") {
+        data = await handleGetInvoices();
+      } else {
+        data = await handleGetInvoicesUser(user.documentNumber);
+      }
+      
       const dataUser = await handleGetUsers();
       const dataPet = await handleGetPets();
       const dataService = await handleGetServices();
@@ -46,7 +54,7 @@ const Invoice = () => {
     };
 
     fetchAppointmentData();
-  }, []);
+  }, [user]);
 
   const invoicesWithNames = useMemo(() => {
     if (!invoicesData) return [];
@@ -107,7 +115,11 @@ const Invoice = () => {
           onSearchChange={setSearchTerm}
           onStatusFilterChange={setStatusFilter}
         />
-        <InvoiceTable invoices={filteredInvoices} setInvoicesData={setInvoicesData} users={usersData} services={servicesData} pets={petsData} prods={prodsData} />
+        {(!invoicesData || invoicesData.length === 0) ? (
+          <h2>No hay citas registradas</h2>
+        ) : (
+          <InvoiceTable invoices={filteredInvoices} setInvoicesData={setInvoicesData} users={usersData} services={servicesData} pets={petsData} prods={prodsData} />
+        )}
         {/* {isModalCreateAppointment && (<AppointmentModal setModalAppointment={setIsModalCreateAppointment} setAppointmentsData={setAppointmentsData} users={usersData} services={servicesData} pets={petsData} vets={vetsData}/>)} */}
       </section>
     </main>

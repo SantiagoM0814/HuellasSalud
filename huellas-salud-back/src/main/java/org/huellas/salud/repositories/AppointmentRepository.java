@@ -32,6 +32,14 @@ public class AppointmentRepository implements PanacheMongoRepository<Appointment
         return list("data.idPropietario = ?1", userDocument);
     }
 
+    public List<AppointmentMsg> getListAppointmentsVeterinarian(String userDocument) {
+
+        LOG.infof("@getListAppointmentsVeterinarian REPO > Inicia busqueda de las citas relacionadas con"
+                + " el veterinario con numero de documento: %s", userDocument);
+
+        return list("data.idVeterinario = ?1", Sort.by("data.fechaHora").descending(), userDocument);
+    }
+
     public List<AppointmentMsg> getListAppointmentsMongo() {
 
         LOG.infof("@getListAppointmentsMongo REPO > Inicia la obtencion del listado de citas registradas "

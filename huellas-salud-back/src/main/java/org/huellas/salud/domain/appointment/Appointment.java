@@ -42,7 +42,7 @@ public class Appointment implements Serializable {
 
     @BsonProperty("fechaHora")
     @Schema(example = "2025-12-05T16:11:27.34")
-    @FutureOrPresent(message = "La fecha debe ser actual o futura")
+    @FutureOrPresent(message = "La fecha debe ser actual o futura", groups = ValidationGroups.Post.class)
     private LocalDateTime dateTime;
 
     @BsonProperty("estado")

@@ -11,7 +11,7 @@ export const useAppointmentService = () => {
     const apiAppointment = {
         getAppointments: async () => {
             const { data } = await axiosInstance.get<AppointmentData[]>(`/appointment/list-appointments`);
-            return data
+            return data;
         },
         getAppointmentAvailable: async (date: string, idVeterinarian: string) => {
             const { data } = await axiosInstance.get('/appointment/available', {
@@ -20,7 +20,15 @@ export const useAppointmentService = () => {
                     idVeterinarian: idVeterinarian
                 }
             });
-            return data ;
+            return data;
+        },
+        getAppointmentUser: async (idUser: string) => {
+            const { data } = await axiosInstance.get(`/appointment/list-appointments-user/${idUser}`);
+            return data;
+        },
+        getAppointmentVet: async (idVet: string) => {
+            const { data } = await axiosInstance.get(`/appointment/list-appointments-veterinarian/${idVet}`);
+            return data;
         },
         updateAppointment: async (appointment: Appointment) => {
             const dataUpdate = { data: appointment }
@@ -61,6 +69,32 @@ export const useAppointmentService = () => {
         } finally { setLoading(false); }
     }
 
+    const handleGetAppointmentsUser = async (idUser: string) => {
+        setLoading(true);
+        toast.info("Cargando tus citas... ⌛", { autoClose: 1000})
+
+        try {
+            const appointments: AppointmentData[] = await apiAppointment.getAppointmentUser(idUser);
+            toast.success("Citas cargadas con éxito! 🎉", { autoClose: 1500 });
+            return appointments;
+        } catch (error) {
+            handleError(error, "Error al consultar las citas");
+        } finally { setLoading(false); }
+    }
+
+    const handleGetAppointmentsVet = async (idVet: string) => {
+        setLoading(true);
+        toast.info("Cargando tus citas... ⌛", { autoClose: 1000})
+
+        try {
+            const appointments: AppointmentData[] = await apiAppointment.getAppointmentVet(idVet);
+            toast.success("Citas cargadas con éxito! 🎉", { autoClose: 1500 });
+            return appointments;
+        } catch (error) {
+            handleError(error, "Error al consultar las citas");
+        } finally { setLoading(false); }
+    }
+
     const handleUpdateAppointment = async (appointment: Appointment) => {
         setLoading(true);
         toast.info("Actualizando cita... ⌛", { autoClose: 1000 });
@@ -84,24 +118,44 @@ export const useAppointmentService = () => {
         } finally { setLoading(false); }
     }
 
-    // const confirmUpdate = async (appointment: Appointment): Promise<boolean> => {
-    //     const result = await Swal.fire({
-    //         title: "¿Estás seguro?",
-    //         text: `¿Deseas cambiar el estado de la cita a ${appointment.status ? "Inactivo" : "Activo"}?`,
-    //         icon: "warning",
-    //         showCancelButton: true,
-    //         confirmButtonColor: "#3085d6",
-    //         cancelButtonColor: "#d33",
-    //         confirmButtonText: `Actualizar estado de la cita`,
-    //         cancelButtonText: "Cancelar",
-    //     });
-    //     if (result.isConfirmed) {
-    //         appointment.status = !appointment.status;
-    //         handleUpdateService(service);
-    //         return true;
-    //     }
-    //     return false;
-    // }
+    const confirmCancel = async (appointment: Appointment): Promise<boolean> => {
+        const result = await Swal.fire({
+             title: "¿Cancelar cita?",
+            text: "Esta acción marcará la cita como cancelada y no podrá ser reprogramada.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Sí, cancelar cita",
+            cancelButtonText: "Cancelar",
+        });
+        if (result.isConfirmed) {
+            appointment.status = "CANCELADA"
+            handleUpdateAppointment(appointment);
+            return true;
+        }
+        return false;
+    }
+
+    const confirmComplete = async (appointment: Appointment): Promise<boolean> => {
+        const result = await Swal.fire({
+            title: "¿Finalizar cita?",
+            text: "Al finalizar la cita se registrará como completada y no podrá modificarse.",
+            icon: "info",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Sí, finalizar cita",
+            cancelButtonText: "Cancelar",
+        });
+        if (result.isConfirmed) {
+            appointment.status = "FINALIZADA"
+            handleUpdateAppointment(appointment);
+            console.log(appointment)
+            return true;
+        }
+        return false;
+    }
 
     const confirmDelete = async (appointment: Appointment): Promise<string | undefined> => {
         const result = await Swal.fire({
@@ -121,6 +175,10 @@ export const useAppointmentService = () => {
         loading,
         handleGetAppointments,
         handleGetAppointmentAvailable,
-        confirmDelete
+        handleGetAppointmentsUser,
+        handleGetAppointmentsVet,
+        confirmDelete,
+        confirmCancel,
+        confirmComplete
     }
 }

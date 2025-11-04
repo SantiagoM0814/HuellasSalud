@@ -96,14 +96,38 @@ public class AppointmentApi {
 
         List<AppointmentMsg> appointments = appointmentService.getListAppointmentsUser(idOwner);
 
-        if (appointments == null || appointments.isEmpty()) {
-            LOG.warnf("@getListAppointmentsUser API > No se encontraron citas para el usuario con documento: %s", idOwner);
-            return Response.status(Response.Status.NOT_FOUND)
-                    .entity("No se encontraron citas para el usuario con documento: " + idOwner)
-                    .build();
-        }
-
         LOG.infof("@getListAppointmentsUser API > Finaliza servicio. Se encontraron %s citas para el usuario con documento: %s", appointments.size(), idOwner);
+
+        return Response.ok().entity(appointments).build();
+    }
+
+    @GET
+    @Path("/list-appointments-veterinarian/{idVeterinarian}")
+    @Tag(name = "Gestión de citas")
+    @APIResponses(
+            value = {
+                    @APIResponse(
+                            responseCode = "200",
+                            description = "Se retorna el listado de las citas del veterinario correctamente",
+                            content = @Content(schema = @Schema(implementation = AppointmentMsg.class, type = SchemaType.ARRAY))
+                    ),
+                    @APIResponse(
+                            responseCode = "404",
+                            description = "No se encontraron citas para el veterinario indicado"
+                    )
+            }
+    )
+    @Operation(
+            summary = "Obtención de citas de un veterinario",
+            description = "Permite obtener el listado de las citas registradas asociadas a un veterinario específico según su número de documento"
+    )
+    public Response getListAppointmentsVeterinarian(@PathParam("idVeterinarian") String idVeterinarian) {
+
+        LOG.infof("@getListAppointmentsVeterinarian API > Inicia servicio para obtener el listado de citas del veterinario con documento: %s", idVeterinarian);
+
+        List<AppointmentMsg> appointments = appointmentService.getListAppointmentsVeterinarian(idVeterinarian);
+
+        LOG.infof("@getListAppointmentsVeterinarian API > Finaliza servicio. Se encontraron %s citas para el veterinario con documento: %s", appointments.size(), idVeterinarian);
 
         return Response.ok().entity(appointments).build();
     }
