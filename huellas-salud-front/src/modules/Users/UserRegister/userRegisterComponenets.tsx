@@ -5,6 +5,8 @@ import { validationRules } from "./validationRulesUserRegister";
 import { useUserRegister } from "./userRegisterService";
 import ButtonComponent from "../../../components/Button/Button";
 import styles from "./userRegister.module.css";
+import { roles } from "../UserManagement/usersUtils";
+import { useState } from "react";
 
 export const FormUserRegister = () => (
     <section className={styles.containerForm}>
@@ -12,19 +14,19 @@ export const FormUserRegister = () => (
     </section>
 );
 
-export const FormUser = ({ isAdmin, setModalCreate, setUsersData }: FormUserProps) => {
+export const FormUser = ({ isAdmin, setModalCreate, setUsersData, userSelected }: FormUserProps) => {
 
     const {
-        errorMsg, handleCreateUserSubmit, loading, register, errors,
+        errorMsg, confirmUpdate, handleCreateUserSubmit, loading, register, errors,
         handleSubmit, previewImg, fileInput, fileName, handleChangeImg
-    } = useUserRegister({ setModalCreate, setUsersData });
+    } = useUserRegister({ setModalCreate, setUsersData, userSelected });
 
     const handelClicCancel = () => setModalCreate && setModalCreate(false);
 
     return (
         <form
             className={`${isAdmin ? styles.formAdmin : styles.formRegister}`}
-            onSubmit={handleSubmit(handleCreateUserSubmit)}
+            onSubmit={handleSubmit(userSelected ? confirmUpdate : handleCreateUserSubmit)}
         >
             <section className={`${isAdmin ? styles.selectImgAdmin : styles.selectImg}`}>
                 <label
@@ -93,22 +95,44 @@ export const FormUser = ({ isAdmin, setModalCreate, setUsersData }: FormUserProp
                 errors={errors}
                 isAdmin={isAdmin}
             />
-            <InputField
-                label="Contraseña"
-                type="password"
-                idInput="password"
-                register={register}
-                errors={errors}
-                isAdmin={isAdmin}
-            />
-            <InputField
-                label="Confirmar contraseña"
-                type="password"
-                idInput="confirmPassword"
-                register={register}
-                errors={errors}
-                isAdmin={isAdmin}
-            />
+            {isAdmin && (
+                <aside className={styles.inputAdmin}>
+                    <label>Rol</label>
+                    <select
+                        id="role"
+                        required
+                        defaultValue={userSelected?.data?.role || userSelected?.data.role}
+                        className={styles.selectRolEdit} {...register("role")}
+                    >
+                        {roles.map((role) => (
+                            <option key={role} value={role} disabled={role === userSelected?.data?.role}>
+                                {role}
+                            </option>
+                        ))}
+                    </select>
+                </aside>
+            )}
+            {!userSelected && (
+                <>
+                    <InputField
+                        label="Contraseña"
+                        type="password"
+                        idInput="password"
+                        register={register}
+                        errors={errors}
+                        isAdmin={isAdmin}
+                    />
+                    <InputField
+                        label="Confirmar contraseña"
+                        type="password"
+                        idInput="confirmPassword"
+                        register={register}
+                        errors={errors}
+                        isAdmin={isAdmin}
+                    />
+                </>
+            )}
+
 
             <p className={`${styles.inputFull} ${styles.errorMsg}`}>
                 {(Object.keys(errors).length > 0 && "⚠️ Por favor corrige los errores en el formulario ⚠️")}
@@ -125,7 +149,7 @@ export const FormUser = ({ isAdmin, setModalCreate, setUsersData }: FormUserProp
                     />
                 )}
                 <ButtonComponent type="reset" contain={"Limpiar"} loading={loading} />
-                <ButtonComponent type="submit" contain={"Crear cuenta"} loading={loading} />
+                <ButtonComponent type="submit" contain={userSelected ? "Actualizar Perfil" : "Crear Usuario"} loading={loading} />
             </aside>
         </form>
     )

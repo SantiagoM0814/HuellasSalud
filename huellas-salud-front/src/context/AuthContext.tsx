@@ -55,6 +55,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
     }
         setLoading(false);
+
+         const handleStorageChange = (event: StorageEvent) => {
+    if (event.key === "userData" && event.newValue) {
+      setUser(JSON.parse(event.newValue));
+    }
+  };
+
+  const handleCustomUserUpdate = () => {
+    const updatedUser = localStorage.getItem("userData");
+    if (updatedUser) setUser(JSON.parse(updatedUser));
+  };
+
+  // 🔥 Escuchar tanto cambios globales como locales
+  window.addEventListener("storage", handleStorageChange);
+  window.addEventListener("userDataUpdated", handleCustomUserUpdate);
+
+  return () => {
+    window.removeEventListener("storage", handleStorageChange);
+    window.removeEventListener("userDataUpdated", handleCustomUserUpdate);
+  };
     }, []);
 
     useEffect(() => {

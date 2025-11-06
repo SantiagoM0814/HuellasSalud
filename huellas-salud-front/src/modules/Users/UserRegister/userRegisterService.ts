@@ -1,11 +1,12 @@
-import { ChangeEvent, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { CreateUserModalProps, MediaFile, User, UserData } from "../../../helper/typesHS";
 import axiosInstance from "../../../context/axiosInstance";
 import axios from "axios";
+import Swal from "sweetalert2";
 
-export const useUserRegister = ({ setModalCreate, setUsersData }: CreateUserModalProps) => {
+export const useUserRegister = ({ setModalCreate, setUsersData, userSelected }: CreateUserModalProps) => {
 
     const fileInput = useRef<HTMLInputElement>(null);
 
@@ -20,6 +21,27 @@ export const useUserRegister = ({ setModalCreate, setUsersData }: CreateUserModa
         formState: { errors },
         reset
     } = useForm<User>({ defaultValues: { role: "CLIENTE" } });
+
+    useEffect(() => {
+        if (userSelected?.data.mediaFile) {
+            setPreviewImg(`data:${userSelected.data.mediaFile.contentType};base64,${userSelected.data.mediaFile.attachment}`); // Base64 si lo tienes
+            setFileName(userSelected.data.mediaFile.fileName);
+        }
+        console.log(userSelected);
+        if (userSelected?.data) {
+            const normalizePhone = (value: string) => {
+                const clean = value.replace(/[^0-9]/g, '');
+
+                return clean.startsWith('57') ? clean.slice(2) : clean;
+            };
+
+
+            reset({
+                ...userSelected.data,
+                cellPhone: normalizePhone(userSelected.data.cellPhone || '')
+            });
+        }
+    }, [userSelected, reset]);
 
     const formatPhoneNumber = (phoneNumber: string): string => {
         const digits = phoneNumber.replace(/\D/g, '');
@@ -118,6 +140,95 @@ export const useUserRegister = ({ setModalCreate, setUsersData }: CreateUserModa
         setFileName(file.name);
     }
 
+    const handleUpdateUser = async (user: User) => {
+        const payload = { data: user };
+        console.log(payload);
+        setLoading(true);
+        toast.info("Actualizando perfil... ⌛", { autoClose: 1000 });
+
+        try {
+            const file = fileInput.current?.files?.[0];
+            if (file) {
+                const formData = new FormData();
+                formData.append("file", file);
+
+                try {
+                    await axiosInstance.get(`/avatar-user/USER/${payload.data.documentNumber}`);
+
+                    await axiosInstance.put(
+                        `/avatar-user/update/USER/${payload.data.documentNumber}`,
+                        formData,
+                        { headers: { "Content-Type": "multipart/form-data" } }
+                    );
+                } catch (error: any) {
+                    if (error.response?.status === 404) {
+                        await axiosInstance.post(
+                            `/avatar-user/USER/${payload.data.documentNumber}`,
+                            formData,
+                            { headers: { "Content-Type": "multipart/form-data" } }
+                        );
+                    } else {
+                        toast.error("Perfil actualizado, pero falló el envío de imagen");
+                    }
+                }
+            }
+            const { data: userUpdate} =await axiosInstance.put(`/user/update`, payload);
+
+            setUsersData &&
+                setUsersData(prev =>
+                    prev?.map(u =>
+                        u.data.documentNumber === userUpdate.data.documentNumber ? userUpdate : u
+                    )
+                );
+
+            localStorage.setItem("userData", JSON.stringify(userUpdate.data));
+            window.dispatchEvent(new Event("userDataUpdated"));
+
+
+            toast.success("Perfil actualizado con éxito! 🎉", { autoClose: 1500 });
+            setModalCreate && setModalCreate(false);
+            return payload.data;
+        } catch (error) {
+            handleError("Error al actualizar el perfil");
+            throw error;
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const confirmUpdate = async (user: User): Promise<boolean> => {
+        const formattedUser = {
+            ...user,
+            cellPhone: formatPhoneNumber(user.cellPhone)
+        }
+        const file = fileInput.current?.files?.[0];
+
+        if (
+            userSelected?.data &&
+            JSON.stringify(userSelected.data) === JSON.stringify(formattedUser) &&
+            !file
+        ) {
+            toast.info("No realizaste ningún cambio en el perfil.");
+            return false;
+        }
+
+        const result = await Swal.fire({
+            title: "¿Estás seguro?",
+            text: `¿Deseas actualizar el perfil ${formattedUser.name}?`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: `Actualizar Perfil`,
+            cancelButtonText: "Cancelar",
+        });
+        if (result.isConfirmed) {
+            handleUpdateUser(formattedUser);
+            return true;
+        }
+        return false;
+    }
+
     return {
         errorMsg,
         handleCreateUserSubmit: onSubmit,
@@ -128,6 +239,7 @@ export const useUserRegister = ({ setModalCreate, setUsersData }: CreateUserModa
         fileName,
         fileInput,
         previewImg,
-        handleChangeImg
+        handleChangeImg,
+        confirmUpdate
     };
 }

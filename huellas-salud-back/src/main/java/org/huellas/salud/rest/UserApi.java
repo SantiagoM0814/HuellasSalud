@@ -228,12 +228,12 @@ public class UserApi {
                 ": %s en mongo", userMsg.getData());
 
         userService.updateUserDataInMongo(userMsg);
+        UserMsg user = userService.getUserWithImage(userMsg.getData().getDocumentNumber(), userMsg.getData().getEmail());
 
         LOG.infof("@updateUserData API > Finaliza ejecucion de servicio de actualizacion de usuario. El " +
                 "registro se actualizo con la data: %s", userMsg.getData().getDocumentNumber(), userMsg);
 
-        return Response.ok()
-                .status(Response.Status.NO_CONTENT)
+        return Response.ok(user)
                 .build();
     }
 

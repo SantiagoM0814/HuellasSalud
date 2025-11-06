@@ -385,6 +385,7 @@ export interface FormUserProps extends CreateUserModalProps {
 export interface CreateUserModalProps {
     setModalCreate?: (close: boolean) => void;
     setUsersData?: Dispatch<SetStateAction<UserData[] | undefined>>;
+    userSelected?: UserData
 }
 
 export interface FormHistoryProps extends CreateHistoryModalProps {}

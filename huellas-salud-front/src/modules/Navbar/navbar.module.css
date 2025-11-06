@@ -36,7 +36,7 @@
 }
 
 .logoContain img {
-    width: 140px;
+    width: 120px;
     cursor: pointer;
 }
 
@@ -351,6 +351,53 @@
 
 .optionBrands ul li img {
     width: 80px;
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal {
+    background: #fff;
+    border-radius: 16px;
+    width: 900px;
+    position: relative;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    animation: fadeIn 0.3s ease;
+    color: #000;
+}
+
+.modal .formEditUser {
+    padding: 20px 30px 25px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.backgroundModalEdit {
+    border-radius: 16px 16px 0 0;
+    height: 110px;
+    background: linear-gradient(90deg, rgba(2, 0, 36, 1) 0%, rgba(9, 9, 121, 1) 50%, rgba(0, 212, 255, 1) 100%);
+}
+
+.containerForm {
+    width: 100%;
+    background: #F5F3F9;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    border-radius: 0 0 16px 16px;
 }
 
 /* Diseño Responsivo */

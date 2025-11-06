@@ -1,5 +1,5 @@
-import React, { memo, useCallback, useState } from "react";
-import { CreateUserModalProps, EditUserModalProps, InputEditProps, Meta, Role, SearchBarProps, User, UserFiltersProps, UserTableProps } from "../../../helper/typesHS";
+import React, { memo, useCallback, useContext, useState } from "react";
+import { AuthContext, CreateUserModalProps, EditUserModalProps, InputEditProps, Meta, Role, SearchBarProps, User, UserData, UserFiltersProps, UserTableProps } from "../../../helper/typesHS";
 import { formatDate, metaEmpty, roles, statusOptions, tableColumns, userEmpty } from "./usersUtils";
 import { useUserService } from "./usersService";
 import { FormUser } from "../UserRegister/userRegisterComponenets";
@@ -64,10 +64,11 @@ export const SearchBar = ({ placeholder, searchTerm, onSearchChange }: SearchBar
 );
 
 export const UserTable = ({ users, setUsersData }: UserTableProps) => {
-
+    const { user } = useContext(AuthContext);
+    const isAdmin = user?.role === "ADMINISTRADOR" ? true : false;
     const { confirmDelete, confirmUpdate } = useUserService();
 
-    const [userSelected, setUserSelected] = useState<User>(userEmpty);
+    const [userSelected, setUserSelected] = useState<UserData | undefined>(undefined)
     const [metaSelected, setMetaSelected] = useState<Meta>(metaEmpty);
     const [isModalEditOpen, setIsModalEditOpen] = useState<boolean>(false);
 
@@ -82,8 +83,7 @@ export const UserTable = ({ users, setUsersData }: UserTableProps) => {
 
     const handleEditUser = (user: User, meta: Meta) => {
         setIsModalEditOpen(prev => !prev);
-        setUserSelected(user);
-        setMetaSelected(meta);
+        setUserSelected({ data: user, meta});
     }
 
     return (
@@ -156,12 +156,13 @@ export const UserTable = ({ users, setUsersData }: UserTableProps) => {
                 </tbody>
             </table>
             {isModalEditOpen && (
-                <EditUserModal
-                    user={userSelected}
-                    meta={metaSelected}
-                    setCloseModal={setIsModalEditOpen}
-                    confirmUpdate={confirmUpdate}
-                />
+                <main className={styles.overlay}>
+                    <section className={styles.modal}>
+                        <button className={styles.closeButton} onClick={() => setIsModalEditOpen && setIsModalEditOpen(false)}>x</button>
+                        <section className={styles.backgroundModalEdit} />
+                        <FormUser isAdmin={isAdmin} setModalCreate={setIsModalEditOpen} setUsersData={setUsersData} userSelected={userSelected} />
+                    </section>
+                </main>
             )}
         </section>
     );
@@ -228,7 +229,7 @@ const EditUserModal = ({ user, meta, setCloseModal, confirmUpdate }: EditUserMod
                     <InputEdit label="Número de Documento" value={user?.documentNumber} />
                     <InputEdit label="Teléfono" value={user?.cellPhone} />
                     <InputEdit label="Dirección" value={user?.address} />
-                    <InputEdit label="Estado" value={user?.active ? "Activo" : "Inactivo"} />
+                    <InputEdit label="Estado" value={user?.active ? "Activo" : "Inactivo"} isEditable={false} />
                     <aside className={`${styles.fieldGroup}`}>
                         <label>Rol</label>
                         <select

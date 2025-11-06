@@ -3,9 +3,11 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { AuthContext, ListItemNavProps, NavLinkProps, SubMenuProps, User } from "../../helper/typesHS";
 import { MENU_DATA } from "./navbarData";
 import { UserAvatar } from "../Users/UserManagement/userComponents";
-import imgHS1 from "../../assets/HS_LOGO_WHITE.jpg";
+import imgHS1 from "../../assets/Huellas&Salud_4.png";
 import imgHS2 from "../../assets/simba.webp";
 import styles from "./navbar.module.css";
+import { metaEmpty } from "./../Users/UserManagement/usersUtils";
+import { FormUser } from "../Users/UserRegister/userRegisterComponenets";
 
 export const Logo = () => (
     <picture className={styles.logoContain}>
@@ -89,9 +91,10 @@ const ListItemNav = ({ path, style, icon, name, setOptionHover, setShowSubMenu }
 };
 
 export const BtnsLogRegister = () => {
-
-    const [openModal, setOpenModal] = useState<boolean>(false);
     const { user, logout } = useContext(AuthContext);
+    const [isModalEditOpen, setIsModalEditOpen] = useState(false);
+    const userSelected = user ? { data: user, meta: metaEmpty } : undefined;
+    const [openModal, setOpenModal] = useState<boolean>(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
 
@@ -143,41 +146,65 @@ export const BtnsLogRegister = () => {
     }
 
     return (
-        <aside className={styles.asideButtons}>
-            <button
-                className={styles.avatarButton}
-                onClick={() => setOpenModal(prev => !prev)}
-                title={`${user.name} ${user.lastName}`}
-            >
-                <UserAvatar user={user} />
-            </button>
+        <>
+            <aside className={styles.asideButtons}>
+                <button
+                    className={styles.avatarButton}
+                    onClick={() => setOpenModal(prev => !prev)}
+                    title={`${user.name} ${user.lastName}`}
+                >
+                    <UserAvatar user={user} />
+                </button>
 
-            {openModal && (
-                <section className={styles.dropdown} ref={dropdownRef}>
-                    <button className={styles.closeButton} onClick={() => setOpenModal(false)}>×</button>
-                    <div className={styles.profileSection}>
-                        <UserAvatar user={user} />
-                        <p className={styles.userName}>{`${user.name} ${user.lastName}`}</p>
-                    </div>
-                    <button className={styles.editButton}>Editar perfil</button>
-                    {
-                        hasRole(user, ["ADMINISTRADOR"]) && (
+                {openModal && (
+                    <section className={styles.dropdown} ref={dropdownRef}>
+                        <button className={styles.closeButton} onClick={() => setOpenModal(false)}>×</button>
+                        <div className={styles.profileSection}>
+                            <UserAvatar user={user} />
+                            <p className={styles.userName}>{`${user.name} ${user.lastName}`}</p>
+                        </div>
+                        <button className={styles.editButton}  onClick={() => setIsModalEditOpen(true)}>Editar perfil</button>
+                        {
+                            hasRole(user, ["ADMINISTRADOR"]) && (
                                 <button className={styles.btnProducts} onClick={handleProductsAdmin}>Productos</button>
-                        )
-                    }
-                    {
-                        hasRole(user, ["ADMINISTRADOR"]) && (
+                            )
+                        }
+                        {
+                            hasRole(user, ["ADMINISTRADOR"]) && (
                                 <button className={styles.btnProducts} onClick={handleServicesAdmin}>Servicios</button>
-                        )
-                    }
-                    <button className={styles.btnProducts} onClick={handleAppointmentsAdmin}>Citas</button>
-                    <button className={styles.btnProducts} onClick={handleInvoices}>Facturas</button>
-                    <button className={styles.logoutButton} onClick={handleLogout}>
-                        Cerrar sesión
-                    </button>
-                </section>
-            )}
-        </aside>
+                            )
+                        }
+                        <button className={styles.btnProducts} onClick={handleAppointmentsAdmin}>Citas</button>
+                        <button className={styles.btnProducts} onClick={handleInvoices}>Facturas</button>
+                        <button className={styles.logoutButton} onClick={handleLogout}>
+                            Cerrar sesión
+                        </button>
+                    </section>
+                )}
+            </aside>
+            {
+                isModalEditOpen && userSelected && (
+                    <main className={styles.overlay}>
+                        <section className={styles.modal}>
+                            <button
+                                className={styles.closeButton}
+                                onClick={() => setIsModalEditOpen(false)}
+                            >
+                                ×
+                            </button>
+                            <section className={styles.backgroundModalEdit} />
+                            <aside className={styles.containerForm}>
+                                <FormUser
+                                    isAdmin={false}
+                                    setModalCreate={setIsModalEditOpen}
+                                    userSelected={userSelected}
+                                />
+                            </aside>
+                        </section>
+                    </main>
+                )
+            }
+        </>
     );
 }
 

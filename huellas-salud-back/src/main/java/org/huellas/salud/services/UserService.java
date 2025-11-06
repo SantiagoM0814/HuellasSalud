@@ -419,4 +419,16 @@ public class UserService {
             throw new HSException(Response.Status.BAD_REQUEST, "Error en los recursos suministrados");
         }
     }
+
+    public UserMsg getUserWithImage(String documentNumber, String email) throws HSException {
+        LOG.infof("@getUserWithImage SERV > Consultando usuario con documento: %s y correo: %s", documentNumber, email);
+
+        UserMsg userMsg = getUserByDocumentNumber(documentNumber, email);
+        userMsg.setData(getUserDto(userMsg, true)); // aquí agregas la imagen al DTO
+
+        LOG.infof("@getUserWithImage SERV > Usuario encontrado: %s", userMsg);
+        return userMsg;
+    }
+
+
 }
