@@ -29,7 +29,7 @@ public class AppointmentRepository implements PanacheMongoRepository<Appointment
         LOG.infof("@getListAppointmentsUser REPO > Inicia busqueda de las citas relacionadas con"
                 + " el usuario con numero de documento: %s", userDocument);
 
-        return list("data.idPropietario = ?1", userDocument);
+        return list("data.idPropietario = ?1", Sort.descending("meta.fechaCreacion"), userDocument);
     }
 
     public List<AppointmentMsg> getListAppointmentsVeterinarian(String userDocument) {

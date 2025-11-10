@@ -1,7 +1,7 @@
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { ChangeEvent, useContext, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { CreateUserModalProps, MediaFile, User, UserData } from "../../../helper/typesHS";
+import { AuthContext, CreateUserModalProps, MediaFile, User, UserData } from "../../../helper/typesHS";
 import axiosInstance from "../../../context/axiosInstance";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -10,6 +10,7 @@ export const useUserRegister = ({ setModalCreate, setUsersData, userSelected }: 
 
     const fileInput = useRef<HTMLInputElement>(null);
 
+    const { user } = useContext(AuthContext);
     const [errorMsg, setErrorMsg] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(false);
     const [previewImg, setPreviewImg] = useState<string | undefined>();
@@ -140,8 +141,8 @@ export const useUserRegister = ({ setModalCreate, setUsersData, userSelected }: 
         setFileName(file.name);
     }
 
-    const handleUpdateUser = async (user: User) => {
-        const payload = { data: user };
+    const handleUpdateUser = async (userSend: User, currentUser: User | null) => {
+        const payload = { data: userSend };
         console.log(payload);
         setLoading(true);
         toast.info("Actualizando perfil... ⌛", { autoClose: 1000 });
@@ -181,8 +182,10 @@ export const useUserRegister = ({ setModalCreate, setUsersData, userSelected }: 
                     )
                 );
 
-            localStorage.setItem("userData", JSON.stringify(userUpdate.data));
-            window.dispatchEvent(new Event("userDataUpdated"));
+            if(currentUser?.documentNumber === userUpdate.data.documentNumber) {
+                localStorage.setItem("userData", JSON.stringify(userUpdate.data));
+                window.dispatchEvent(new Event("userDataUpdated"));
+            }
 
 
             toast.success("Perfil actualizado con éxito! 🎉", { autoClose: 1500 });
@@ -196,10 +199,10 @@ export const useUserRegister = ({ setModalCreate, setUsersData, userSelected }: 
         }
     };
 
-    const confirmUpdate = async (user: User): Promise<boolean> => {
+    const confirmUpdate = async (userSend: User): Promise<boolean> => {
         const formattedUser = {
-            ...user,
-            cellPhone: formatPhoneNumber(user.cellPhone)
+            ...userSend,
+            cellPhone: formatPhoneNumber(userSend.cellPhone)
         }
         const file = fileInput.current?.files?.[0];
 
@@ -223,7 +226,7 @@ export const useUserRegister = ({ setModalCreate, setUsersData, userSelected }: 
             cancelButtonText: "Cancelar",
         });
         if (result.isConfirmed) {
-            handleUpdateUser(formattedUser);
+            handleUpdateUser(formattedUser, user);
             return true;
         }
         return false;

@@ -3,6 +3,7 @@ import { ProductData, ServiceData } from "../../helper/typesHS";
 import { useServiceService } from "./servicesService";
 import { ServiceFilters, ServiceModal, ServiceTable } from "./serviceComponents";
 import styles from './servicesAdmin.module.css';
+import Spinner from "../../components/spinner/Spinner";
 
 const ServicesAdmin = () => {
   const [isModalCreateService, setIsModalCreateService] = useState<boolean>(false);
@@ -33,7 +34,7 @@ const ServicesAdmin = () => {
     })
   }, [servicesData, searchTerm, statusFilter]);
 
-  if (loading) return (<div style={{ marginTop: "125px" }}>Cargando servicios...</div>);
+  if (loading) return (<Spinner />);
 
   return (
     <main >

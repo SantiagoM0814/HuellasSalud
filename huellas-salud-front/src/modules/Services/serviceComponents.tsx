@@ -181,20 +181,24 @@ export const FormService = ({ setModalService, setServicesData, serviceSelected 
     if (serviceSelected && serviceSelected.data.priceByWeight && serviceSelected.data.weightPriceRules) {
       setWeightPriceRules(serviceSelected.data.weightPriceRules);
     } else {
-      setWeightPriceRules([]); // si no tiene, se limpia
+      setWeightPriceRules([]);
     }
   }, [serviceSelected]);
 
-  // 👇 Adaptamos el envío de datos para incluir los rangos
   const onSubmit = (data: any) => {
-    let payload: any = {
-      ...data,
-    };
+    let payload: any = { ...data };
 
-    // Solo agregamos los campos si hay reglas de peso válidas
-    if (weightPriceRules && weightPriceRules.length > 0) {
+    // Filtramos reglas válidas (no vacías)
+    const validRules = weightPriceRules.filter(
+      (r) => r.minWeight > 0 && r.maxWeight > 0 && r.price > 0 && r.maxWeight > r.minWeight
+    );
+
+    // Solo agregamos si hay reglas válidas
+    if (validRules.length > 0) {
       payload.priceByWeight = true;
-      payload.weightPriceRules = weightPriceRules;
+      payload.weightPriceRules = validRules;
+    } else {
+      payload.priceByWeight = false;
     }
 
     if (serviceSelected) {
@@ -203,6 +207,7 @@ export const FormService = ({ setModalService, setServicesData, serviceSelected 
       handleCreateServiceSubmit(payload);
     }
   };
+
 
 
   return (
@@ -334,14 +339,28 @@ export const FormService = ({ setModalService, setServicesData, serviceSelected 
                 onBlur={() => {
                   const updated = [...weightPriceRules];
                   const current = updated[index];
+
+                  // 👇 obtenemos el precio base del formulario
+                  const basePriceInput = document.getElementById("basePrice") as HTMLInputElement | null;
+                  const basePrice = basePriceInput ? Number(basePriceInput.value) : 0;
+
+                  // 🔹 Validación: el primer rango no puede ser menor al precio base
+                  if (index === 0 && current.price < basePrice) {
+                    alert("El precio del primer rango no puede ser menor al precio base");
+                    current.price = basePrice;
+                  }
+
+                  // 🔹 Validación: los precios siguientes deben ser mayores al rango anterior
                   if (index > 0 && current.price <= updated[index - 1].price) {
                     alert("El precio debe ser mayor al del rango anterior");
                     current.price = updated[index - 1].price + 1000;
                   }
+
                   setWeightPriceRules(updated);
                 }}
               />
             </aside>
+
           </div>
         ))}
 
@@ -350,18 +369,52 @@ export const FormService = ({ setModalService, setServicesData, serviceSelected 
           className={styles.btnAddRule}
           onClick={() => {
             const last = weightPriceRules[weightPriceRules.length - 1];
-            setWeightPriceRules([
-              ...weightPriceRules,
-              {
-                minWeight: last ? last.maxWeight + 1 : 0,
-                maxWeight: 0,
-                price: last ? last.price + 1000 : 0,
-              },
-            ]);
+
+            // Obtenemos el valor actual del input de precio base (seguro en TS)
+            const basePriceInput = document.getElementById("basePrice") as HTMLInputElement | null;
+            const basePriceValue = basePriceInput ? Number(basePriceInput.value) : 0;
+
+            if (!last) {
+              // Si no hay rangos, usar el precio base como valor inicial
+              setWeightPriceRules([
+                {
+                  minWeight: 0,
+                  maxWeight: 0,
+                  price: basePriceValue > 0 ? basePriceValue : 0,
+                },
+              ]);
+            } else {
+              // Si ya existen rangos, seguir la lógica habitual
+              setWeightPriceRules([
+                ...weightPriceRules,
+                {
+                  minWeight: last.maxWeight + 1,
+                  maxWeight: 0,
+                  price: last.price + 1000,
+                },
+              ]);
+            }
           }}
         >
           + Añadir rango
         </button>
+        {weightPriceRules.length > 0 && (
+  <button
+    type="button"
+    className={styles.btnAddRule}
+    onClick={() => {
+      setWeightPriceRules((prev) => {
+        const updated = [...prev];
+        updated.pop(); // elimina el último elemento
+        return updated;
+      });
+    }}
+  >
+    🗑️ Eliminar último rango
+  </button>
+)}
+
+
       </section>
 
       {/* Botón final */}

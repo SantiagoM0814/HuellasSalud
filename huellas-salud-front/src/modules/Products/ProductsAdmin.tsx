@@ -3,6 +3,7 @@ import { ProductData } from "../../helper/typesHS";
 import { useProductService } from "./productsService";
 import { ProductFilters, ProductModal, ProductTable } from "./productComponents";
 import styles from './productsAdmin.module.css';
+import Spinner from "../../components/spinner/Spinner";
 
 const ProductsAdmin = () => {
   const [isModalCreateProduct, setIsModalCreateProduct] = useState<boolean>(false);
@@ -35,7 +36,7 @@ const ProductsAdmin = () => {
     })
   }, [productsData, searchTerm, categoryFilter, statusFilter]);
 
-  if (loading) return (<div style={{ marginTop: "125px" }}>Cargando productos...</div>);
+  if (loading) return (<Spinner />);
 
   return (
     <main >

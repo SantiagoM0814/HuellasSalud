@@ -4,6 +4,7 @@ import { usePetDetailsService } from "./petDetailsService";
 import { PetData } from "../../helper/typesHS";
 import { useNavigate, useParams } from "react-router-dom";
 import styles from "./petDetails.module.css"
+import Spinner from "../../components/spinner/Spinner";
 
 const Pet = () => {
     const navigate = useNavigate();
@@ -24,7 +25,7 @@ const Pet = () => {
         fetchPetData();
     }, []);
 
-    if (loading) return (<div style={{ marginTop: "125px" }}>Cargando mascota...</div>);
+    if (loading) return (<Spinner />);
 
 
     return (

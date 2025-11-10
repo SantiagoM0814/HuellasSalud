@@ -124,7 +124,7 @@ export const AppointmentTable = ({ appointments, setAppointmentsData, users, ser
               <td>
                 <aside className={styles.serviceInfo}>
                   <span className={styles.imgService}>
-                    <AppointmentImg appointment={appointment} shortName={getShortName(appointment.idOwner)}/>
+                    <AppointmentImg appointment={appointment} shortName={getShortName(appointment.idOwner)} />
                   </span>
                   <div className={styles.serviceDetails}>
                     <span className={styles.serviceName}>
@@ -522,16 +522,35 @@ export const FormAppointment = ({ setModalAppointment, setAppointmentsData, appo
 
         if (selectedService && selectedPet) {
           if (selectedService.data.priceByWeight) {
-            const rule = selectedService.data.weightPriceRules?.find(
+            const rules = selectedService.data.weightPriceRules || [];
+
+            // Buscar el rango donde encaje el peso
+            const rule = rules.find(
               (r: WeightPriceRule) =>
                 selectedPet.data.weight >= r.minWeight &&
                 selectedPet.data.weight <= r.maxWeight
             );
-            priceToShow = rule ? rule.price : "Consultar";
+
+            if (rule) {
+              // Si se encuentra un rango válido
+              priceToShow = rule.price;
+            } else if (rules.length > 0) {
+              // 🧩 Si el peso es mayor al último rango → usar el precio del último rango
+              const lastRule = rules[rules.length - 1];
+              if (selectedPet.data.weight > lastRule.maxWeight) {
+                priceToShow = lastRule.price;
+              } else {
+                // Si el peso es menor al primer rango, mostrar "Consultar"
+                priceToShow = "Consultar";
+              }
+            } else {
+              priceToShow = "Consultar";
+            }
           } else {
             priceToShow = selectedService.data.basePrice;
           }
         }
+
 
         return (
           <section className={styles.inputField}>

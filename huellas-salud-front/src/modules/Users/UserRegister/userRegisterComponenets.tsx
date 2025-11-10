@@ -69,6 +69,7 @@ export const FormUser = ({ isAdmin, setModalCreate, setUsersData, userSelected }
                 register={register}
                 errors={errors}
                 isAdmin={isAdmin}
+                disabled={!!userSelected} 
             />
             <InputField
                 label="Correo"
@@ -171,7 +172,8 @@ const InputField = ({
     required = true,
     inputFull = false,
     register,
-    errors
+    errors,
+    disabled = false
 }: InputFieldUserRegister) => {
 
     const fieldValidation = validationRules[idInput] as RegisterOptions<User, typeof idInput>;
@@ -188,6 +190,7 @@ const InputField = ({
                 type={type}
                 required={required}
                 {...register(idInput, fieldValidation)}
+                disabled={disabled}
             />
             <span className={isAdmin ? styles.validationAdmin : styles.validationError}>
                 {errors[idInput]?.message as string}

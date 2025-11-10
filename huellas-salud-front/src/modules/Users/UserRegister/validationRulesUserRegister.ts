@@ -30,8 +30,8 @@ export const validationRules: ValidationRules = {
             message: "El número de documento debe tener al menos 8 caracteres"
         },
         maxLength: {
-            value: 15,
-            message: "El número de documento debe tener como máximo 15 caracteres"
+            value: 10,
+            message: "El número de documento debe tener como máximo 10 caracteres"
         },
         pattern: {
             value: /^[0-9]+$/,

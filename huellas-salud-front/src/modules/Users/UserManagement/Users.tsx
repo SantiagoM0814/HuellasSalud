@@ -3,6 +3,7 @@ import { UserData } from "../../../helper/typesHS";
 import { CreateUserModal, UserFilters, UserTable } from "./userComponents";
 import { useUserService } from "./usersService";
 import styles from "./users.module.css";
+import Spinner from "../../../components/spinner/Spinner";
 
 const Users = () => {
 
@@ -40,7 +41,7 @@ const Users = () => {
     });
   }, [usersData, searchTerm, roleFilter, statusFilter]);
 
-  if (loading) return (<div style={{ marginTop: "125px" }}>Cargando usuarios...</div>);
+  if (loading) return (<Spinner />);
 
   return (
     <main className={styles.mainContainer}>

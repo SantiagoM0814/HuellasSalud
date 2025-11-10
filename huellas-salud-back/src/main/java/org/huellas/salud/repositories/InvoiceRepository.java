@@ -25,7 +25,7 @@ public class InvoiceRepository implements PanacheMongoRepository<InvoiceMsg> {
         LOG.infof("@getListInvoicesUser REPO > Inicia busqueda de las facturas relacionadas con"
                 + " el usuario con numero de documento: %s", userDocument);
 
-        return list("data.idCliente = ?1", userDocument);
+        return list("data.idCliente = ?1", Sort.descending("meta.fechaCreacion"), userDocument);
     }
 
     public List<InvoiceMsg> getListInvoicesMongo() {

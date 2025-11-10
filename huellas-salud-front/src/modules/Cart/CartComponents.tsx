@@ -101,10 +101,14 @@ export const CartSummary = () => {
   );
 
   const handlePurchase = async () => {
+    if(!user){
+      toast.info("Debes iniciar sesión para completar tu compra.", { autoClose: 1500 });
+      return;
+    }
+
     try {
       toast.info("Procesando compra... ⌛");
 
-      // 🧾 Armar los datos de la factura (igual que haces en tu modal)
       const invoiceData = {
         idClient: user?.documentNumber,
         typeInvoice: "PRODUCTO",
@@ -123,6 +127,8 @@ export const CartSummary = () => {
       await handleCreateInvoiceSubmit(invoiceData as unknown as Invoice);
 
       clearCart();
+
+      window.dispatchEvent(new Event("refreshProducts"));
 
       toast.success("Compra completada 🎉");
     } catch (error) {

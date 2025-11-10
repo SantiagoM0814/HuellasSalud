@@ -249,6 +249,7 @@ export interface InputFieldUserRegister {
     inputFull?: boolean;
     register: UseFormRegister<User>;
     errors: FieldErrors<User>;
+    disabled?: boolean
 }
 
 export interface UserFiltersProps {
