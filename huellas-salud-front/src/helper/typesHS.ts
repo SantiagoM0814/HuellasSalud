@@ -94,6 +94,20 @@ export interface AppointmentData {
     meta: Meta
 }
 
+export interface Announcement {
+    idAnnouncement: string;
+    description: string;
+    cellPhone: string;
+    status: boolean;
+    activatedAt: string;
+    mediaFile?: MediaFile
+}
+
+export interface AnnouncementData {
+    data: Announcement,
+    meta: Meta
+}
+
 export interface InvoiceData {
     data: Invoice,
     meta: Meta
@@ -290,6 +304,14 @@ export interface AppointmentFiltersProps {
     onDateFilterChange: (value: string) => void;
 }
 
+export interface AnnouncementFiltersProps {
+    searchTerm: string
+    statusFilter: string
+    setModalCreateAnnouncement: (close: boolean) => void;
+    onSearchChange: (value: string) => void;
+    onStatusFilterChange: (value: string) => void;
+}
+
 export interface InvoiceFiltersProps {
     searchTerm: string
     statusFilter: string
@@ -320,6 +342,11 @@ export interface AppointmentTableProps {
     services?: ServiceData[] | undefined;
     pets?: PetData[] | undefined;
     vets?: UserData[] | undefined;
+}
+
+export interface AnnouncementTableProps {
+    announcements: AnnouncementData[] | undefined;
+    setAnnouncementsData: Dispatch<SetStateAction<AnnouncementData[] | undefined>>;
 }
 
 export interface InvoiceTableProps {
@@ -410,6 +437,14 @@ export interface CreatePetModalProps {
     petSelected?: PetData
 }
 
+export interface FormAnnouncementProps extends CreateAnnouncementModalProps { }
+
+export interface CreateAnnouncementModalProps {
+    setModalCreateAnnouncement?: (close: boolean) => void;
+    setAnnouncementsData?: Dispatch<SetStateAction<AnnouncementData[] | undefined>>;
+    announcementSelected?: AnnouncementData
+}
+
 export interface FormProductProps extends CreateProductModalProps { }
 
 export interface CreateProductModalProps {
@@ -489,6 +524,16 @@ export interface InputFieldAppointmentRegister {
     inputFull?: boolean;
     register: UseFormRegister<Appointment>;
     errors: FieldErrors<Appointment>;
+}
+
+export interface InputFieldAnnouncementRegister {
+    label: string;
+    type?: HTMLInputTypeAttribute;
+    idInput: keyof Announcement;
+    required?: boolean;
+    inputFull?: boolean;
+    register: UseFormRegister<Announcement>;
+    errors: FieldErrors<Announcement>;
 }
 
 export interface InputFieldHistoryRegister {

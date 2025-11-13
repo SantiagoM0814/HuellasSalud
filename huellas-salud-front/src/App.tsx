@@ -18,6 +18,7 @@ import PetDetails from "./modules/PetDetails/PetDetails";
 import ServicesAdmin from "./modules/Services/ServicesAdmin";
 import AppointmentsAdmin from "./modules/Appointments/AppointmentsAdmin";
 import Invoice from "./modules/Invoices/Invoices";
+import Announcement from "./modules/Announcements/Announcement";
 
 const AppRoutes = () => {
 
@@ -51,6 +52,14 @@ const AppRoutes = () => {
       element: (
         <ProtectedRoute requiredRole={["ADMINISTRADOR"]}>
           <Users />
+        </ProtectedRoute>
+      ),
+    },
+        {
+      path: "/anuncios",
+      element: (
+        <ProtectedRoute requiredRole={["ADMINISTRADOR"]}>
+          <Announcement />
         </ProtectedRoute>
       ),
     },

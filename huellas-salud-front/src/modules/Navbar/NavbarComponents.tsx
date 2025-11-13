@@ -115,6 +115,10 @@ export const BtnsLogRegister = () => {
         navigate("/citas");
     };
 
+    const handleAnnouncementsAdmin = () => {
+        navigate("/anuncios");
+    };
+
     const handleInvoices = () => {
         navigate("/facturas");
     };
@@ -172,6 +176,11 @@ export const BtnsLogRegister = () => {
                         {
                             hasRole(user, ["ADMINISTRADOR"]) && (
                                 <button className={styles.btnProducts} onClick={handleServicesAdmin}>Servicios</button>
+                            )
+                        }
+                        {
+                            hasRole(user, ["ADMINISTRADOR"]) && (
+                                <button className={styles.btnProducts} onClick={handleAnnouncementsAdmin}>Anuncios</button>
                             )
                         }
                         <button className={styles.btnProducts} onClick={handleAppointmentsAdmin}>Citas</button>

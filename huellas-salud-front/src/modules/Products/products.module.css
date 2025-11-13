@@ -1,56 +1,123 @@
- /* Contenedor principal */
 .containProducts {
-    margin-top: 115px;
-    display: flex;
-    padding: 20px 0;
+  margin-top: 115px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px 40px;
+  gap: 20px;
 }
 
-/* Contenedor filtros */
+.productCardContainer {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
 .containFilter {
-    min-width: 350px;
-    text-align: center;
+  flex: 0 0 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  position: sticky;
+  top: 120px;
+  height: fit-content;
+}
+
+.filterContain {
+  padding: 10px 0;
+  background-color: #fff;
+  border-top: 1px solid #00000040;
 }
 
 .sectionFilter {
-    padding-bottom: 5px;
-    width: 80%;
-    margin: 0 auto;
-    text-align: center;
-    border: 3px solid;
-    border-radius: 10px;
+  background-color: #fff;
+  border: 2px solid #00000080;
+  border-radius: 10px;
+  padding-bottom: 10px;
+  transition: box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
-.sectionFilter:nth-child(1) {
-    margin-bottom: 10px;
+.sectionFilter:hover {
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
 }
 
 .titleFilter {
-    height: 40px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px;
+  height: 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  font-weight: bold;
+  font-size: 1rem;
+  background-color: #f7f7f7;
+  border-bottom: 2px solid #00000030;
 }
 
 .search {
-    width: 80%;
-    padding: 5px;
-    border-radius: 8px;
-    outline: none;
-    border: 3px solid #00000080;
-    margin-bottom: 5px;
+  width: 85%;
+  padding: 6px 10px;
+  border-radius: 8px;
+  outline: none;
+  border: 2px solid #00000080;
+  margin: 8px auto;
+  display: block;
+  font-size: 0.9rem;
 }
 
 .search:focus {
-    border: 3px solid #000;
+  border: 2px solid #000;
+}
+
+
+.listCheckbox {
+  text-align: left;
+  max-height: 180px;
+  overflow-y: auto;
+  margin-top: 5px;
+  padding: 0 10px;
 }
 
 .listCheckbox label {
-    display: block;
-    padding: 5px;
-    text-align: left;
-    margin-left: 15px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  cursor: pointer;
+  transition: background 0.2s ease;
 }
+
+.listCheckbox label:hover {
+  background-color: #f3f3f3;
+}
+
+.listCheckbox input[type="checkbox"] {
+  accent-color: #000;
+  transform: scale(1.1);
+}
+
+
+.cleanBtn {
+  width: 85%;
+  margin: 15px auto;
+  background-color: #000;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s ease;
+}
+
+.cleanBtn:hover {
+  background-color: #333;
+}
+
 
 /* Listar productos */
 .cardProductsContainer {

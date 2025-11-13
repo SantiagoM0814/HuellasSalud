@@ -38,6 +38,13 @@ export const tableAppointmentColumns: string[] = [
     "Acciones",
 ];
 
+export const tableAnnouncementColumns: string[] = [
+    "Nombre Publicador",
+    "Descripción",
+    "Estado",
+    "Acciones",
+];
+
 export const tableInvoiceColumns: string[] = [
     "Nombre Cliente",
     "Productos o servicios",
