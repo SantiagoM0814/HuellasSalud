@@ -71,6 +71,24 @@ public class AppointmentRepository implements PanacheMongoRepository<Appointment
                 });
     }
 
+    public boolean existsAppointmentInRangeExcludingId(String idVeterinarian, LocalDateTime newStart, LocalDateTime newEnd, String appointmentId) {
+        LOG.infof("@existsAppointmentInRangeExcludingId REPO > Verificando citas que se crucen entre %s y %s para el veterinario %s excluyendo cita %s",
+                newStart, newEnd, idVeterinarian, appointmentId);
+
+        return find("data.idVeterinario = ?1", idVeterinarian)
+                .stream()
+                .map(AppointmentMsg.class::cast)
+                .map(AppointmentMsg::getData)
+                .filter(existing -> !existing.getIdAppointment().equals(appointmentId))
+                .anyMatch(existing -> {
+                    LocalDateTime existingStart = existing.getDateTime();
+                    LocalDateTime existingEnd = existingStart.plusMinutes(30);
+
+                    // 🔍 conflicto real si los rangos se cruzan
+                    return newStart.isBefore(existingEnd) && newEnd.isAfter(existingStart);
+                });
+    }
+
     public List<AppointmentMsg> findAppointmentsByVeterinarianAndDate(String idVeterinarian, LocalDate date) {
         LocalDateTime startOfDay = date.atStartOfDay();
         LocalDateTime endOfDay = date.atTime(LocalTime.MAX);

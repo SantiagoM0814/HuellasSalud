@@ -13,6 +13,7 @@ import { useUserService } from "../Users/UserManagement/usersService";
 import { usePetService } from "../Pets/petService";
 import { useServiceService } from "../Services/servicesService";
 import { toast } from "react-toastify";
+import { metaEmpty } from "../Pets/petsUtils";
 
 export const AppointmentsFilters = ({
   searchTerm,
@@ -267,8 +268,8 @@ export const FormAppointment = ({ setModalAppointment, setAppointmentsData, appo
         try {
           setLoadingPets(true);
           const pets = await handleGetPetsOwner(user.documentNumber);
-          setPetsByOwner(pets);
           setValue("idOwner", user.documentNumber); // asegura que quede registrado en el form
+          setPetsByOwner(pets);
         } catch (error) {
           console.error("Error al cargar mascotas del cliente:", error);
         } finally {
@@ -581,7 +582,7 @@ export const FormAppointment = ({ setModalAppointment, setAppointmentsData, appo
 
 export const AppointmentModal = ({ setModalAppointment, setAppointmentsData, selectedServiceId, users, services, pets, vets }: CreateAppointmentModalProps) => {
   const { user } = useContext(AuthContext);
-  const { handleGetPets } = usePetService();
+  const { handleGetPets, handleGetPetsOwner } = usePetService();
   const { handleGetUsers, handleGetVeterinarians } = useUserService();
   const [localUsers, setLocalUsers] = useState(users);
   const [localPets, setLocalPets] = useState(pets);
@@ -594,30 +595,39 @@ export const AppointmentModal = ({ setModalAppointment, setAppointmentsData, sel
   }
 
   useEffect(() => {
+    if(!user) return;
+
     const fetchAppointmentData = async () => {
       const needUsers = !localUsers || localUsers.length === 0;
       const needPets = !localPets || localPets.length === 0;
       const needVets = !localVets || localVets.length === 0;
 
+      let dataUser;
+      let dataPet;
+      let dataVet;
       if (needUsers || needPets || needVets) {
         setLoading(true);
-        try {
-          const dataUser = await handleGetUsers();
-          const dataVet = await handleGetVeterinarians();
-
-          setLocalUsers(dataUser);
-          setLocalVets(dataVet);
-        } catch (error) {
-          console.error("❌ Error al cargar datos:", error);
-        } finally {
-          setLoading(false);
+        if(user.role === "ADMINISTRADOR" || user.role === "VETERINARIO") {
+          dataUser = await handleGetUsers();
+          dataPet = await handleGetPets();
+          dataVet = await handleGetVeterinarians();
+        } else {
+          dataPet = await handleGetPetsOwner(user.documentNumber);
+          dataVet = await handleGetVeterinarians();
+          dataUser = [{
+            data: user,
+            meta: metaEmpty
+          }];
         }
+        setLocalUsers(dataUser);
+        setLocalPets(dataPet);
+        setLocalVets(dataVet);
+        setLoading(false);
       }
-
     };
 
     fetchAppointmentData();
-  }, []);
+  }, [user]);
 
   if (loading) return <Spinner />;
 

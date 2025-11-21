@@ -133,14 +133,17 @@ public class ScheduleService {
 
         ScheduleMsg scheduleMsgMongo = getScheduleMsg(scheduleMsg.getData().getIdSchedule());
 
-        boolean exists = scheduleRepository.existsScheduleForDay(
+        boolean exists = scheduleRepository.existsScheduleForDayExcludingId(
                 scheduleMsg.getData().getIdVeterinarian(),
-                scheduleMsg.getData().getDayOfWeek()
+                scheduleMsg.getData().getDayOfWeek().name(),
+                scheduleMsg.getData().getIdSchedule()
         );
 
-        if (exists && !scheduleMsg.getData().getIdSchedule().equals(scheduleMsgMongo.getData().getIdSchedule())) {
+        if (exists) {
             throw new HSException(Response.Status.BAD_REQUEST,
-                    "El veterinario ya tiene un horario registrado para el día " + scheduleMsg.getData().getDayOfWeek());
+                    "El veterinario ya tiene un horario registrado para el día "
+                    + scheduleMsg.getData().getDayOfWeek()
+            );
         }
 
         setScheduleInformation(scheduleMsg.getData().getIdSchedule(), scheduleMsg.getData(), scheduleMsgMongo);

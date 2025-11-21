@@ -1,5 +1,7 @@
 package org.huellas.salud.rest;
 
+import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
@@ -38,6 +40,7 @@ public class ScheduleApi {
 
     @GET
     @Path("/list-schedules")
+    @RolesAllowed({"ADMINISTRADOR", "VETERINARIO"})
     @Tag(name = "Gestión de horarios")
     @APIResponses(
             value = {
@@ -66,6 +69,7 @@ public class ScheduleApi {
 
     @GET
     @Path("/list-schedules-veterinarian/{idVeterinarian}")
+    @RolesAllowed({"ADMINISTRADOR", "VETERINARIO"})
     @Tag(name = "Gestión de horarios")
     @APIResponses(
             value = {
@@ -104,6 +108,7 @@ public class ScheduleApi {
 
     @POST
     @Path("/create")
+    @RolesAllowed("ADMINISTRADOR")
     @Tag(name = "Gestión de horarios")
     @Operation(
             summary = "Creación de un horario nuevo",
@@ -113,7 +118,20 @@ public class ScheduleApi {
             @RequestBody(
                     name = "scheduleMsg",
                     description = "Objeto con la información del horario que se va a crear",
-                    required = true
+                    required = true,
+                    content = @Content(example = """
+                        {
+                                "data": {
+                                        "idVeterinarian": "1013100931",
+                                        "dayOfWeek": "MONDAY",
+                                        "startTime": "08:00",
+                                        "endTime": "17:00",
+                                        "lunchStart": "12:00",
+                                        "lunchEnd": "13:00",
+                                        "active": true
+                                }
+                        }"""
+                    )
             )
             @NotNull(message = "Debe ingresar el objeto data con la informacion del horario a registrar")
             @Valid @ConvertGroup(to = ValidationGroups.Post.class) ScheduleMsg scheduleMsg
@@ -134,6 +152,7 @@ public class ScheduleApi {
 
     @PUT
     @Path("/update")
+    @RolesAllowed("ADMINISTRADOR")
     @Tag(name = "Gestión de horarios")
     @Operation(
             summary = "Actualización de la información de un horario",
@@ -143,7 +162,21 @@ public class ScheduleApi {
             @RequestBody(
                     name = "scheduleMsg",
                     description = "Información con la que se actualizara el horario",
-                    required = true
+                    required = true,
+                    content = @Content(example = """
+                        {
+                                "data": {
+                                        "idSchedule": "f6ecbd20-3d6c-44f5-a74f-ba62ce794d27",
+                                        "idVeterinarian": "1013100931",
+                                        "dayOfWeek": "MONDAY",
+                                        "startTime": "08:00",
+                                        "endTime": "17:00",
+                                        "lunchStart": "12:00",
+                                        "lunchEnd": "13:00",
+                                        "active": true
+                                }
+                        }"""
+                    )
             )
             @NotNull(message = "Debe ingresar los datos del horario a actualizar")
             @ConvertGroup(to = ValidationGroups.Put.class) @Valid ScheduleMsg scheduleMsg
@@ -164,6 +197,7 @@ public class ScheduleApi {
 
     @DELETE
     @Path("/delete")
+    @RolesAllowed("ADMINISTRADOR")
     @Tag(name = "Gestión de horarios")
     @Operation(
             summary = "Eliminación de un horario",

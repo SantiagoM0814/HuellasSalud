@@ -43,6 +43,7 @@ public class ServiceApi {
 
     @GET
     @Path("/list-services")
+    @PermitAll
     @Tag(name = "Gestión de servicios")
     @APIResponses(
             value = {
@@ -71,6 +72,7 @@ public class ServiceApi {
 
     @POST
     @Path("/create")
+    @RolesAllowed("ADMINISTRADOR")
     @Tag(name = "Gestión de servicios")
     @Operation(
             summary = "Creación de un servicio nuevo",
@@ -80,7 +82,41 @@ public class ServiceApi {
             @RequestBody(
                     name = "serviceMsg",
                     description = "Objeto con la información del servicio que se va a crear",
-                    required = true
+                    required = true,
+                    content = @Content(example = """
+                        {       
+                                "data": {
+                                        "name": "Desparasitación Interna y Externa",
+                                        "shortDescription": "Eliminación y prevención de parásitos internos y externos en tu mascota.",
+                                        "longDescription": "La desparasitación interna y externa incluye la administración de medicamentos antiparasitarios para eliminar lombrices intestinales, pulgas, garrapatas y otros parásitos que puedan afectar la salud de la mascota. El veterinario evalúa el peso, edad y condición del animal para determinar la dosis adecuada y brindar recomendaciones sobre cuidados preventivos.",
+                                        "basePrice": 30000,
+                                        "priceByWeight": true,
+                                        "state": true,
+                                        "weightPriceRules": [
+                                                {
+                                                        "minWeight": 0,
+                                                        "maxWeight": 5,
+                                                        "price": 30000
+                                                },
+                                                {
+                                                        "minWeight": 5,
+                                                        "maxWeight": 15,
+                                                        "price": 45000
+                                                },
+                                                {
+                                                        "minWeight": 15,
+                                                        "maxWeight": 30,
+                                                        "price": 55000
+                                                },
+                                                {
+                                                        "minWeight": 30,
+                                                        "maxWeight": 60,
+                                                        "price": 65000
+                                                }
+                                        ]
+                                }
+                        }"""
+                    )
             )
             @NotNull(message = "Debe ingresar el objeto data con la información del servicio a registrar")
             @Valid @ConvertGroup(to = ValidationGroups.Post.class) ServiceMsg serviceMsg
@@ -102,6 +138,7 @@ public class ServiceApi {
 
     @PUT
     @Path("/update")
+    @RolesAllowed("ADMINISTRADOR")
     @Tag(name = "Gestión de servicios")
     @Operation(
             summary = "Actualización de la información de un servicio",
@@ -111,7 +148,42 @@ public class ServiceApi {
             @RequestBody(
                     name = "serviceMsg",
                     description = "Información con la que se actualizará el servicio",
-                    required = true
+                    required = true,
+                    content = @Content(example = """
+                        {       
+                                "data": {
+                                        "idService": "f81732c1-7838-4a6d-84bd-8e352435aa29",
+                                        "name": "Desparasitación Interna y Externa",
+                                        "shortDescription": "Eliminación y prevención de parásitos internos y externos en tu mascota.",
+                                        "longDescription": "La desparasitación interna y externa incluye la administración de medicamentos antiparasitarios para eliminar lombrices intestinales, pulgas, garrapatas y otros parásitos que puedan afectar la salud de la mascota. El veterinario evalúa el peso, edad y condición del animal para determinar la dosis adecuada y brindar recomendaciones sobre cuidados preventivos.",
+                                        "basePrice": 30000,
+                                        "priceByWeight": true,
+                                        "state": true,
+                                        "weightPriceRules": [
+                                                {
+                                                        "minWeight": 0,
+                                                        "maxWeight": 5,
+                                                        "price": 30000
+                                                },
+                                                {
+                                                        "minWeight": 5,
+                                                        "maxWeight": 15,
+                                                        "price": 45000
+                                                },
+                                                {
+                                                        "minWeight": 15,
+                                                        "maxWeight": 30,
+                                                        "price": 55000
+                                                },
+                                                {
+                                                        "minWeight": 30,
+                                                        "maxWeight": 60,
+                                                        "price": 65000
+                                                }
+                                        ]
+                                }
+                        }"""
+                    )
             )
             @NotNull(message = "Debe ingresar los datos del servicio a actualizar")
             @ConvertGroup(to = ValidationGroups.Put.class) @Valid ServiceMsg serviceMsg

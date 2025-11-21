@@ -1,16 +1,15 @@
 package org.huellas.salud.domain.product;
 
 import jakarta.validation.constraints.*;
+import java.io.Serializable;
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
-import org.huellas.salud.helper.validators.ValidationGroups;
 import org.huellas.salud.domain.mediaFile.MediaFile;
-
-import java.io.Serializable;
-import java.time.LocalDate;
+import org.huellas.salud.helper.validators.ValidationGroups;
 
 @Data
 @NoArgsConstructor
@@ -69,7 +68,6 @@ public class Product implements Serializable {
 
     @BsonProperty("fechaVencimiento")
     @Schema(example = "2025-02-27")
-    @NotNull(message = "El valor del campo expirationDate no puede ser nulo")
     private LocalDate expirationDate;
 
     @BsonProperty("codigoBarras")

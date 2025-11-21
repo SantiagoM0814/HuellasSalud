@@ -53,5 +53,10 @@ public class PetRepository implements PanacheMongoRepository<PetMsg> {
         return delete("data.identificador = ?1 and data.idPropietario = ?2", identifierPet, idOwner);
     }
 
+    public long deleteAllPetsByOwner(String idOwner) {
 
+        LOG.debugf("@deleteAllPetsByOwner REPO > Eliminando todas las mascotas del propietario con documento: %s", idOwner);
+
+        return delete("data.idPropietario = ?1", idOwner);
+    }
 }

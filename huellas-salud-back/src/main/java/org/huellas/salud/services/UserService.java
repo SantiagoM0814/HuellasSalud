@@ -17,6 +17,7 @@ import org.huellas.salud.helper.utils.Utils;
 import org.huellas.salud.repositories.MediaFileRepository;
 import org.huellas.salud.repositories.PasswordRecoveryRepository;
 import org.huellas.salud.repositories.UserRepository;
+import org.huellas.salud.repositories.PetRepository;
 import org.jboss.logging.Logger;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -43,6 +44,9 @@ public class UserService {
 
     @Inject
     UserRepository userRepository;
+
+    @Inject
+    PetRepository petRepository;
 
     @Inject
     MediaFileRepository mediaFileRepository;
@@ -203,7 +207,12 @@ public class UserService {
                     " y correo: " + emailUser + " No esta registrado en la base de datos");
         }
 
-        // TODO - Eliminar las mascotas asociadas al usuario eliminado
+        LOG.infof("@deleteUserDataInMongo SERV > Iniciando eliminación de mascotas del usuario con documento: %s", documentNumber);
+
+        long deletedPets = petRepository.deleteAllPetsByOwner(documentNumber);
+
+        LOG.infof("@deleteUserDataInMongo SERV > Se eliminaron %s mascotas asociadas al usuario %s",
+                deletedPets, documentNumber);
 
         LOG.infof("@deleteUserDataInMongo SERV > El registro del usuario con numero de documento: %s y correo: " +
                 "%s se elimino correctamente de mongo. Finaliza ejecucion del servicio para eliminar usuario y se " +

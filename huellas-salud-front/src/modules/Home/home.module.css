@@ -268,3 +268,120 @@ article:hover {
     background-color: var(--color-secundario);
     padding-left: 1px;
 }
+
+/* ================================
+   📱 RESPONSIVE PARA CELULARES
+   (Pantallas hasta 480px)
+   ================================ */
+@media (max-width: 480px) {
+
+    .contenedorMain {
+        margin-top: 230px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        padding: 0 10px;
+    }
+
+    .contenedorImagen {
+        padding: 10px;
+        justify-content: center;
+    }
+
+    .imagenLateral {
+        width: 80%;
+        max-width: 250px;
+    }
+
+    .header {
+        max-width: 100%;
+        padding: 10px;
+        text-align: center;
+    }
+
+    .header h1 {
+        font-size: 28px;
+    }
+
+    .header p {
+        font-size: 16px;
+    }
+
+    .contenedorProductos {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    article {
+        width: 90%;
+        max-width: 300px;
+        font-size: 0.9rem;
+    }
+
+    article img {
+        width: 80px;
+    }
+
+    .btnVerMas,
+    .btnVerMas2 {
+        width: 100%;
+        font-size: 0.9rem;
+    }
+
+    .contenedorServicios {
+        gap: 40px;
+        flex-direction: column;
+    }
+
+    .contenedorServicios article {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+    }
+
+    .contenedorServicios article img {
+        width: 90px;
+    }
+
+    .elegirnos {
+        padding: 20px;
+        gap: 20px;
+    }
+
+    .textoElegirnos h2 {
+        font-size: 1.5rem;
+    }
+
+    .textoElegirnos p {
+        font-size: 1rem;
+    }
+
+    .beneficios {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .itemBeneficio {
+        width: 90%;
+    }
+
+    .footer {
+        padding: 20px 10px;
+    }
+
+    .footerRow {
+        flex-direction: column;
+        gap: 20px;
+        align-items: center;
+    }
+
+    .footerLinks {
+        width: 100%;
+        text-align: center;
+    }
+
+    .socialLink a {
+        margin: 5px;
+    }
+}

@@ -57,8 +57,8 @@ public class ProductService {
     }
 
     public ProductMsg getProductById(String idProduct) {
-        LOG.infof("@getProductById SERV > Inicia ejecucion del servicio para obtener el producto con id: " +
-                " %s. Inicia consulta a mongo", idProduct);
+        LOG.infof("@getProductById SERV > Inicia ejecucion del servicio para obtener el producto con id: "
+                + " %s. Inicia consulta a mongo", idProduct);
 
         Optional<ProductMsg> optionalProduct = productRepository.findProductById(idProduct);
 
@@ -72,8 +72,8 @@ public class ProductService {
         mediaFileRepository.getMediaByEntityTypeAndId("PRODUCT", product.getData().getIdProduct())
                 .ifPresent(media -> product.getData().setMediaFile(media.getData()));
 
-        LOG.infof("@getProductById SERV > Finaliza consulta de producto en mongo. Se obtuvo el registro " +
-                "del producto con id: %s", idProduct);
+        LOG.infof("@getProductById SERV > Finaliza consulta de producto en mongo. Se obtuvo el registro "
+                + "del producto con id: %s", idProduct);
 
         return product;
     }
@@ -110,8 +110,8 @@ public class ProductService {
 
         if (productRepository.getProductByBarCode(productMsg.getData().getBarcode()).isPresent()) {
 
-            LOG.errorf("@validateIfProductIsRegistered SERV > El producto con la data: %s ya existe en la " +
-                    "base de datos. No se realiza registro del producto", productMsg);
+            LOG.errorf("@validateIfProductIsRegistered SERV > El producto con la data: %s ya existe en la "
+                    + "base de datos. No se realiza registro del producto", productMsg);
 
             throw new HSException(Response.Status.BAD_REQUEST, "El producto con el código de barras: " + productMsg
                     .getData().getBarcode() + " ya se encuentra registrado en la base de datos");
@@ -123,23 +123,23 @@ public class ProductService {
 
     @CacheInvalidateAll(cacheName = "products-list-cache")
     public void updateProductDataInMongo(ProductMsg productMsg) throws HSException {
-        LOG.infof("@updateProductDataInMongo SERV > Inicia ejecucion del servicio para actualizar registro del producto " +
-                "con el id: %s. Data a modificar: %s", productMsg.getData().getIdProduct(), productMsg);
+        LOG.infof("@updateProductDataInMongo SERV > Inicia ejecucion del servicio para actualizar registro del producto "
+                + "con el id: %s. Data a modificar: %s", productMsg.getData().getIdProduct(), productMsg);
 
         ProductMsg productMsgMongo = getProductMsg(productMsg.getData().getIdProduct());
 
-        LOG.infof("@updateProductDataInMongo SERV > El producto con id: %s si esta registrado. Inicia la " +
-                "actualizacion del registro del producto con data: %s", productMsg.getData().getIdProduct(), productMsg);
+        LOG.infof("@updateProductDataInMongo SERV > El producto con id: %s si esta registrado. Inicia la "
+                + "actualizacion del registro del producto con data: %s", productMsg.getData().getIdProduct(), productMsg);
 
         setProductInformation(productMsg.getData().getIdProduct(), productMsg.getData(), productMsgMongo);
 
-        LOG.infof("@updateProductDataInMongo SERV > Finaliza edicion de la informacion del producto con id: %s. " +
-                "Inicia actualizacion en mongo con la data: %s", productMsg.getData().getIdProduct(), productMsg);
+        LOG.infof("@updateProductDataInMongo SERV > Finaliza edicion de la informacion del producto con id: %s. "
+                + "Inicia actualizacion en mongo con la data: %s", productMsg.getData().getIdProduct(), productMsg);
 
         productRepository.update(productMsgMongo);
 
-        LOG.infof("@updateProductDataInMongo SERV > Finaliza actualizacion del registro del producto con id: %s. " +
-                "Finaliza ejecucion de servicio de actualizacion", productMsg.getData().getIdProduct());
+        LOG.infof("@updateProductDataInMongo SERV > Finaliza actualizacion del registro del producto con id: %s. "
+                + "Finaliza ejecucion de servicio de actualizacion", productMsg.getData().getIdProduct());
     }
 
     private void setProductInformation(String idProduct, Product productRequest, ProductMsg productMsgMongo) {
@@ -159,8 +159,12 @@ public class ProductService {
         productMongo.setBrand(productRequest.getBrand());
         productMongo.setExpirationDate(productRequest.getExpirationDate());
         productMongo.setBarcode(productRequest.getBarcode());
-        productMongo.setActive(productRequest.getActive());
 
+        if (productRequest.getQuantityAvailable() == 0) {
+            productMongo.setActive(false);
+        } else {
+            productMongo.setActive(productRequest.getActive());
+        }
 
         metaMongo.setLastUpdate(LocalDateTime.now());
         metaMongo.setNameUserUpdated(jwtService.getCurrentUserName());
@@ -172,35 +176,34 @@ public class ProductService {
 
     private ProductMsg getProductMsg(String idProduct) throws HSException {
         return productRepository.findProductById(idProduct).orElseThrow(() -> {
-            LOG.errorf("@updateProductDataInMongo SERV > El producto con el identificador: %s NO esta registrado" +
-                    ". Solicitud invalida no se puede modificar el registro", idProduct);
+            LOG.errorf("@updateProductDataInMongo SERV > El producto con el identificador: %s NO esta registrado"
+                    + ". Solicitud invalida no se puede modificar el registro", idProduct);
 
-            return new HSException(Response.Status.NOT_FOUND, "No se encontro el registro del producto con " +
-                    "identificador: " + idProduct + "en la base de datos");
+            return new HSException(Response.Status.NOT_FOUND, "No se encontro el registro del producto con "
+                    + "identificador: " + idProduct + "en la base de datos");
         });
     }
 
     @CacheInvalidateAll(cacheName = "products-list-cache")
     public void deleteProductDataMongo(String productId) throws HSException {
 
-        LOG.infof("@deleteProductDataMongo SERV > Inicia la ejecucion del servicio para eliminar el registro del " +
-                "producto con id: %s", productId);
+        LOG.infof("@deleteProductDataMongo SERV > Inicia la ejecucion del servicio para eliminar el registro del "
+                + "producto con id: %s", productId);
 
         long deleted = productRepository.deleteProductDataMongo(productId);
 
         if (deleted == 0) {
 
-            LOG.infof("@deleteProductDataMongo SERV > El registro del producto con id: %s  No existe en Mongo. " +
-                    "No se realiza eliminacion.", productId);
+            LOG.infof("@deleteProductDataMongo SERV > El registro del producto con id: %s  No existe en Mongo. "
+                    + "No se realiza eliminacion.", productId);
 
-            throw new HSException(Response.Status.NOT_FOUND, "El producto con id: " + productId + " No esta registrado en la " +
-                    "base de datos");
+            throw new HSException(Response.Status.NOT_FOUND, "El producto con id: " + productId + " No esta registrado en la "
+                    + "base de datos");
         }
 
-        LOG.infof("@deleteProductDataMongo SERV > El registro del producto con id: %s se elimino correctamente " +
-                "en mongo. Finaliza ejecucion del servicio para eliminar producto y se elimino %s registro de " +
-                "la base de datos", productId, deleted);
-
+        LOG.infof("@deleteProductDataMongo SERV > El registro del producto con id: %s se elimino correctamente "
+                + "en mongo. Finaliza ejecucion del servicio para eliminar producto y se elimino %s registro de "
+                + "la base de datos", productId, deleted);
 
     }
 }

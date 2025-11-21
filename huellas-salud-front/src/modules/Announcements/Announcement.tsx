@@ -1,11 +1,8 @@
-import { useContext, useEffect, useMemo, useState } from "react";
-import { AnnouncementData, AppointmentData, AuthContext, PetData, ProductData, ServiceData, User, UserData } from "../../helper/typesHS";
+import { useEffect, useMemo, useState } from "react";
+import { AnnouncementData } from "../../helper/typesHS";
 import { useAnnouncementsService } from "./announcementsService";
 import styles from './announcement.module.css';
 import Spinner from "../../components/spinner/Spinner";
-import { useUserService } from "../Users/UserManagement/usersService";
-import { usePetService } from "../Pets/petService";
-import { useServiceService } from "../Services/servicesService";
 import { AnnouncementModal, AnnouncementsFilters, AnnouncementTable } from "./announcementComponents";
 
 const Announcement = () => {
@@ -32,14 +29,11 @@ const Announcement = () => {
   if (!announcementsData) return [];
 
   return announcementsData.filter(({ data: announcement, meta }) => {
-    // Manejo seguro de búsqueda
     const nameUser = meta?.nameUserCreated?.toLowerCase() ?? "";
     const search = searchTerm.toLowerCase();
 
-    // Coincidencia: si no hay búsqueda, incluye todos
     const matchesSearch = search === "" || nameUser.includes(search);
 
-    // Filtro de estado
     const matchesStatus =
       statusFilter === "ALL" ||
       (statusFilter === "ACTIVE" && announcement.status) ||

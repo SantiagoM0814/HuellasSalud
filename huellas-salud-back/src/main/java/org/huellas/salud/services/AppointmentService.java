@@ -33,7 +33,6 @@ import java.util.stream.Collectors;
 import java.util.Map;
 import java.util.HashMap;
 
-
 import java.net.UnknownHostException;
 import java.util.List;
 import java.util.UUID;
@@ -74,40 +73,11 @@ public class AppointmentService {
 
         Appointment appointmentData = appointmentMsg.getData();
 
-        Optional<UserMsg> optionalUser = userRepository.findUserByDocumentNumber(appointmentData.getIdOwner());
-
-        if (optionalUser.isEmpty()) {
-            LOG.warnf("@saveAppointmentDataMongo SERV > No se encontro ningun usuario con el numero de documento: %s", appointmentData.getIdOwner());
-            throw new HSException(Response.Status.BAD_REQUEST, "No se encontró el usuario con documento: " + appointmentData.getIdOwner());
-        }
-
-        Optional<PetMsg> optionalPet = petRepository.findPetById(appointmentData.getIdPet());
-
-        if (optionalPet.isEmpty()) {
-            LOG.warnf("@saveAppointmentDataMongo SERV > No se encontro ninguna mascota con el id: %s", appointmentData.getIdPet());
-            throw new HSException(Response.Status.BAD_REQUEST, "No se encontró la mascota con id: " + appointmentData.getIdPet());
-        }
-
-        PetMsg petMsg = optionalPet.get();
-
-        if (!petMsg.getData().getIdOwner().equals(appointmentData.getIdOwner())) {
-            throw new HSException(Response.Status.BAD_REQUEST,
-                    "La mascota con ID " + appointmentData.getIdPet() + " no pertenece al usuario con documento " + appointmentData.getIdOwner());
-        }
-
-        Optional<UserMsg> optionalVet = userRepository.findUserByDocumentNumber(appointmentData.getIdVeterinarian());
-        if (optionalVet.isEmpty()) {
-            throw new HSException(Response.Status.BAD_REQUEST, "No se encontró el veterinario con documento: " + appointmentData.getIdVeterinarian());
-        }
-
+        validateAppointmentData(appointmentData);
 
         LocalDateTime start = appointmentData.getDateTime();
         LocalDateTime end = start.plusMinutes(30);
 
-        // 5️⃣ Validar que la cita esté dentro del horario del veterinario
-        validateAppointmentWithinSchedule(appointmentData.getIdVeterinarian(), start, end);
-
-        // 6️⃣ Validar que no exista otra cita que se cruce con esta
         boolean overlaps = appointmentRepository.existsAppointmentInRange(
                 appointmentData.getIdVeterinarian(),
                 start,
@@ -122,6 +92,7 @@ public class AppointmentService {
         LOG.infof("@saveAppointmentDataMongo SERV > Inicia formato de la info enviada y se agrega metadata");
 
         appointmentData.setIdAppointment(UUID.randomUUID().toString());
+        appointmentData.setStatus(AppointmentStatus.PENDIENTE);
         appointmentMsg.setMeta(utils.getMetaToEntity());
 
         LOG.infof("@saveAppointmentDataMongo SERV > Finaliza formato de la data. Se realiza el registro de la cita "
@@ -201,7 +172,25 @@ public class AppointmentService {
         LOG.infof("@updateAppointmentDataMongo SERV > Inicia la ejecucion del servicio para actualizar registro de "
                 + "la cita con el id: %s. Data a modificar: %s", appointmentMsg.getData().getIdAppointment(), appointmentMsg);
 
+        Appointment appointmentData = appointmentMsg.getData();
+        validateAppointmentData(appointmentData);
         AppointmentMsg appointmentMsgMongo = getAppointmentMsg(appointmentMsg.getData().getIdAppointment());
+
+        LocalDateTime start = appointmentData.getDateTime();
+        LocalDateTime end = start.plusMinutes(30);
+
+        // Validación de cruces EXCLUYENDO la misma cita
+        boolean overlaps = appointmentRepository.existsAppointmentInRangeExcludingId(
+                appointmentData.getIdVeterinarian(),
+                start,
+                end,
+                appointmentData.getIdAppointment()
+        );
+
+        if (overlaps) {
+            throw new HSException(Response.Status.BAD_REQUEST,
+                    "El veterinario ya tiene una cita que se cruza con ese horario");
+        }
 
         setAppointmentInformation(appointmentMsg.getData().getIdAppointment(), appointmentMsg.getData(), appointmentMsgMongo);
 
@@ -234,8 +223,8 @@ public class AppointmentService {
         }
 
         // 👇 Aquí el cambio clave:
-        if (appointmentRequest.getDateTime() != null &&
-                !appointmentRequest.getDateTime().equals(appointmentMongo.getDateTime())) {
+        if (appointmentRequest.getDateTime() != null
+                && !appointmentRequest.getDateTime().equals(appointmentMongo.getDateTime())) {
             appointmentMongo.setDateTime(appointmentRequest.getDateTime());
         }
 
@@ -250,7 +239,6 @@ public class AppointmentService {
 
         LOG.infof("@setAppointmentInformation SERV > Finaliza set de los datos de la cita con id: %s", idAppointment);
     }
-
 
     @CacheInvalidateAll(cacheName = "appointments-list-cache")
     public void deleteAppointmentDataMongo(String idAppointment) throws HSException {
@@ -305,19 +293,19 @@ public class AppointmentService {
         }
 
         if (schedule.getLunchStart() != null && schedule.getLunchEnd() != null) {
-        LocalDateTime lunchStart = start.toLocalDate().atTime(schedule.getLunchStart());
-        LocalDateTime lunchEnd = start.toLocalDate().atTime(schedule.getLunchEnd());
+            LocalDateTime lunchStart = start.toLocalDate().atTime(schedule.getLunchStart());
+            LocalDateTime lunchEnd = start.toLocalDate().atTime(schedule.getLunchEnd());
 
-        boolean startsDuringLunch = !start.isBefore(lunchStart) && start.isBefore(lunchEnd);
-        boolean endsDuringLunch = end.isAfter(lunchStart) && !end.isAfter(lunchEnd);
-        boolean overlapsLunch = start.isBefore(lunchStart) && end.isAfter(lunchEnd);
+            boolean startsDuringLunch = !start.isBefore(lunchStart) && start.isBefore(lunchEnd);
+            boolean endsDuringLunch = end.isAfter(lunchStart) && !end.isAfter(lunchEnd);
+            boolean overlapsLunch = start.isBefore(lunchStart) && end.isAfter(lunchEnd);
 
-        if (startsDuringLunch || endsDuringLunch || overlapsLunch) {
-            throw new HSException(Response.Status.BAD_REQUEST,
-                    String.format("La cita se cruza con el horario de almuerzo del veterinario (%s - %s)",
-                            schedule.getLunchStart(), schedule.getLunchEnd()));
+            if (startsDuringLunch || endsDuringLunch || overlapsLunch) {
+                throw new HSException(Response.Status.BAD_REQUEST,
+                        String.format("La cita se cruza con el horario de almuerzo del veterinario (%s - %s)",
+                                schedule.getLunchStart(), schedule.getLunchEnd()));
+            }
         }
-    }
     }
 
     public List<String> getAvailableSlots(String idVeterinarian, LocalDate date) throws HSException {
@@ -358,9 +346,11 @@ public class AppointmentService {
 
                     // Evitar horario de almuerzo
                     if (lunchStart != null && lunchEnd != null) {
-                        boolean overlapsLunch =
-                                (slot.isBefore(lunchEnd) && slotEnd.isAfter(lunchStart));
-                        if (overlapsLunch) return false;
+                        boolean overlapsLunch
+                                = (slot.isBefore(lunchEnd) && slotEnd.isAfter(lunchStart));
+                        if (overlapsLunch) {
+                            return false;
+                        }
                     }
 
                     // Evitar cruces con citas existentes
@@ -373,14 +363,12 @@ public class AppointmentService {
                                     return false;
                                 }
 
-
                                 LocalDateTime apptStart = appointment.getDateTime();
                                 LocalDateTime apptEnd = apptStart.plusMinutes(30);
 
                                 // Verificar cruce de horario
                                 return slot.isBefore(apptEnd) && slotEnd.isAfter(apptStart);
                             });
-
 
                     return !overlapsAppointment;
                 })
@@ -394,34 +382,96 @@ public class AppointmentService {
     }
 
     public double calculateTotal(String idPet, List<String> serviceIds) {
-        // Obtener la mascota (para conocer su peso)
-        PetMsg pet = petRepository.findPetById(idPet)
-                .orElseThrow(() -> new RuntimeException("Mascota no encontrada"));
-        if (pet == null) throw new RuntimeException("Mascota no encontrada");
 
-        double petWeight = Double.parseDouble(pet.getData().getWeight());
+        PetMsg petMsg = petRepository.findPetById(idPet)
+                .orElseThrow(() -> new RuntimeException("Mascota no encontrada"));
+
+        double petWeight = Double.parseDouble(petMsg.getData().getWeight());
         double total = 0.0;
 
         for (String id : serviceIds) {
+
             ServiceMsg serviceMsg = serviceRepository.findServiceById(id)
                     .orElseThrow(() -> new RuntimeException("Servicio no encontrado"));
+
             Service serviceData = serviceMsg.getData();
 
+            double price;
+
             if (serviceData.isPriceByWeight() && serviceData.getWeightPriceRules() != null) {
-                // Buscar rango de peso aplicable
-                double priceForWeight = serviceData.getWeightPriceRules().stream()
+
+                // Buscar regla cuyo rango incluya el peso
+                Optional<Double> rulePrice = serviceData.getWeightPriceRules().stream()
                         .filter(rule -> petWeight >= rule.getMinWeight() && petWeight <= rule.getMaxWeight())
                         .map(WeightPriceRule::getPrice)
-                        .findFirst()
-                        .orElse(serviceData.getBasePrice());
+                        .findFirst();
 
-                total += priceForWeight;
+                if (rulePrice.isPresent()) {
+                    price = rulePrice.get();
+                } else {
+                    // Si no hay regla aplicable → tomar el precio mayor de todas las reglas
+                    price = serviceData.getWeightPriceRules().stream()
+                            .map(WeightPriceRule::getPrice)
+                            .max(Double::compare)
+                            .orElse(serviceData.getBasePrice());
+                }
+
             } else {
-                total += serviceData.getBasePrice();
+                // Precio fijo sin reglas
+                price = serviceData.getBasePrice();
             }
+
+            total += price;
         }
 
         return total;
+    }
+
+    private void validateAppointmentData(Appointment appointmentData) throws HSException {
+
+        // 1️⃣ Validar usuario
+        Optional<UserMsg> optionalUser = userRepository.findUserByDocumentNumber(appointmentData.getIdOwner());
+        if (optionalUser.isEmpty()) {
+            throw new HSException(Response.Status.BAD_REQUEST,
+                    "No se encontró el usuario con documento: " + appointmentData.getIdOwner());
+        }
+
+        // 2️⃣ Validar mascota
+        Optional<PetMsg> optionalPet = petRepository.findPetById(appointmentData.getIdPet());
+        if (optionalPet.isEmpty()) {
+            throw new HSException(Response.Status.BAD_REQUEST,
+                    "No se encontró la mascota con id: " + appointmentData.getIdPet());
+        }
+
+        PetMsg petMsg = optionalPet.get();
+
+        if (!petMsg.getData().getIdOwner().equals(appointmentData.getIdOwner())) {
+            throw new HSException(Response.Status.BAD_REQUEST,
+                    "La mascota con ID " + appointmentData.getIdPet() + " no pertenece al usuario con documento "
+                    + appointmentData.getIdOwner());
+        }
+
+        // 3️⃣ Validar veterinario
+        Optional<UserMsg> optionalVet = userRepository.findUserByDocumentNumber(appointmentData.getIdVeterinarian());
+        if (optionalVet.isEmpty()) {
+            throw new HSException(Response.Status.BAD_REQUEST,
+                    "No se encontró el veterinario con documento: " + appointmentData.getIdVeterinarian());
+        }
+
+        // 4️⃣ Validar servicios
+        List<String> serviceIds = appointmentData.getServices();
+        for (String id : serviceIds) {
+            if (serviceRepository.findServiceById(id).isEmpty()) {
+                throw new HSException(Response.Status.BAD_REQUEST, "El servicio con ID " + id + " no existe");
+            }
+        }
+
+        // 5️⃣ Validación de horarios del veterinario
+        LocalDateTime start = appointmentData.getDateTime();
+        LocalDateTime end = start.plusMinutes(30);
+
+        validateAppointmentWithinSchedule(appointmentData.getIdVeterinarian(), start, end);
+
     }
 
 }

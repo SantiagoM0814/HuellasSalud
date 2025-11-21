@@ -43,6 +43,7 @@ public class AnnouncementApi {
 
     @GET
     @Path("/list-announcements")
+    @RolesAllowed({"ADMINISTRADOR", "CLIENTE", "VETERINARIO"})
     @Tag(name = "Gestión de anuncios")
     @APIResponses(
             value = {
@@ -71,6 +72,7 @@ public class AnnouncementApi {
 
     @POST
     @Path("/create")
+    @RolesAllowed({"ADMINISTRADOR", "CLIENTE", "VETERINARIO"})
     @Tag(name = "Gestión de anuncios")
     @Operation(
             summary = "Creación de un anuncio nuevo",
@@ -80,7 +82,15 @@ public class AnnouncementApi {
             @RequestBody(
                     name = "announcementMsg",
                     description = "Objeto con la información del anuncio que se va a crear",
-                    required = true
+                    required = true,
+                    content = @Content(example = """
+                        {
+                                "data": {
+                                        "description": "¡Se busca! Nuestra perrita Luna se perdió el martes 8 de octubre en el sector, de San Antonio, cerca del parque principal. Es de raza criolla, color blanco con manchas  marrones, de tamaño mediano, muy juguetona y amigable, pero puede estar asustada. Llevaba un collar rosado con una plaquita que tiene su nombre.",
+                                        "cellPhone": "57-3-146786711"
+                                }
+                        }"""
+                    )
             )
             @NotNull(message = "Debe ingresar el objeto data con la información del anuncio a registrar")
             @Valid @ConvertGroup(to = ValidationGroups.Post.class) AnnouncementMsg announcementMsg
@@ -102,6 +112,7 @@ public class AnnouncementApi {
 
     @PUT
     @Path("/update")
+    @RolesAllowed("ADMINISTRADOR")
     @Tag(name = "Gestión de anuncios")
     @Operation(
             summary = "Actualización de la información de un anuncio",
@@ -111,7 +122,17 @@ public class AnnouncementApi {
             @RequestBody(
                     name = "announcementMsg",
                     description = "Información con la que se actualizará el anuncio",
-                    required = true
+                    required = true,
+                    content = @Content(example = """
+                        {
+                                "data": {
+                                        "idAnnouncement": "e47a974a-5ff7-41f9-bdc9-7505399b6cae",
+                                        "description": "¡Se busca! Nuestra perrita Luna se perdió el martes 8 de octubre en el sector, de San Antonio, cerca del parque principal. Es de raza criolla, color blanco con manchas  marrones, de tamaño mediano, muy juguetona y amigable, pero puede estar asustada. Llevaba un collar rosado con una plaquita que tiene su nombre.",
+                                        "cellPhone": "57-3-146786711",
+                                        "status": true
+                                }
+                        }"""
+                    )
             )
             @NotNull(message = "Debe ingresar los datos del anuncio a actualizar")
             @ConvertGroup(to = ValidationGroups.Put.class) @Valid AnnouncementMsg announcementMsg
@@ -132,6 +153,7 @@ public class AnnouncementApi {
 
     @DELETE
     @Path("/delete")
+    @RolesAllowed("ADMINISTRADOR")
     @Tag(name = "Gestión de anuncios")
     @Operation(
             summary = "Eliminación de un anuncio",

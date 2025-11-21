@@ -8,6 +8,7 @@ import { useUserService } from "../Users/UserManagement/usersService";
 import { usePetService } from "../Pets/petService";
 import { useServiceService } from "../Services/servicesService";
 import { useProductService } from "../Products/productsService";
+import { metaEmpty } from "../Pets/petsUtils";
 
 const Invoice = () => {
   const { user } = useContext(AuthContext);
@@ -24,7 +25,7 @@ const Invoice = () => {
 
   const { handleGetInvoices, handleGetInvoicesUser } = useInvoiceService();
   const { handleGetUsers } = useUserService();
-  const { handleGetPets } = usePetService();
+  const { handleGetPets, handleGetPetsOwner } = usePetService();
   const { handleGetServices } = useServiceService();
   const { handleGetProducts } = useProductService();
 
@@ -32,19 +33,29 @@ const Invoice = () => {
     if (!user) return;
 
     const fetchAppointmentData = async () => {
-      let data;
-      if (user?.role === "ADMINISTRADOR") {
-        data = await handleGetInvoices();
-      } else {
-        data = await handleGetInvoicesUser(user.documentNumber);
-      }
-      
-      const dataUser = await handleGetUsers();
-      const dataPet = await handleGetPets();
-      const dataService = await handleGetServices();
-      const dataProduct = await handleGetProducts();
+      let dataInvoices;
+      let dataUser;
+      let dataPet;
+      let dataService;
+      let dataProduct;
 
-      setInvoicesData(data);
+      if (user?.role === "ADMINISTRADOR" || user.role === "VETERINARIO") {
+        dataInvoices = await handleGetInvoices();
+        dataUser = await handleGetUsers();
+        dataPet = await handleGetPets();
+      } else {
+        dataInvoices = await handleGetInvoicesUser(user.documentNumber);
+        dataPet = await handleGetPetsOwner(user.documentNumber);
+        dataUser = [{
+          data: user,
+          meta: metaEmpty
+        }];
+      }
+
+      dataService = await handleGetServices();
+      dataProduct = await handleGetProducts();
+
+      setInvoicesData(dataInvoices);
       setUsersData(dataUser);
       setPetsData(dataPet);
       setServicesData(dataService);
@@ -86,10 +97,10 @@ const Invoice = () => {
   const filteredInvoices = useMemo(() => {
     return invoicesWithNames?.filter(({ data: invoice }) => {
       const matchesSearch =
-      invoice.idInvoice.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      invoice.itemInvoice.some(item =>
-        item.name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+        invoice.idInvoice.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        invoice.itemInvoice.some(item =>
+          item.name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
 
       const matchesStatus = statusFilter === 'ALL' || invoice.status.toLowerCase() === statusFilter.toLowerCase();
 
@@ -116,7 +127,7 @@ const Invoice = () => {
           onStatusFilterChange={setStatusFilter}
         />
         {(!invoicesData || invoicesData.length === 0) ? (
-          <h2>No hay citas registradas</h2>
+          <h2>No hay facturas registradas</h2>
         ) : (
           <InvoiceTable invoices={filteredInvoices} setInvoicesData={setInvoicesData} users={usersData} services={servicesData} pets={petsData} prods={prodsData} />
         )}

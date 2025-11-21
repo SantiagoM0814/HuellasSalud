@@ -9,12 +9,14 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.huellas.salud.domain.Meta;
 import org.huellas.salud.domain.pet.Pet;
 import org.huellas.salud.domain.pet.PetMsg;
+import org.huellas.salud.domain.user.UserMsg;
 import org.huellas.salud.domain.pet.MedicalHistory;
 import org.huellas.salud.helper.exceptions.HSException;
 import org.huellas.salud.helper.jwt.JwtService;
 import org.huellas.salud.helper.utils.Utils;
 import org.huellas.salud.repositories.MediaFileRepository;
 import org.huellas.salud.repositories.PetRepository;
+import org.huellas.salud.repositories.UserRepository;
 import org.jboss.logging.Logger;
 
 import java.net.UnknownHostException;
@@ -40,6 +42,9 @@ public class PetService {
     PetRepository petRepository;
 
     @Inject
+    UserRepository userRepository;
+
+    @Inject
     MediaFileRepository mediaFileRepository;
 
     @ConfigProperty(name = "PARAMETER.HUELLAS_SALUD.DEFAULT_BREED")
@@ -52,6 +57,12 @@ public class PetService {
                 "mascota con la data: %s. Inicia validacion de la informacion de la mascota", petMsg.getData());
 
         Pet petData = petMsg.getData();
+
+        Optional<UserMsg> optionalUser = userRepository.findUserByDocumentNumber(petData.getIdOwner());
+        if (optionalUser.isEmpty()) {
+            throw new HSException(Response.Status.BAD_REQUEST,
+                    "No se encontró el usuario con documento: " + petData.getIdOwner());
+        }
 
         if (petRepository.findPetByNameAndOwner(petData.getIdOwner(), petData.getName()).isPresent()) {
 
@@ -147,6 +158,12 @@ public class PetService {
         LOG.infof("@updatePetDataInMongo SERV > Inicia ejecucion del servicio para actualizar registro de la " +
                 "mascota con el id: %s. Data a modificar: %s", petMsg.getData().getIdPet(), petMsg);
 
+        Optional<UserMsg> optionalUser = userRepository.findUserByDocumentNumber(petMsg.getData().getIdOwner());
+        if (optionalUser.isEmpty()) {
+            throw new HSException(Response.Status.BAD_REQUEST,
+                    "No se encontró el usuario con documento: " + petMsg.getData().getIdOwner());
+        }
+
         PetMsg petMsgMongo = getPetMsg(petMsg.getData().getIdPet());
 
         LOG.infof("@updatePetDataInMongo SERV > La mascota con documento: %s si esta registrada. Inicia la " +
@@ -222,7 +239,7 @@ public class PetService {
         petMongo.setDisability(petRequest.getDisability());
         petMongo.setDescription(petRequest.getDescription());
         petMongo.setIsActive(petRequest.getIsActive());
-        petMongo.setMedicalHistory(petRequest.getMedicalHistory());
+        // petMongo.setMedicalHistory(petRequest.getMedicalHistory());
         petMongo.setSpecies(petRequest.getSpecies());
         petMongo.setBreed(petRequest.getBreed());
         petMongo.setSex(petRequest.getSex());

@@ -1,5 +1,6 @@
 package org.huellas.salud.rest;
 
+import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -35,6 +36,7 @@ public class ProductApi {
 
     @GET
     @Path("/list-products")
+    @PermitAll
     @Tag(name = "Gestión de productos")
     @Operation(
             summary = "Obtener listado de productos",
@@ -76,9 +78,11 @@ public class ProductApi {
                                     "quantityAvailable": 10,
                                     "brand": "Agility Gold",
                                     "expirationDate": "2026-11-13",
-                                    "barcode": "910000009"
+                                    "barcode": "910000009",
+                                    "status": true
                                 }
-                            }""")
+                            }"""
+                        )
             )
             @NotNull(message = "Debe ingresar el objeto con la información del producto a registrar")
             @Valid @ConvertGroup(to = ValidationGroups.Post.class) ProductMsg productMsg
@@ -98,12 +102,34 @@ public class ProductApi {
 
     @PUT
     @Path("/update")
+    @RolesAllowed("ADMINISTRADOR")
     @Tag(name = "Gestión de productos")
+    @Operation(
+            summary = "Actualizar un producto",
+            description = "Permite actualizar un producto registrado en la base de datos"
+    )
     public Response updateProductData(
             @RequestBody(
                     name = "productMsg",
                     description = "Información con la que se actualizara el producto",
-                    required = true
+                    required = true,
+                    content = @Content(example = """
+                            {
+                                "data": {
+                                    "name": "Agility Gold Gatos Sin Granos 7 Kg",
+                                    "category": "Comida",
+                                    "description": "Alimento ideal para suministrar en todas las etapas de la vida de los gatos",
+                                    "animalType": "PERRO",
+                                    "price": 170000,
+                                    "unitOfMeasure": "Unidad",
+                                    "quantityAvailable": 10,
+                                    "brand": "Agility Gold",
+                                    "expirationDate": "2026-11-13",
+                                    "barcode": "910000009",
+                                    "status": true
+                                }
+                            }"""
+                        )
             )
             @NotNull(message = "Debe ingresar los datos que se actualizarán del producto")
             @ConvertGroup(to = ValidationGroups.Put.class) @Valid ProductMsg productMsg
@@ -123,9 +149,13 @@ public class ProductApi {
     }
 
     @DELETE
-    @RolesAllowed("ADMINISTRADOR")
     @Path("/delete")
+    @RolesAllowed("ADMINISTRADOR")
     @Tag(name = "Gestión de productos")
+    @Operation(
+            summary = "Eliminar un producto",
+            description = "Permite eliminar un producto"
+    )
     public Response deleteProductData(
             @Parameter(
                     name = "productId",

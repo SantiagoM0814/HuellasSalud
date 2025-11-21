@@ -7,6 +7,7 @@ import Spinner from "../../components/spinner/Spinner";
 import { useUserService } from "../Users/UserManagement/usersService";
 import { usePetService } from "../Pets/petService";
 import { useServiceService } from "../Services/servicesService";
+import { metaEmpty } from "../Pets/petsUtils";
 
 const AppointmentsAdmin = () => {
   const { user } = useContext(AuthContext);
@@ -23,39 +24,67 @@ const AppointmentsAdmin = () => {
 
   const { handleGetAppointments, handleGetAppointmentsUser, handleGetAppointmentsVet } = useAppointmentService();
   const { handleGetUsers, handleGetVeterinarians } = useUserService();
-  const { handleGetPets } = usePetService();
+  const { handleGetPets, handleGetPetsOwner } = usePetService();
   const { handleGetServices } = useServiceService();
 
   useEffect(() => {
-    if (!user) return;
+  if (!user) return;
 
-    const fetchAppointmentData = async () => {
-      let data;
-      if (user?.role === "ADMINISTRADOR") {
-        data = await handleGetAppointments();
-      } else if (user?.role === "VETERINARIO") {
-        data = await handleGetAppointmentsVet(user.documentNumber);
-      }
-      else {
-        data = await handleGetAppointmentsUser(user.documentNumber)
-      }
+  const fetchAppointmentData = async () => {
+    setLoading(true);
 
-      const dataUser = await handleGetUsers();
-      const dataPet = await handleGetPets();
-      const dataService = await handleGetServices();
-      const dataVet = await handleGetVeterinarians();
+    let dataAppointments; 
+    let dataUser;
+    let dataPets;
+    let dataService;
+    let dataVet;
 
-      setAppointmentsData(data);
-      setUsersData(dataUser);
-      setPetsData(dataPet);
-      setServicesData(dataService);
-      setVetsData(dataVet);
+    if (user.role === "ADMINISTRADOR") {
+      // ADMIN carga todo
+      dataAppointments = await handleGetAppointments();
+      dataUser = await handleGetUsers();
+      dataPets = await handleGetPets();
+      dataService = await handleGetServices();
+      dataVet = await handleGetVeterinarians();
+    } 
+    else if (user.role === "VETERINARIO") {
+      // VETERINARIO solo las suyas
+      dataAppointments = await handleGetAppointmentsVet(user.documentNumber);
 
-      setLoading(false);
-    };
+      // Necesita sus clientes y mascotas asociadas
+      dataUser = await handleGetUsers(); 
+      dataPets = await handleGetPets();
+      dataService = await handleGetServices();
+      dataVet = [{
+        data: user,
+        meta: metaEmpty
+      }];
+    } 
+    else {
+      // CLIENTE solo carga lo suyo
+      dataAppointments = await handleGetAppointmentsUser(user.documentNumber);
 
-    fetchAppointmentData();
-  }, [user]);
+      dataUser = [{
+        data: user,
+        meta: metaEmpty
+      }];
+      dataPets = await handleGetPetsOwner(user.documentNumber); // mascotas del cliente
+      dataService = await handleGetServices();
+      dataVet = await handleGetVeterinarians();
+    }
+
+    setAppointmentsData(dataAppointments);
+    setUsersData(dataUser);
+    setPetsData(dataPets);
+    setServicesData(dataService);
+    setVetsData(dataVet);
+
+    setLoading(false);
+  };
+
+  fetchAppointmentData();
+}, [user]);
+
 
   const filteredAppointment = useMemo(() => {
     if (!appointmentsData) return [];

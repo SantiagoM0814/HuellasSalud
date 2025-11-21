@@ -125,6 +125,14 @@
     width: 130px;
 }
 
+.asideButtons a {
+    text-decoration: none;
+}
+
+.btnMobile {
+    display: none;
+}
+
 /* Avatar */
 .avatarButton {
     width: 70px;
@@ -452,5 +460,158 @@
 @media (max-width: 650px) {
     .navbar picture {
         margin-right: 80px;
+    }
+}
+
+
+/* ============================================
+   📱 RESPONSIVE PARA CELULARES (360–480px)
+   Xiaomi Redmi Note 11S
+   ============================================ */
+@media (max-width: 480px) {
+
+    /* --- NAVBAR --- */
+    .navbar {
+        height: auto;
+        padding: 10px;
+        grid-template-columns: 1fr;
+        row-gap: 10px;
+        text-align: center;
+        position: fixed;
+    }
+
+    .logoContain img {
+        width: 80px;
+    }
+
+    /* --- BUSCADOR --- */
+    .asideInput {
+        width: 100%;
+        padding-top: 5px;
+    }
+
+    .asideInput input {
+        width: 70%;
+        height: 32px;
+        font-size: 13px;
+    }
+
+    .asideInput button {
+        width: 65px;
+        font-size: 13px;
+    }
+
+    /* --- MENÚ UL --- */
+    .containerUl {
+        flex-wrap: wrap;
+        gap: 6px;
+        font-size: 13px;
+        padding-bottom: 10px;
+    }
+
+    .liNav i {
+        font-size: 0.9rem;
+    }
+
+    /* --- BOTONES INICIO/REGISTRO --- */
+    .asideButtons {
+        position: static;
+        flex-direction: row;
+        gap: 8px;
+        justify-content: center;
+        padding-bottom: 10px;
+    }
+
+    .asideButtons a button {
+        width: 100px;
+        font-size: 0.75rem;
+        padding: 5px 0;
+    }
+
+    /* --- AVATAR --- */
+    .avatarButton {
+        width: 55px;
+        height: 55px;
+    }
+
+    .avatarButton img {
+        width: 55px;
+        height: 55px;
+    }
+
+    /* --- MODAL AVATAR --- */
+    .dropdown {
+        top: 100px;
+        right: 20px;
+        width: 80%;
+    }
+
+    /* --- MENÚ DE OPCIONES GRANDE (CATEGORÍAS) --- */
+    .optionMenu {
+        width: 95%;
+        min-width: unset;
+        left: 2.5%;
+        margin-top: 100px;
+        height: auto;
+        display: block;
+        padding-bottom: 20px;
+    }
+
+    .optionCategory {
+        border-right: none;
+        width: 100%;
+        height: auto;
+    }
+
+    .optionCategory ul {
+        flex-direction: column;
+        gap: 8px;
+        padding: 10px 0;
+    }
+
+    .optionMain {
+        flex-direction: column;
+        padding: 10px;
+        gap: 15px;
+    }
+
+    .optionMain section {
+        width: 100%;
+        text-align: center;
+    }
+
+    .optionMain section img {
+        width: 120px;
+    }
+
+    .optionBrands {
+        height: auto;
+    }
+
+    .optionBrands ul {
+        flex-wrap: wrap;
+        padding: 10px 0;
+        gap: 12px;
+    }
+
+    .optionBrands ul li img {
+        width: 60px;
+    }
+
+    /* --- MODAL GENERAL --- */
+    .modal {
+        width: 95%;
+    }
+
+    .modal .formEditUser {
+        grid-template-columns: 1fr;
+    }
+
+    .backgroundModalEdit {
+        height: 80px;
+    }
+
+    .btnMobile {
+        display: flex;
     }
 }

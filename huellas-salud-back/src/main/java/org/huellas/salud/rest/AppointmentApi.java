@@ -1,5 +1,7 @@
 package org.huellas.salud.rest;
 
+import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
@@ -31,7 +33,6 @@ import java.util.List;
 import java.time.LocalDate;
 import java.util.Collections;
 
-
 @Path("/internal/appointment")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -44,6 +45,7 @@ public class AppointmentApi {
 
     @GET
     @Path("/list-appointments")
+    @RolesAllowed("ADMINISTRADOR")
     @Tag(name = "Gestión de citas")
     @APIResponses(
             value = {
@@ -72,6 +74,7 @@ public class AppointmentApi {
 
     @GET
     @Path("/list-appointments-user/{idOwner}")
+    @RolesAllowed({"ADMINISTRADOR", "CLIENTE"})
     @Tag(name = "Gestión de citas")
     @APIResponses(
             value = {
@@ -103,18 +106,19 @@ public class AppointmentApi {
 
     @GET
     @Path("/list-appointments-veterinarian/{idVeterinarian}")
+    @RolesAllowed({"ADMINISTRADOR", "VETERINARIO"})
     @Tag(name = "Gestión de citas")
     @APIResponses(
             value = {
-                    @APIResponse(
-                            responseCode = "200",
-                            description = "Se retorna el listado de las citas del veterinario correctamente",
-                            content = @Content(schema = @Schema(implementation = AppointmentMsg.class, type = SchemaType.ARRAY))
-                    ),
-                    @APIResponse(
-                            responseCode = "404",
-                            description = "No se encontraron citas para el veterinario indicado"
-                    )
+                @APIResponse(
+                        responseCode = "200",
+                        description = "Se retorna el listado de las citas del veterinario correctamente",
+                        content = @Content(schema = @Schema(implementation = AppointmentMsg.class, type = SchemaType.ARRAY))
+                ),
+                @APIResponse(
+                        responseCode = "404",
+                        description = "No se encontraron citas para el veterinario indicado"
+                )
             }
     )
     @Operation(
@@ -134,6 +138,7 @@ public class AppointmentApi {
 
     @GET
     @Path("/available")
+    @PermitAll
     @Tag(name = "Gestión de citas")
     @Operation(
             summary = "Obtiene los horarios disponibles para un veterinario en una fecha específica",
@@ -156,9 +161,9 @@ public class AppointmentApi {
         return Response.ok(Collections.singletonMap("availableSlots", availableSlots)).build();
     }
 
-
     @POST
     @Path("/create")
+    @RolesAllowed({"ADMINISTRADOR", "CLIENTE", "VETERINARIO"})
     @Tag(name = "Gestión de citas")
     @Operation(
             summary = "Creación de una cita nueva",
@@ -168,7 +173,21 @@ public class AppointmentApi {
             @RequestBody(
                     name = "appointmentMsg",
                     description = "Objeto con la información de la cita que se va a crear",
-                    required = true
+                    required = true,
+                    content = @Content(example = """
+                        {
+                                "data": {
+                                        "idOwner": "1012657654",
+                                        "idPet": "faf32d41-65b2-431b-a468-0dbc6650ae47",
+                                        "services": [
+                                                "e7f84494-1524-4630-b662-52b72d1a5bef"
+                                        ],
+                                        "dateTime": "2025-12-05T16:00:00.00",
+                                        "notes": "La mascota presenta tos y falta de apetito",
+                                        "idVeterinarian": "1013100931"
+                                }
+                        }"""
+                    )
             )
             @NotNull(message = "Debe ingresar el objeto data con la informacion de la cita a registrar")
             @Valid @ConvertGroup(to = ValidationGroups.Post.class) AppointmentMsg appointmentMsg
@@ -189,6 +208,7 @@ public class AppointmentApi {
 
     @PUT
     @Path("/update")
+    @RolesAllowed({"ADMINISTRADOR", "CLIENTE", "VETERINARIO"})
     @Tag(name = "Gestión de citas")
     @Operation(
             summary = "Actualización de la información de una cita",
@@ -198,7 +218,22 @@ public class AppointmentApi {
             @RequestBody(
                     name = "citaMsg",
                     description = "Información con la que se actualizara la cita",
-                    required = true
+                    required = true,
+                    content = @Content(example = """
+                        {
+                                "data": {
+                                        "idAppointment": "8eac2367-47ca-4110-a6f9-7d0932288662",
+                                        "idOwner": "1012657654",
+                                        "idPet": "faf32d41-65b2-431b-a468-0dbc6650ae47",
+                                        "services": [
+                                                "e7f84494-1524-4630-b662-52b72d1a5bef"
+                                        ],
+                                        "dateTime": "2025-12-05T16:00:00.00",
+                                        "notes": "La mascota presenta tos y falta de apetito",
+                                        "idVeterinarian": "1013100931"
+                                }
+                        }"""
+                    )
             )
             @NotNull(message = "Debe ingresar los datos de la cita a actualizar")
             @ConvertGroup(to = ValidationGroups.Put.class) @Valid AppointmentMsg appointmentMsg
@@ -219,6 +254,7 @@ public class AppointmentApi {
 
     @DELETE
     @Path("/delete")
+    @RolesAllowed("ADMINISTRADOR")
     @Tag(name = "Gestión de citas")
     @Operation(
             summary = "Eliminación de una cita",
@@ -244,17 +280,5 @@ public class AppointmentApi {
                 + "en la base de datos con id: %s", idAppointment);
 
         return Response.status(Response.Status.NO_CONTENT).build();
-    }
-
-    @POST
-    @Path("/calculate")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response calculateTotal(Appointment appointment) {
-        double total = appointmentService.calculateTotal(
-                appointment.getIdPet(),
-                appointment.getServices()
-        );
-        return Response.ok(Map.of("total", total)).build();
     }
 }

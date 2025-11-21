@@ -44,7 +44,13 @@ const AppRoutes = () => {
       )
     },
     { path: "/citas", element: <AppointmentsAdmin />},
-    { path: "/facturas", element: <Invoice/>},
+    { 
+      path: "/facturas", element: (
+        <ProtectedRoute requiredRole={["CLIENTE", "ADMINISTRADOR"]}>
+          <Invoice />
+        </ProtectedRoute>
+      )
+    },
     { path: "/recuperar-contrasena", element: <PasswordRecovery /> },
     { path: "/reset-password", element: <ResetPassword /> },
     {

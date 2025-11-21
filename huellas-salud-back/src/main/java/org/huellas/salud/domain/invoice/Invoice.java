@@ -22,20 +22,20 @@ import java.util.List;
 public class Invoice implements Serializable {
 
     @BsonProperty("idFactura")
-    @Schema(example = "")
+    @Schema(example = "1805b3a6-2994-4376-b712-27d3ae23ab5e")
     @Null(message = "No debe enviar ningún valor en el campo idInvoice", groups = ValidationGroups.Post.class)
     private String idInvoice;
 
     @BsonProperty("fecha")
-//    @NotNull(message = "La fecha es obligatoria")
     private LocalDateTime date;
 
     @BsonProperty("idCliente")
+    @Schema(example = "1020657534")
     @NotBlank(message = "Debe asociar un cliente")
     private String idClient;
 
     @BsonProperty("total")
-    @NotNull(message = "Debe incluir el total de la factura")
+    @Schema(example = "50000")
     private Double total;
 
     @BsonProperty("tipoFactura")

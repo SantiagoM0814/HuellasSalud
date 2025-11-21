@@ -1,5 +1,7 @@
 package org.huellas.salud.rest;
 
+import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
@@ -29,7 +31,6 @@ import java.util.List;
 import java.time.LocalDate;
 import java.util.Collections;
 
-
 @Path("/internal/invoice")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -42,14 +43,15 @@ public class InvoiceApi {
 
     @GET
     @Path("/list-invoices")
+    @RolesAllowed("ADMINISTRADOR")
     @Tag(name = "Gestión de facturas")
     @APIResponses(
             value = {
-                    @APIResponse(
-                            responseCode = "200",
-                            description = "Se retorna el listado de las facturas registradas correctamente",
-                            content = @Content(schema = @Schema(implementation = InvoiceMsg.class, type = SchemaType.ARRAY))
-                    )
+                @APIResponse(
+                        responseCode = "200",
+                        description = "Se retorna el listado de las facturas registradas correctamente",
+                        content = @Content(schema = @Schema(implementation = InvoiceMsg.class, type = SchemaType.ARRAY))
+                )
             }
     )
     @Operation(
@@ -70,18 +72,19 @@ public class InvoiceApi {
 
     @GET
     @Path("/list-invoices-client/{idClient}")
+    @RolesAllowed({"ADMINISTRADOR", "CLIENTE"})
     @Tag(name = "Gestión de facturas")
     @APIResponses(
             value = {
-                    @APIResponse(
-                            responseCode = "200",
-                            description = "Se retorna el listado de las facturas del usuario correctamente",
-                            content = @Content(schema = @Schema(implementation = InvoiceMsg.class, type = SchemaType.ARRAY))
-                    ),
-                    @APIResponse(
-                            responseCode = "404",
-                            description = "No se encontraron facturas para el usuario indicado"
-                    )
+                @APIResponse(
+                        responseCode = "200",
+                        description = "Se retorna el listado de las facturas del usuario correctamente",
+                        content = @Content(schema = @Schema(implementation = InvoiceMsg.class, type = SchemaType.ARRAY))
+                ),
+                @APIResponse(
+                        responseCode = "404",
+                        description = "No se encontraron facturas para el usuario indicado"
+                )
             }
     )
     @Operation(
@@ -94,13 +97,6 @@ public class InvoiceApi {
 
         List<InvoiceMsg> invoices = invoiceService.getListInvoicesUser(idClient);
 
-//        if (invoices == null || invoices.isEmpty()) {
-//            LOG.warnf("@getListInvoicesUser API > No se encontraron facturas para el usuario con documento: %s", idClient);
-//            return Response.status(Response.Status.NOT_FOUND)
-//                    .entity("No se encontraron facturas para el usuario con documento: " + idClient)
-//                    .build();
-//        }
-
         LOG.infof("@getListInvoicesUser API > Finaliza servicio. Se encontraron %s facturas para el usuario con documento: %s", invoices.size(), idClient);
 
         return Response.ok().entity(invoices).build();
@@ -108,16 +104,49 @@ public class InvoiceApi {
 
     @POST
     @Path("/create")
+    @RolesAllowed({"ADMINISTRADOR", "CLIENTE", "VETERINARIO"})
     @Tag(name = "Gestión de facturas")
     @Operation(
             summary = "Creación de una factura nueva",
-            description = "Permite crear el registro de una factura nueva en la base de datos con la informacion suministrada"
+            description = """
+                Permite crear el registro de una factura nueva en la base de datos. 
+
+                Cada itemInvoice debe representar únicamente un producto o un servicio:
+
+                • Ítem de PRODUCTO:
+                - Se debe enviar: idProduct, quantity
+                - No se debe enviar: idService, idPet
+
+                • Ítem de SERVICIO:
+                - Se debe enviar: idService, idPet
+                - No se debe enviar: idProduct, quantity
+
+                El sistema calculará automáticamente el precio unitario, subtotal y total 
+                a partir de la información almacenada en la base de datos.
+                """
     )
     public Response createInvoiceData(
             @RequestBody(
                     name = "invoiceMsg",
                     description = "Objeto con la información de la factura que se va a crear",
-                    required = true
+                    required = true,
+                    content = @Content(example = """
+                        {
+                                "data": {
+                                        "idClient": "1020657897",
+                                        "typeInvoice": "PRODUCTO",
+                                        "status": "PAGADA",
+                                        "itemInvoice": [
+                                                {
+                                                        "idProduct": "e5578a34-c1e6-41f7-a5f2-a24e53e79f26",
+                                                        "idService": "a1b46745-d7c3-44ab-85f7-b751586f8164",
+                                                        "idPet": "59c9fb42-71af-49ec-ae07-66982a58a3a3",
+                                                        "quantity": 2
+                                                }
+                                        ]
+                                }
+                        }"""
+                    )
             )
             @NotNull(message = "Debe ingresar el objeto data con la informacion de la factura a registrar")
             @Valid @ConvertGroup(to = ValidationGroups.Post.class) InvoiceMsg invoiceMsg
@@ -138,16 +167,50 @@ public class InvoiceApi {
 
     @PUT
     @Path("/update")
+    @RolesAllowed("ADMINISTRADOR")
     @Tag(name = "Gestión de facturas")
     @Operation(
             summary = "Actualización de la información de una factura",
-            description = "Permite actualizar la información de una factura registrada en la base de datos"
+            description = """
+                Permite actualizar la información de una factura registrada en la base de datos 
+
+                Cada itemInvoice debe representar únicamente un producto o un servicio:
+
+                • Ítem de PRODUCTO:
+                - Se debe enviar: idProduct, quantity
+                - No se debe enviar: idService, idPet
+
+                • Ítem de SERVICIO:
+                - Se debe enviar: idService, idPet
+                - No se debe enviar: idProduct, quantity
+
+                El sistema calculará automáticamente el precio unitario, subtotal y total 
+                a partir de la información almacenada en la base de datos.
+                """
     )
     public Response updateInvoiceData(
             @RequestBody(
                     name = "facturaMsg",
                     description = "Información con la que se actualizara la factura",
-                    required = true
+                    required = true,
+                    content = @Content(example = """
+                        {
+                                "data": {
+                                        "idInvoice": "bb24d89f-24a4-4cbc-a129-882a2174a795",
+                                        "idClient": "1020657897",
+                                        "typeInvoice": "SERVICIO",
+                                        "status": "PENDIENTE",
+                                        "itemInvoice": [
+                                                {
+                                                        "idProduct": "e5578a34-c1e6-41f7-a5f2-a24e53e79f26",
+                                                        "idService": "a1b46745-d7c3-44ab-85f7-b751586f8164",
+                                                        "idPet": "59c9fb42-71af-49ec-ae07-66982a58a3a3",
+                                                        "quantity": 2
+                                                }
+                                        ]
+                                }
+                        }"""
+                    )
             )
             @NotNull(message = "Debe ingresar los datos de la factura a actualizar")
             @ConvertGroup(to = ValidationGroups.Put.class) @Valid InvoiceMsg invoiceMsg
@@ -168,6 +231,7 @@ public class InvoiceApi {
 
     @DELETE
     @Path("/delete")
+    @RolesAllowed("ADMINISTRADOR")
     @Tag(name = "Gestión de facturas")
     @Operation(
             summary = "Eliminación de una factura",

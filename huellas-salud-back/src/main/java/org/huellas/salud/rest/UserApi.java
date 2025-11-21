@@ -54,54 +54,54 @@ public class UserApi {
                     name = "userMsg",
                     description = "Información del usuario que se va a consultar",
                     content = @Content(examples = {
-                            @ExampleObject(
-                                    name = "Enviar correo electrónico",
-                                    value = """
+                @ExampleObject(
+                        name = "Enviar correo electrónico",
+                        value = """
                                             {
                                                 "data": {
                                                     "emailOrDoc": "emailusuario@correo.com",
                                                     "password": "password"
                                                 }
                                             }"""
-                            ),
-                            @ExampleObject(
-                                    name = "Enviar número de documento",
-                                    value = """
+                ),
+                @ExampleObject(
+                        name = "Enviar número de documento",
+                        value = """
                                             {
                                                 "data": {
                                                     "emailOrDoc": "1015624875",
                                                     "password": "password"
                                                 }
                                             }"""
-                            )
-                    })
+                )
+            })
             )
             @NotNull(message = "Debe ingresar el objeto con la información del usuario a registrar")
             @Valid @ConvertGroup(to = ValidationGroups.Post_Get.class) UserMsg userMsg
     ) throws HSException {
 
-        LOG.infof("@getOneUserData API > Inicia ejecucion del servicio para obtener registro del usuario con " +
-                "el correo o numero de documento: %s en la base de datos", userMsg.getData().getEmailOrDoc());
+        LOG.infof("@getOneUserData API > Inicia ejecucion del servicio para obtener registro del usuario con "
+                + "el correo o numero de documento: %s en la base de datos", userMsg.getData().getEmailOrDoc());
 
         UserMsg userMongo = userService.getRegisteredUserInMongo(userMsg);
 
-        LOG.infof("@getOneUserData API > Finaliza servicio para obtener registro del usuario con el correo o " +
-                "numero de documento: %s. La data se obtuvo correctamente", userMsg.getData().getEmailOrDoc());
+        LOG.infof("@getOneUserData API > Finaliza servicio para obtener registro del usuario con el correo o "
+                + "numero de documento: %s. La data se obtuvo correctamente", userMsg.getData().getEmailOrDoc());
 
         return Response.ok().entity(userMongo).build();
     }
 
     @GET
     @Path("/list-users")
-    //@RolesAllowed("ADMINISTRADOR")
+    @RolesAllowed({"ADMINISTRADOR", "VETERINARIO"})
     @Tag(name = "Gestión de usuarios")
     @APIResponses(
             value = {
-                    @APIResponse(
-                            responseCode = "200",
-                            description = "Se retorna el listado de usuarios registrados correctamente",
-                            content = @Content(schema = @Schema(implementation = UserMsg.class, type = SchemaType.ARRAY))
-                    )
+                @APIResponse(
+                        responseCode = "200",
+                        description = "Se retorna el listado de usuarios registrados correctamente",
+                        content = @Content(schema = @Schema(implementation = UserMsg.class, type = SchemaType.ARRAY))
+                )
             }
     )
     @Operation(
@@ -114,23 +114,23 @@ public class UserApi {
 
         List<UserMsg> users = userService.getListRegisteredUser();
 
-        LOG.infof("@getListUsers API > Finaliza servicio para obtener listado de todos los usuarios " +
-                "registrados. Se encontraron: %s registros", users.size());
+        LOG.infof("@getListUsers API > Finaliza servicio para obtener listado de todos los usuarios "
+                + "registrados. Se encontraron: %s registros", users.size());
 
         return Response.ok().entity(users).build();
     }
 
     @GET
     @Path("/list-veterinarians")
-    //@RolesAllowed("ADMINISTRADOR")
+    @PermitAll
     @Tag(name = "Gestión de usuarios")
     @APIResponses(
             value = {
-                    @APIResponse(
-                            responseCode = "200",
-                            description = "Se retorna el listado de veterinarios registrados correctamente",
-                            content = @Content(schema = @Schema(implementation = UserMsg.class, type = SchemaType.ARRAY))
-                    )
+                @APIResponse(
+                        responseCode = "200",
+                        description = "Se retorna el listado de veterinarios registrados correctamente",
+                        content = @Content(schema = @Schema(implementation = UserMsg.class, type = SchemaType.ARRAY))
+                )
             }
     )
     @Operation(
@@ -143,8 +143,8 @@ public class UserApi {
 
         List<UserMsg> veterinarians = userService.getListVeterinarian();
 
-        LOG.infof("@getListVeterinarians API > Finaliza servicio para obtener listado de todos los veterinarios " +
-                "registrados. Se encontraron: %s registros", veterinarians.size());
+        LOG.infof("@getListVeterinarians API > Finaliza servicio para obtener listado de todos los veterinarios "
+                + "registrados. Se encontraron: %s registros", veterinarians.size());
 
         return Response.ok().entity(veterinarians).build();
     }
@@ -224,14 +224,14 @@ public class UserApi {
             @Valid @ConvertGroup(to = ValidationGroups.Put.class) UserMsg userMsg
     ) throws HSException {
 
-        LOG.infof("@updateUserData API > Inicia ejecucion de servicio de actualizacion de usuario con la data" +
-                ": %s en mongo", userMsg.getData());
+        LOG.infof("@updateUserData API > Inicia ejecucion de servicio de actualizacion de usuario con la data"
+                + ": %s en mongo", userMsg.getData());
 
         userService.updateUserDataInMongo(userMsg);
         UserMsg user = userService.getUserWithImage(userMsg.getData().getDocumentNumber(), userMsg.getData().getEmail());
 
-        LOG.infof("@updateUserData API > Finaliza ejecucion de servicio de actualizacion de usuario. El " +
-                "registro se actualizo con la data: %s", userMsg.getData().getDocumentNumber(), userMsg);
+        LOG.infof("@updateUserData API > Finaliza ejecucion de servicio de actualizacion de usuario. El "
+                + "registro se actualizo con la data: %s", userMsg.getData().getDocumentNumber(), userMsg);
 
         return Response.ok(user)
                 .build();
@@ -294,13 +294,13 @@ public class UserApi {
             @QueryParam("emailUser") String emailUser
     ) throws HSException {
 
-        LOG.infof("@deleteUserData API > Inicia ejecucion del servicio para eliminar el registro del usuario " +
-                "con numero de documento: %s y correo: %s en mongo", documentNumber, emailUser);
+        LOG.infof("@deleteUserData API > Inicia ejecucion del servicio para eliminar el registro del usuario "
+                + "con numero de documento: %s y correo: %s en mongo", documentNumber, emailUser);
 
         userService.deleteUserDataInMongo(documentNumber, emailUser);
 
-        LOG.infof("@deleteUserData API > Finaliza ejecucion del servicio para eliminar el registro del " +
-                "usuario con numero de documento: %s y correo: %s en mongo", documentNumber, emailUser);
+        LOG.infof("@deleteUserData API > Finaliza ejecucion del servicio para eliminar el registro del "
+                + "usuario con numero de documento: %s y correo: %s en mongo", documentNumber, emailUser);
 
         return Response.ok()
                 .status(Response.Status.NO_CONTENT)

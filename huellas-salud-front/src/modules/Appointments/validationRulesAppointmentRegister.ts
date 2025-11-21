@@ -9,13 +9,17 @@ export const appointmentValidationRules: AppointmentValidationRules = {
   date: {
     validate: (value) => {
       if (!value) return true;
-      const selectedDate = new Date(value);
-      const today = new Date();
 
-      selectedDate.setHours(0, 0, 0, 0);
-      today.setHours(0, 0, 0, 0);
+      const selectedDateTime = new Date(value); // fecha + hora seleccionada
+      const now = new Date();                  // fecha + hora actual
 
-      return selectedDate > today || "La fecha debe ser futura";
+      // Permitir si es hoy pero hora futura
+      if (selectedDateTime.toDateString() === now.toDateString()) {
+        return selectedDateTime > now || "La hora debe ser futura";
+      }
+
+      // Permitir fechas futuras
+      return selectedDateTime > now || "La fecha debe ser futura";
     }
   }
 }

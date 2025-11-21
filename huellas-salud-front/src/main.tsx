@@ -6,6 +6,7 @@ import App from './App.tsx'
 import { CartProvider } from './modules/Cart/context/CartContext.tsx';
 
 createRoot(document.getElementById('root')!).render(
+  <StrictMode>
     <BrowserRouter>
       <AuthProvider>
         <CartProvider>
@@ -13,4 +14,5 @@ createRoot(document.getElementById('root')!).render(
         </CartProvider>
       </AuthProvider>
     </BrowserRouter>
+  </StrictMode>
 )

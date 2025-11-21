@@ -14,6 +14,7 @@ import org.huellas.salud.domain.product.Product;
 import org.huellas.salud.domain.product.ProductMsg;
 import org.huellas.salud.repositories.ProductRepository;
 import org.huellas.salud.services.ProductService;
+import org.huellas.salud.services.AppointmentService;
 
 import org.huellas.salud.domain.pet.Pet;
 import org.huellas.salud.repositories.PetRepository;
@@ -25,7 +26,6 @@ import org.huellas.salud.domain.pet.PetMsg;
 import org.huellas.salud.repositories.UserRepository;
 import org.huellas.salud.domain.user.UserMsg;
 import org.huellas.salud.domain.Meta;
-import org.huellas.salud.domain.appointment.AppointmentMsg;
 import org.huellas.salud.helper.exceptions.HSException;
 import org.huellas.salud.helper.jwt.JwtService;
 import org.huellas.salud.helper.utils.Utils;
@@ -37,7 +37,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Map;
 import java.util.HashMap;
-
 
 import java.net.UnknownHostException;
 import java.util.List;
@@ -71,6 +70,9 @@ public class InvoiceService {
     @Inject
     ProductService productService;
 
+    @Inject
+    AppointmentService appointmentService;
+
     @CacheInvalidateAll(cacheName = "invoices-list-cache")
     public InvoiceMsg saveInvoiceDataMongo(InvoiceMsg invoiceMsg) throws HSException, UnknownHostException {
 
@@ -86,7 +88,11 @@ public class InvoiceService {
             throw new HSException(Response.Status.BAD_REQUEST, "No se encontró el usuario con documento: " + invoiceData.getIdClient());
         }
 
+        double totalFactura = 0;
         for (ItemInvoice item : invoiceData.getItemInvoice()) {
+            double precioUnitario;
+            double subtotal;
+
             String idProduct = item.getIdProduct();
             String idService = item.getIdService();
 
@@ -104,6 +110,15 @@ public class InvoiceService {
                 if (productMsg == null) {
                     throw new HSException(Response.Status.BAD_REQUEST, "No se encontró el producto con id: " + idProduct);
                 }
+                if (productMsg.getData().getActive() == null || !productMsg.getData().getActive()) {
+                    throw new HSException(Response.Status.BAD_REQUEST,
+                            "El producto con id " + idProduct + " no está activo");
+                }
+
+                precioUnitario = productMsg.getData().getPrice();
+                item.setUnitPrice(precioUnitario);
+                item.setSubTotal(precioUnitario * item.getQuantity());
+                totalFactura += item.getSubTotal();
 
                 int stockActual = productMsg.getData().getQuantityAvailable();
                 int cantidadComprada = item.getQuantity();
@@ -124,11 +139,21 @@ public class InvoiceService {
 
             if (hasService) {
                 Optional<ServiceMsg> optionalService = serviceRepository.findServiceById(idService);
+                if (item.getIdPet() == null || item.getIdPet().isBlank()) {
+                    throw new HSException(Response.Status.BAD_REQUEST,
+                            "Debe especificar idPet para calcular el precio del servicio.");
+                }
+
                 if (optionalService.isEmpty()) {
                     LOG.warnf("@saveInvoiceDataMongo SERV > No se encontró ningún servicio con el id: %s", idService);
                     throw new HSException(Response.Status.BAD_REQUEST,
                             "No se encontró el servicio con id: " + idService);
                 }
+
+                double price = appointmentService.calculateTotal(item.getIdPet(), List.of(item.getIdService()));
+                item.setUnitPrice(price);
+                item.setSubTotal(price);
+                totalFactura += price;
             }
         }
 
@@ -136,6 +161,7 @@ public class InvoiceService {
 
         invoiceData.setIdInvoice(UUID.randomUUID().toString());
         invoiceData.setDate(LocalDateTime.now());
+        invoiceData.setTotal(totalFactura);
         invoiceMsg.setMeta(utils.getMetaToEntity());
 
         LOG.infof("@saveInvoiceDataMongo SERV > Finaliza formato de la data. Se realiza el registro de la factura "
@@ -198,24 +224,28 @@ public class InvoiceService {
 
     @CacheInvalidateAll(cacheName = "invoices-list-cache")
     public void updateInvoiceDataMongo(InvoiceMsg invoiceMsg) throws HSException {
+
         String idInvoice = invoiceMsg.getData().getIdInvoice();
         Invoice invoiceRequest = invoiceMsg.getData();
 
-        LOG.infof("@updateInvoiceDataMongo SERV > Inicia la ejecución del servicio para actualizar el registro de "
-                + "la factura con id: %s. Data recibida: %s", idInvoice, invoiceMsg);
+        LOG.infof("@updateInvoiceDataMongo SERV > Inicia la ejecución del servicio para actualizar la factura %s", idInvoice);
 
+        // Obtener factura original
         InvoiceMsg invoiceMsgMongo = getInvoiceMsg(idInvoice);
         Invoice invoiceMongo = invoiceMsgMongo.getData();
 
-        // 🔹 Validar usuario existente
+        // Validar cliente
         Optional<UserMsg> optionalUser = userRepository.findUserByDocumentNumber(invoiceRequest.getIdClient());
         if (optionalUser.isEmpty()) {
-            LOG.warnf("@updateInvoiceDataMongo SERV > No se encontró ningún usuario con documento: %s", invoiceRequest.getIdClient());
-            throw new HSException(Response.Status.BAD_REQUEST, "No se encontró el usuario con documento: " + invoiceRequest.getIdClient());
+            throw new HSException(Response.Status.BAD_REQUEST,
+                    "No se encontró el usuario con documento: " + invoiceRequest.getIdClient());
         }
 
-        // 🔹 Validar los ítems (producto o servicio)
+        double totalFactura = 0.0;
+
+        // Validar y recalcular items
         for (ItemInvoice item : invoiceRequest.getItemInvoice()) {
+
             String idProduct = item.getIdProduct();
             String idService = item.getIdService();
 
@@ -227,37 +257,88 @@ public class InvoiceService {
                         "Cada ítem de la factura debe estar asociado al menos a un producto o un servicio.");
             }
 
-            if (hasProduct && productRepository.findProductById(idProduct).isEmpty()) {
-                LOG.warnf("@updateInvoiceDataMongo SERV > No se encontró ningún producto con el id: %s", idProduct);
-                throw new HSException(Response.Status.BAD_REQUEST, "No se encontró el producto con id: " + idProduct);
+            if (hasProduct) {
+
+                ProductMsg productMsg = productService.getProductById(idProduct);
+                if (productMsg == null) {
+                    throw new HSException(Response.Status.BAD_REQUEST,
+                            "No se encontró el producto con id: " + idProduct);
+                }
+                if (productMsg.getData().getActive() == null || !productMsg.getData().getActive()) {
+                    throw new HSException(Response.Status.BAD_REQUEST,
+                            "El producto con id " + idProduct + " no está activo");
+                }
+
+                double precioUnitario = productMsg.getData().getPrice();
+                double subtotal = precioUnitario * item.getQuantity();
+
+                item.setUnitPrice(precioUnitario);
+                item.setSubTotal(subtotal);
+
+                totalFactura += subtotal;
+
+                int stockActual = productMsg.getData().getQuantityAvailable();
+                int cantidadComprada = item.getQuantity();
+
+                if (stockActual < cantidadComprada) {
+                    throw new HSException(Response.Status.BAD_REQUEST,
+                            "No hay suficiente stock del producto: " + productMsg.getData().getName());
+                }
+
+                int nuevoStock = stockActual - cantidadComprada;
+                productMsg.getData().setQuantityAvailable(nuevoStock);
+
+                productService.updateProductDataInMongo(productMsg);
+
+                LOG.infof("@saveInvoiceDataMongo SERV > Stock actualizado para producto %s: %d → %d",
+                        productMsg.getData().getName(), stockActual, nuevoStock);
             }
 
-            if (hasService && serviceRepository.findServiceById(idService).isEmpty()) {
-                LOG.warnf("@updateInvoiceDataMongo SERV > No se encontró ningún servicio con el id: %s", idService);
-                throw new HSException(Response.Status.BAD_REQUEST, "No se encontró el servicio con id: " + idService);
+            if (hasService) {
+
+                if (item.getIdPet() == null || item.getIdPet().isBlank()) {
+                    throw new HSException(Response.Status.BAD_REQUEST,
+                            "Debe especificar idPet para calcular el precio del servicio.");
+                }
+
+                // Recalcular precio con reglas de peso
+                double precioServicio = appointmentService.calculateTotal(item.getIdPet(), List.of(item.getIdService()));
+
+                item.setUnitPrice(precioServicio);
+                item.setSubTotal(precioServicio);
+
+                totalFactura += precioServicio;
+
+                // Validar existencia del servicio
+                if (serviceRepository.findServiceById(idService).isEmpty()) {
+                    throw new HSException(Response.Status.BAD_REQUEST,
+                            "No se encontró el servicio con id: " + idService);
+                }
             }
         }
 
-        // 🔹 Validar estado (InvoiceStatus es un enum)
-        InvoiceStatus currentStatus = invoiceMongo.getStatus();
-        InvoiceStatus newStatus = invoiceRequest.getStatus();
-
-        if (currentStatus == InvoiceStatus.PAGADA && newStatus != InvoiceStatus.PAGADA) {
-            LOG.warnf("@updateInvoiceDataMongo SERV > Intento de modificar factura pagada con id: %s", idInvoice);
-            throw new HSException(Response.Status.BAD_REQUEST, "No se puede cambiar el estado de una factura pagada.");
+        // Validar estado
+        if (invoiceMongo.getStatus() == InvoiceStatus.PAGADA
+                && invoiceRequest.getStatus() != InvoiceStatus.PAGADA) {
+            throw new HSException(Response.Status.BAD_REQUEST,
+                    "No se puede cambiar el estado de una factura pagada.");
         }
 
-        LOG.infof("@updateInvoiceDataMongo SERV > Validaciones completadas correctamente. Inicia actualización de información...");
+        // Actualizar la factura en el objeto original
+        invoiceMongo.setItemInvoice(invoiceRequest.getItemInvoice());
+        invoiceMongo.setIdClient(invoiceRequest.getIdClient());
+        invoiceMongo.setTypeInvoice(invoiceRequest.getTypeInvoice());
+        invoiceMongo.setStatus(invoiceRequest.getStatus());
+        invoiceMongo.setTotal(totalFactura);
 
-        setInvoiceInformation(idInvoice, invoiceRequest, invoiceMsgMongo);
+        invoiceMsgMongo.setData(invoiceMongo);
 
+        // Guardar en Mongo
         try {
-            LOG.infof("@updateInvoiceDataMongo SERV > Inicia actualización en MongoDB de la factura con id: %s", idInvoice);
             invoiceRepository.update(invoiceMsgMongo);
-            LOG.infof("@updateInvoiceDataMongo SERV > Actualización completada exitosamente para factura con id: %s", idInvoice);
         } catch (Exception e) {
-            LOG.errorf(e, "@updateInvoiceDataMongo SERV > Error al actualizar la factura con id: %s", idInvoice);
-            throw new HSException(Response.Status.INTERNAL_SERVER_ERROR, "Error interno al actualizar la factura.");
+            throw new HSException(Response.Status.INTERNAL_SERVER_ERROR,
+                    "Error interno al actualizar la factura.");
         }
 
         LOG.infof("@updateInvoiceDataMongo SERV > Finaliza ejecución del servicio para actualizar factura con id: %s", idInvoice);
@@ -272,6 +353,7 @@ public class InvoiceService {
 
         invoiceMongo.setIdClient(invoiceRequest.getIdClient());
         invoiceMongo.setStatus(invoiceRequest.getStatus());
+        invoiceMongo.setTypeInvoice(invoiceRequest.getTypeInvoice());
         invoiceMongo.setItemInvoice(invoiceRequest.getItemInvoice());
         invoiceMongo.setTotal(invoiceRequest.getTotal());
 
@@ -282,7 +364,6 @@ public class InvoiceService {
 
         LOG.infof("@setInvoiceInformation SERV > Finaliza set de los datos de la factura con id: %s", idInvoice);
     }
-
 
     @CacheInvalidateAll(cacheName = "invoices-list-cache")
     public void deleteInvoiceDataMongo(String idInvoice) throws HSException {

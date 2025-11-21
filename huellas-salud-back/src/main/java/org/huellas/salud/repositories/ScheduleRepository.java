@@ -3,11 +3,11 @@ package org.huellas.salud.repositories;
 import io.quarkus.mongodb.panache.PanacheMongoRepository;
 import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
+import java.time.DayOfWeek;
 import java.util.List;
 import java.util.Optional;
 import org.huellas.salud.domain.schedule.ScheduleMsg;
 import org.jboss.logging.Logger;
-import java.time.DayOfWeek;
 
 @ApplicationScoped
 public class ScheduleRepository implements PanacheMongoRepository<ScheduleMsg> {
@@ -58,4 +58,10 @@ public class ScheduleRepository implements PanacheMongoRepository<ScheduleMsg> {
         return find("data.idVeterinario = ?1 and data.diaSemana = ?2", idVeterinarian, dayOfWeek)
                 .firstResultOptional();
     }
+
+    public boolean existsScheduleForDayExcludingId(String idVet, String day, String excludeId) {
+        return count("data.idVeterinario = ?1 AND data.diaSemana = ?2 AND data.idHorario != ?3",
+                idVet, day, excludeId) > 0;
+    }
+
 }

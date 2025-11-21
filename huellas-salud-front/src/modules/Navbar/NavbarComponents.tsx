@@ -24,13 +24,13 @@ export const SearchBar = () => (
     </aside>
 );
 
-export const NavLinks = ({ setOptionHover, setShowSubMenu }: NavLinkProps) => {
+export const NavLinks = () => {
 
     const { user } = useContext(AuthContext);
 
     return (
         <ul className={styles.containerUl}>
-            <ListItemNav
+            {/* <ListItemNav
                 path="/mascotas/perros"
                 name="Perros"
                 icon="fa-solid fa-dog"
@@ -43,7 +43,8 @@ export const NavLinks = ({ setOptionHover, setShowSubMenu }: NavLinkProps) => {
                 icon="fa-solid fa-cat"
                 setOptionHover={setOptionHover}
                 setShowSubMenu={setShowSubMenu}
-            />
+            /> */}
+            <ListItemNav path="/" name="Inicio" icon="fa-solid fa-house" />
             <ListItemNav path="/productos" name="Productos" icon="fa-solid fa-boxes-stacked" />
             <ListItemNav path="/servicios" name="Servicios" icon="fa-solid fa-house-laptop" />
             {
@@ -145,6 +146,9 @@ export const BtnsLogRegister = () => {
                 <Link to="/registro-usuario">
                     <button type="button">Crear cuenta</button>
                 </Link>
+                <Link to="https://www.youtube.com/watch?v=HwYKkcq05xM">
+                    <button type="button" className={styles.btnMobile}>Aplicación Móvil</button>
+                </Link>
             </aside>
         );
     }
@@ -184,7 +188,11 @@ export const BtnsLogRegister = () => {
                             )
                         }
                         <button className={styles.btnProducts} onClick={handleAppointmentsAdmin}>Citas</button>
-                        <button className={styles.btnProducts} onClick={handleInvoices}>Facturas</button>
+                        {
+                            hasRole(user, ["ADMINISTRADOR", "CLIENTE"]) && (
+                                <button className={styles.btnProducts} onClick={handleInvoices}>Facturas</button>
+                            )
+                        }
                         <button className={styles.logoutButton} onClick={handleLogout}>
                             Cerrar sesión
                         </button>

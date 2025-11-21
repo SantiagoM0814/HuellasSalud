@@ -13,7 +13,7 @@ const Navbar = () => {
         <Logo />
         <aside>
           <SearchBar />
-          <NavLinks setOptionHover={setOptionHover} setShowSubMenu={setShowSubMenu} />
+          <NavLinks />
         </aside>
         <BtnsLogRegister />
       </nav>
