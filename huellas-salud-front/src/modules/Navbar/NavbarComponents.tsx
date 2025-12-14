@@ -124,6 +124,10 @@ export const BtnsLogRegister = () => {
         navigate("/facturas");
     };
 
+    const handleSchedules = () => {
+        navigate("/horarios");
+    };
+
     const handleClickOutside = (e: MouseEvent) => {
         if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
             setOpenModal(false);
@@ -146,7 +150,7 @@ export const BtnsLogRegister = () => {
                 <Link to="/registro-usuario">
                     <button type="button">Crear cuenta</button>
                 </Link>
-                <Link to="https://www.youtube.com/watch?v=HwYKkcq05xM">
+                <Link to="https://drive.google.com/drive/folders/1WWYAltuD5Hiedk_3CaszyOZIoqcEc2ie?usp=drive_link">
                     <button type="button" className={styles.btnMobile}>Aplicación Móvil</button>
                 </Link>
             </aside>
@@ -191,6 +195,11 @@ export const BtnsLogRegister = () => {
                         {
                             hasRole(user, ["ADMINISTRADOR", "CLIENTE"]) && (
                                 <button className={styles.btnProducts} onClick={handleInvoices}>Facturas</button>
+                            )
+                        }
+                        {
+                            hasRole(user, ["ADMINISTRADOR"]) && (
+                                <button className={styles.btnProducts} onClick={handleSchedules}>Horarios</button>
                             )
                         }
                         <button className={styles.logoutButton} onClick={handleLogout}>

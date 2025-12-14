@@ -19,6 +19,7 @@ import ServicesAdmin from "./modules/Services/ServicesAdmin";
 import AppointmentsAdmin from "./modules/Appointments/AppointmentsAdmin";
 import Invoice from "./modules/Invoices/Invoices";
 import Announcement from "./modules/Announcements/Announcement";
+import SchedulesAdmin from "./modules/Schedules/Schedules";
 
 const AppRoutes = () => {
 
@@ -58,6 +59,14 @@ const AppRoutes = () => {
       element: (
         <ProtectedRoute requiredRole={["ADMINISTRADOR"]}>
           <Users />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: "/horarios",
+      element: (
+        <ProtectedRoute requiredRole={["ADMINISTRADOR"]}>
+          <SchedulesAdmin />
         </ProtectedRoute>
       ),
     },

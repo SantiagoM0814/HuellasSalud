@@ -108,6 +108,22 @@ export interface AnnouncementData {
     meta: Meta
 }
 
+export interface Schedule {
+    idSchedule: string;
+    idVeterinarian: string;
+    dayOfWeek: string;
+    startTime: string;
+    endTime: string;
+    lunchStart: string;
+    lunchEnd: string;
+    active: boolean
+}
+
+export interface ScheduleData {
+    data: Schedule,
+    meta: Meta
+}
+
 export interface InvoiceData {
     data: Invoice,
     meta: Meta
@@ -304,6 +320,16 @@ export interface AppointmentFiltersProps {
     onDateFilterChange: (value: string) => void;
 }
 
+export interface ScheduleFiltersProps {
+    searchTerm: string
+    statusFilter: string
+    dayFilter: string
+    setModalCreateSchedule: (close: boolean) => void;
+    onSearchChange: (value: string) => void;
+    onStatusFilterChange: (value: string) => void;
+    onDayFilterChange: (value: string) => void;
+}
+
 export interface AnnouncementFiltersProps {
     searchTerm: string
     statusFilter: string
@@ -341,6 +367,12 @@ export interface AppointmentTableProps {
     users?: UserData[] | undefined;
     services?: ServiceData[] | undefined;
     pets?: PetData[] | undefined;
+    vets?: UserData[] | undefined;
+}
+
+export interface ScheduleTableProps {
+    schedules: ScheduleData[] | undefined;
+    setSchedulesData: Dispatch<SetStateAction<ScheduleData[] | undefined>>;
     vets?: UserData[] | undefined;
 }
 
@@ -474,6 +506,15 @@ export interface CreateAppointmentModalProps {
     vets?: UserData[] | undefined;
 }
 
+export interface FormScheduleProps extends CreateScheduleModalProps { }
+
+export interface CreateScheduleModalProps {
+    setModalSchedule?: (close: boolean) => void;
+    setSchedulesData?: Dispatch<SetStateAction<ScheduleData[] | undefined>>;
+    scheduleSelected?: ScheduleData;
+    vets?: UserData[] | undefined;
+}
+
 export interface FormInvoiceProps extends CreateInvoiceModalProps { }
 
 export interface CreateInvoiceModalProps {
@@ -524,6 +565,16 @@ export interface InputFieldAppointmentRegister {
     inputFull?: boolean;
     register: UseFormRegister<Appointment>;
     errors: FieldErrors<Appointment>;
+}
+
+export interface InputFieldScheduleRegister {
+    label: string;
+    type?: HTMLInputTypeAttribute;
+    idInput: keyof Schedule;
+    required?: boolean;
+    inputFull?: boolean;
+    register: UseFormRegister<Schedule>;
+    errors: FieldErrors<Schedule>;
 }
 
 export interface InputFieldAnnouncementRegister {

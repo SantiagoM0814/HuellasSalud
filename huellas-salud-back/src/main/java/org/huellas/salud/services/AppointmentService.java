@@ -276,12 +276,20 @@ public class AppointmentService {
         String dayOfWeek = start.getDayOfWeek().toString(); // Ejemplo: MONDAY
 
         Optional<ScheduleMsg> optionalSchedule = scheduleRepository.findByVeterinarianAndDay(idVeterinarian, dayOfWeek);
+
+        String diaEsp = traducirDia(dayOfWeek);
+
         if (optionalSchedule.isEmpty()) {
             throw new HSException(Response.Status.BAD_REQUEST,
-                    "El veterinario no tiene horario para el día " + dayOfWeek);
+                    "El veterinario no tiene horario para el día " + diaEsp);
         }
 
         Schedule schedule = optionalSchedule.get().getData();
+
+        if (!schedule.isActive()) {
+            throw new HSException(Response.Status.BAD_REQUEST,
+                    "El horario del veterinario para el día " + diaEsp + " está inactivo");
+        }
 
         LocalDateTime scheduleStart = start.toLocalDate().atTime(schedule.getStartTime());
         LocalDateTime scheduleEnd = start.toLocalDate().atTime(schedule.getEndTime());
@@ -308,17 +316,25 @@ public class AppointmentService {
         }
     }
 
+
     public List<String> getAvailableSlots(String idVeterinarian, LocalDate date) throws HSException {
         String dayOfWeek = date.getDayOfWeek().toString();
 
-        // 1️⃣ Verificar si tiene horario configurado
         Optional<ScheduleMsg> optionalSchedule = scheduleRepository.findByVeterinarianAndDay(idVeterinarian, dayOfWeek);
+
+        String diaEsp = traducirDia(dayOfWeek);
+
         if (optionalSchedule.isEmpty()) {
             throw new HSException(Response.Status.BAD_REQUEST,
-                    "El veterinario no tiene horario para el día " + dayOfWeek);
+                    "El veterinario no tiene horario para el día " + diaEsp);
         }
 
         Schedule schedule = optionalSchedule.get().getData();
+
+        if (!schedule.isActive()) {
+            throw new HSException(Response.Status.BAD_REQUEST,
+                    "El horario del veterinario para el día " + diaEsp + " está inactivo");
+        }
 
         LocalDateTime scheduleStart = date.atTime(schedule.getStartTime());
         LocalDateTime scheduleEnd = date.atTime(schedule.getEndTime());
@@ -328,10 +344,8 @@ public class AppointmentService {
         LocalDateTime lunchEnd = schedule.getLunchEnd() != null
                 ? date.atTime(schedule.getLunchEnd()) : null;
 
-        // 2️⃣ Obtener citas ya existentes del veterinario ese día
         List<AppointmentMsg> appointments = appointmentRepository.findAppointmentsByVeterinarianAndDate(idVeterinarian, date);
 
-        // 3️⃣ Generar intervalos de 30 minutos
         List<LocalDateTime> timeSlots = new ArrayList<>();
         LocalDateTime current = scheduleStart;
         while (current.plusMinutes(30).isBefore(scheduleEnd) || current.plusMinutes(30).equals(scheduleEnd)) {
@@ -339,26 +353,19 @@ public class AppointmentService {
             current = current.plusMinutes(30);
         }
 
-        // 4️⃣ Filtrar los que estén dentro del almuerzo o ya ocupados
         List<String> availableSlots = timeSlots.stream()
                 .filter(slot -> {
                     LocalDateTime slotEnd = slot.plusMinutes(30);
 
-                    // Evitar horario de almuerzo
                     if (lunchStart != null && lunchEnd != null) {
-                        boolean overlapsLunch
-                                = (slot.isBefore(lunchEnd) && slotEnd.isAfter(lunchStart));
-                        if (overlapsLunch) {
-                            return false;
-                        }
+                        boolean overlapsLunch = (slot.isBefore(lunchEnd) && slotEnd.isAfter(lunchStart));
+                        if (overlapsLunch) return false;
                     }
 
-                    // Evitar cruces con citas existentes
                     boolean overlapsAppointment = appointments.stream()
                             .anyMatch(appt -> {
                                 Appointment appointment = appt.getData();
 
-                                // Ignorar citas canceladas
                                 if (appointment.getStatus() == AppointmentStatus.CANCELADA) {
                                     return false;
                                 }
@@ -366,13 +373,12 @@ public class AppointmentService {
                                 LocalDateTime apptStart = appointment.getDateTime();
                                 LocalDateTime apptEnd = apptStart.plusMinutes(30);
 
-                                // Verificar cruce de horario
                                 return slot.isBefore(apptEnd) && slotEnd.isAfter(apptStart);
                             });
 
                     return !overlapsAppointment;
                 })
-                .map(slot -> slot.toLocalTime().toString()) // Devuelve formato "HH:mm"
+                .map(slot -> slot.toLocalTime().toString())
                 .collect(Collectors.toList());
 
         LOG.infof("@getAvailableSlots SERV > Veterinario %s tiene %s horarios disponibles para %s",
@@ -380,6 +386,7 @@ public class AppointmentService {
 
         return availableSlots;
     }
+
 
     public double calculateTotal(String idPet, List<String> serviceIds) {
 
@@ -474,4 +481,16 @@ public class AppointmentService {
 
     }
 
+    private String traducirDia(String day) {
+        return switch (day.toUpperCase()) {
+            case "MONDAY" -> "LUNES";
+            case "TUESDAY" -> "MARTES";
+            case "WEDNESDAY" -> "MIERCOLES";
+            case "THURSDAY" -> "JUEVES";
+            case "FRIDAY" -> "VIERNES";
+            case "SATURDAY" -> "SABADO";
+            case "SUNDAY" -> "DOMINGO";
+            default -> day;
+        };
+    }
 }

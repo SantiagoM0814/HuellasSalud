@@ -54,12 +54,14 @@ public class ScheduleService {
             throw new HSException(Response.Status.BAD_REQUEST, "No se encontró el veterinario con documento: " + scheduleData.getIdVeterinarian());
         }
 
+        String diaEsp = traducirDia(scheduleData.getDayOfWeek().name());
+
         boolean exists = scheduleRepository.existsScheduleForDay(scheduleData.getIdVeterinarian(), scheduleData.getDayOfWeek());
         if (exists) {
             LOG.warnf("@saveScheduleDataMongo SERV > El veterinario %s ya tiene un horario para el día %s",
-                    scheduleData.getIdVeterinarian(), scheduleData.getDayOfWeek());
+                    scheduleData.getIdVeterinarian(), diaEsp);
             throw new HSException(Response.Status.BAD_REQUEST,
-                    "El veterinario ya tiene un horario registrado para el día " + scheduleData.getDayOfWeek());
+                    "El veterinario ya tiene un horario registrado para el día " + diaEsp);
         }
 
         LOG.infof("@saveScheduleDataMongo SERV > Inicia formato de la informacion enviada y se agrega metadata");
@@ -133,16 +135,19 @@ public class ScheduleService {
 
         ScheduleMsg scheduleMsgMongo = getScheduleMsg(scheduleMsg.getData().getIdSchedule());
 
+        String diaEsp = traducirDia(scheduleMsg.getData().getDayOfWeek().name());
+
         boolean exists = scheduleRepository.existsScheduleForDayExcludingId(
                 scheduleMsg.getData().getIdVeterinarian(),
                 scheduleMsg.getData().getDayOfWeek().name(),
                 scheduleMsg.getData().getIdSchedule()
         );
 
+
         if (exists) {
             throw new HSException(Response.Status.BAD_REQUEST,
                     "El veterinario ya tiene un horario registrado para el día "
-                    + scheduleMsg.getData().getDayOfWeek()
+                    + diaEsp
             );
         }
 
@@ -213,5 +218,18 @@ public class ScheduleService {
             return new HSException(Response.Status.NOT_FOUND, "No se encontro el registro del horario con "
                     + "id: " + idSchedule + " en la base de datos");
         });
+    }
+
+    private String traducirDia(String day) {
+        return switch (day.toUpperCase()) {
+            case "MONDAY" -> "LUNES";
+            case "TUESDAY" -> "MARTES";
+            case "WEDNESDAY" -> "MIERCOLES";
+            case "THURSDAY" -> "JUEVES";
+            case "FRIDAY" -> "VIERNES";
+            case "SATURDAY" -> "SABADO";
+            case "SUNDAY" -> "DOMINGO";
+            default -> day;
+        };
     }
 }
