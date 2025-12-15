@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ProductData, ServiceData } from "../../helper/typesHS";
+import { ServiceData } from "../../helper/typesHS";
 import { useServiceService } from "./servicesService";
 import { ServiceFilters, ServiceModal, ServiceTable } from "./serviceComponents";
 import styles from './servicesAdmin.module.css';

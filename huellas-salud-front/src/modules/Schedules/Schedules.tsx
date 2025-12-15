@@ -1,11 +1,8 @@
 import { useContext, useEffect, useMemo, useState } from "react";
-import { AppointmentData, AuthContext, PetData, ProductData, ScheduleData, ServiceData, User, UserData } from "../../helper/typesHS";
+import { AuthContext, ScheduleData, UserData } from "../../helper/typesHS";
 import styles from './schedule.module.css';
 import Spinner from "../../components/spinner/Spinner";
 import { useUserService } from "../Users/UserManagement/usersService";
-import { usePetService } from "../Pets/petService";
-import { useServiceService } from "../Services/servicesService";
-import { metaEmpty } from "../Pets/petsUtils";
 import { ScheduleModal, SchedulesFilters, ScheduleTable } from "./scheduleComponents";
 import { useScheduleService } from "./schedulesService";
 

@@ -4,7 +4,6 @@ import { CartContext, CartItemProps } from "../Cart/types/cart.types";
 import styles from "./styles/cart.module.css";
 import { formatCurrencyCOP } from "../../helper/formatter";
 import { useInvoiceRegister } from "../Invoices/invoiceRegisterService";
-import axiosInstance from "../../context/axiosInstance";
 import { toast } from "react-toastify";
 
 export const CartItem = ({ item, onRemove, onUpdateQty }: CartItemProps) => {
@@ -87,7 +86,7 @@ export const CartSummary = () => {
   const { items, clearCart } = useContext(CartContext);
   const { user } = useContext(AuthContext);
 
-  const { handleCreateInvoiceSubmit, loading } = useInvoiceRegister({
+  const { handleCreateInvoiceSubmit } = useInvoiceRegister({
     setModalInvoice: undefined,
     setInvoicesData: undefined,
     invoiceSelected: undefined

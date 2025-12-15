@@ -1,6 +1,6 @@
 import { useState } from "react";
 import axiosInstance from "../../context/axiosInstance";
-import { Appointment, AppointmentData, Invoice, InvoiceData } from "../../helper/typesHS";
+import { Invoice, InvoiceData } from "../../helper/typesHS";
 import { toast } from "react-toastify";
 import { handleError } from "../../helper/utils";
 import Swal from "sweetalert2";

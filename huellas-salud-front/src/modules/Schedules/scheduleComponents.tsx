@@ -1,16 +1,9 @@
-import { useContext, useEffect, useState } from "react";
-import { Appointment, AppointmentData, AppointmentTableProps, AuthContext, CreateAppointmentModalProps, CreateScheduleModalProps, FormAppointmentProps, FormScheduleProps, InputFieldAppointmentRegister, InputFieldScheduleRegister, Meta, PetData, Schedule, ScheduleData, ScheduleFiltersProps, ScheduleTableProps, SearchBarProps, WeightPriceRule } from "../../helper/typesHS";
+import { useState } from "react";
+import { CreateScheduleModalProps, FormScheduleProps, Meta, Schedule, ScheduleData, ScheduleFiltersProps, ScheduleTableProps, SearchBarProps } from "../../helper/typesHS";
 import styles from './schedule.module.css';
-import { daySchedule, daySchedules, formatDate, schedules, statusOptions, tableAppointmentColumns, tableScheduleColumns } from "../Users/UserManagement/usersUtils";
+import { daySchedule, daySchedules, schedules, statusOptions, tableScheduleColumns } from "../Users/UserManagement/usersUtils";
 import { useScheduleRegister } from "./scheduleRegisterService";
-import { scheduleValidationRules } from "./validationRulesScheduleRegister";
-import { RegisterOptions } from "react-hook-form";
 import ButtonComponent from "../../components/Button/Button";
-import Spinner from "../../components/spinner/Spinner";
-import { useUserService } from "../Users/UserManagement/usersService";
-import { usePetService } from "../Pets/petService";
-import { toast } from "react-toastify";
-import { metaEmpty } from "../Pets/petsUtils";
 import { useScheduleService } from "./schedulesService";
 
 export const SchedulesFilters = ({
@@ -70,9 +63,6 @@ export const SearchBar = ({ placeholder, searchTerm, onSearchChange }: SearchBar
 );
 
 export const ScheduleTable = ({ schedules, setSchedulesData, vets }: ScheduleTableProps) => {
-  const { user } = useContext(AuthContext);
-  const { handleGetUsers } = useUserService();
-  const { handleGetPets } = usePetService();
   const [scheduleSelected, setScheduleSelected] = useState<ScheduleData | undefined>(undefined)
   const [isModalEditSchedule, setIsModalEditSchedule] = useState<boolean>(false);
   const { confirmDelete, confirmUpdate } = useScheduleService();
@@ -207,17 +197,10 @@ export const ScheduleImg = ({ shortName }: ScheduleImgProps) => {
 }
 
 export const FormSchedule = ({ setModalSchedule, setSchedulesData, scheduleSelected, vets }: FormScheduleProps) => {
-  const { user } = useContext(AuthContext);
-  const { handleGetPetsOwner } = usePetService();
-  const { handleGetSchedules } = useScheduleService();
-  const [petsByOwner, setPetsByOwner] = useState<PetData[] | undefined>([]);
-  const [loadingPets, setLoadingPets] = useState(false);
-  const [availableHours, setAvailableHours] = useState<string[]>([]);
-  const [loadingHours, setLoadingHours] = useState(false);
 
   const {
-    errorMsg, handleCreateScheduleSubmit, confirmUpdate, loading, register, errors,
-    handleSubmit, setValue, watch, reset
+    handleCreateScheduleSubmit, confirmUpdate, loading, register, errors,
+    handleSubmit
   } = useScheduleRegister({ setModalSchedule, setSchedulesData, scheduleSelected });
 
   return (
@@ -315,8 +298,7 @@ export const FormSchedule = ({ setModalSchedule, setSchedulesData, scheduleSelec
 };
 
 export const ScheduleModal = ({ setModalSchedule, setSchedulesData, scheduleSelected, vets }: CreateScheduleModalProps) => {
-  const { user } = useContext(AuthContext);
-  const [localVets, setLocalVets] = useState(vets);
+  const [localVets] = useState(vets);
 
   return (
     <main className={styles.overlay}>
@@ -328,35 +310,3 @@ export const ScheduleModal = ({ setModalSchedule, setSchedulesData, scheduleSele
     </main>
   )
 }
-
-const InputField = ({
-  label,
-  type = "text",
-  idInput,
-  required = true,
-  inputFull = false,
-  register,
-  errors
-}: InputFieldScheduleRegister) => {
-
-  const fieldValidation = scheduleValidationRules[idInput] as RegisterOptions<Schedule, typeof idInput>;
-
-  return (
-    <section className={styles.inputField}>
-      <label htmlFor={idInput}>
-        {label}
-        {required && <span className={styles.required}>*</span>}
-      </label>
-      <input
-        className={`${errors[idInput] ? styles.errorInput : ''}`}
-        id={idInput}
-        type={type}
-        required={required}
-        {...register(idInput, fieldValidation)}
-      />
-      <span className={styles.validationError}>
-        {errors[idInput]?.message as string}
-      </span>
-    </section >
-  );
-};

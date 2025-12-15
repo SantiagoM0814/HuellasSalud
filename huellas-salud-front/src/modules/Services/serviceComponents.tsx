@@ -1,7 +1,7 @@
-import { useContext, useEffect, useState } from "react";
-import { AuthContext, CreateProductModalProps, CreateServiceModalProps, FormProductProps, FormServiceProps, InputFieldProductRegister, InputFieldServiceRegister, Meta, Product, ProductData, ProductTableProps, SearchBarProps, Service, ServiceData, ServiceFiltersProps, ServiceTableProps } from "../../helper/typesHS";
+import { useEffect, useState } from "react";
+import { CreateServiceModalProps, FormServiceProps, InputFieldServiceRegister, Meta, SearchBarProps, Service, ServiceData, ServiceFiltersProps, ServiceTableProps } from "../../helper/typesHS";
 import styles from './servicesAdmin.module.css';
-import { categorys, species, statusOptions, tableProductColumns, tableServiceColumns, unitOfMeasure } from "../Users/UserManagement/usersUtils";
+import { statusOptions, tableServiceColumns } from "../Users/UserManagement/usersUtils";
 import { formatCurrencyCOP } from "../../helper/formatter";
 import { useServiceRegister } from "./serviceRegisterService";
 import { serviceValidationRules } from "./validationRulesServiceRegister";
@@ -166,15 +166,14 @@ export const ServiceImg = ({ service }: { service: Service }) => {
 }
 
 export const FormService = ({ setModalService, setServicesData, serviceSelected }: FormServiceProps) => {
-  const { user } = useContext(AuthContext);
 
   const [weightPriceRules, setWeightPriceRules] = useState<
     { minWeight: number; maxWeight: number; price: number }[]
   >([]);
 
   const {
-    errorMsg, handleCreateServiceSubmit, confirmUpdate, loading, register, errors,
-    handleSubmit, fileName, fileInput, previewImg, handleChangeImg, reset
+    handleCreateServiceSubmit, confirmUpdate, loading, register, errors,
+    handleSubmit, fileName, fileInput, previewImg, handleChangeImg
   } = useServiceRegister({ setModalService, setServicesData, serviceSelected });
 
   useEffect(() => {
@@ -447,7 +446,6 @@ const InputField = ({
   type = "text",
   idInput,
   required = true,
-  inputFull = false,
   register,
   errors
 }: InputFieldServiceRegister) => {

@@ -341,7 +341,6 @@ export interface AnnouncementFiltersProps {
 export interface InvoiceFiltersProps {
     searchTerm: string
     statusFilter: string
-    setModalCreateInvoice: (close: boolean) => void;
     onSearchChange: (value: string) => void;
     onStatusFilterChange: (value: string) => void;
 }

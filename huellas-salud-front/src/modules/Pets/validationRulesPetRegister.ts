@@ -42,8 +42,6 @@ export const validationRules: ValidationRules = {
   description: {
     maxLength: { value: 500, message: "La descripción no puede superar 500 caracteres" },
   },
-  vaccines: {},
-  surgeries: {},
-  treatments: {},
+  medicalHistory: {},
   mediaFile: {},
 };

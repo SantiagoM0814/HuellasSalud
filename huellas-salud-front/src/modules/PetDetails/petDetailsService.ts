@@ -1,9 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { toast } from "react-toastify";
-import { PetData, Pet, CreateHistoryModalProps, MedicalHistory } from "../../helper/typesHS";
+import { PetData, CreateHistoryModalProps, MedicalHistory } from "../../helper/typesHS";
 import { handleError } from "../../helper/utils";
 import axiosInstance from "../../context/axiosInstance";
-import Swal from "sweetalert2";
 import { useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import axios from "axios";

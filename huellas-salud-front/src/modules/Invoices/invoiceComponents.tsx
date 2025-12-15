@@ -1,27 +1,16 @@
-import { useContext, useEffect, useState } from "react";
-import { Appointment, AuthContext, FormInvoiceProps, InputFieldAppointmentRegister, Invoice, InvoiceData, InvoiceFiltersProps, InvoiceTableProps, Meta, SearchBarProps } from "../../helper/typesHS";
+import { useContext } from "react";
+import { AuthContext, Invoice, InvoiceFiltersProps, InvoiceTableProps, Meta, SearchBarProps } from "../../helper/typesHS";
 import styles from './invoice.module.css';
-import { formatDate, statusInvoices, tableAppointmentColumns, tableInvoiceColumns, tableProductColumns, tableServiceColumns, unitOfMeasure } from "../Users/UserManagement/usersUtils";
+import { formatDate, statusInvoices, tableInvoiceColumns } from "../Users/UserManagement/usersUtils";
 import { formatCurrencyCOP } from "../../helper/formatter";
-import { useInvoiceRegister } from "./invoiceRegisterService";
-import { appointmentValidationRules } from "./validationRulesAppointmentRegister";
-import { RegisterOptions } from "react-hook-form";
-import ButtonComponent from "../../components/Button/Button";
 import { useInvoiceService } from "./invoiceService";
-import Spinner from "../../components/spinner/Spinner";
-import { useUserService } from "../Users/UserManagement/usersService";
-import { usePetService } from "../Pets/petService";
-import { useServiceService } from "../Services/servicesService";
-import { toast } from "react-toastify";
 
 export const InvoicesFilters = ({
   searchTerm,
   statusFilter,
-  setModalCreateInvoice,
   onSearchChange,
   onStatusFilterChange
 }: InvoiceFiltersProps) => {
-  const { user } = useContext(AuthContext);
 
   return (
     <section className={styles.filters}>
@@ -64,16 +53,9 @@ export const SearchBar = ({ placeholder, searchTerm, onSearchChange }: SearchBar
   </aside>
 );
 
-export const InvoiceTable = ({ invoices, setInvoicesData, users, services, pets, prods }: InvoiceTableProps) => {
+export const InvoiceTable = ({ invoices, setInvoicesData, users }: InvoiceTableProps) => {
   const { user } = useContext(AuthContext);
-  const [invoiceSelected, setInvoiceSelected] = useState<InvoiceData | undefined>(undefined)
-  const [isModalEditInvoice, setIsModalEditInvoice] = useState<boolean>(false);
   const { confirmDelete, confirmCancel, confirmPay } = useInvoiceService();
-
-  const handleEditInvoice = (invoice: Invoice, meta: Meta) => {
-    setIsModalEditInvoice(prev => !prev);
-    setInvoiceSelected({ data: invoice, meta })
-  }
 
   const getShortName = (userId: string) => {
     const u = users?.find(u => u.data.documentNumber == userId);
@@ -110,7 +92,7 @@ export const InvoiceTable = ({ invoices, setInvoicesData, users, services, pets,
               <td>
                 <aside className={styles.serviceInfo}>
                   <span className={styles.imgService}>
-                    <InvoiceImg invoice={invoice} shortName={getShortName(invoice.idClient)} />
+                    <InvoiceImg shortName={getShortName(invoice.idClient)} />
                   </span>
                   <div className={styles.serviceDetails}>
                     <span className={styles.serviceName}>
@@ -146,13 +128,13 @@ export const InvoiceTable = ({ invoices, setInvoicesData, users, services, pets,
                     <>
                       {user?.role === "ADMINISTRADOR" && (
                         <>
-                          <button
+                          {/* <button
                             title="Editar Factura"
                             className={`${styles.btn} ${styles.edit}`}
                             onClick={() => handleEditInvoice(invoice, meta)}
                           >
                             <i className="fa-regular fa-pen-to-square" />
-                          </button>
+                          </button> */}
                           <button
                             title="Eliminar Factura"
                             className={`${styles.btn} ${styles.delete}`}
@@ -200,11 +182,10 @@ export const InvoiceTable = ({ invoices, setInvoicesData, users, services, pets,
 }
 
 interface InvoiceImgProps {
-  invoice: Invoice;
   shortName: string;
 }
 
-export const InvoiceImg = ({ invoice, shortName }: InvoiceImgProps) => {
+export const InvoiceImg = ({ shortName }: InvoiceImgProps) => {
   // Si no hay nombre, usa "U" como valor por defecto
   const getInitials = (name: string) => {
     if (!name) return "U";
@@ -452,35 +433,3 @@ export const InvoiceImg = ({ invoice, shortName }: InvoiceImgProps) => {
 //     </main>
 //   )
 // }
-
-const InputField = ({
-  label,
-  type = "text",
-  idInput,
-  required = true,
-  inputFull = false,
-  register,
-  errors
-}: InputFieldAppointmentRegister) => {
-
-  const fieldValidation = appointmentValidationRules[idInput] as RegisterOptions<Appointment, typeof idInput>;
-
-  return (
-    <section className={styles.inputField}>
-      <label htmlFor={idInput}>
-        {label}
-        {required && <span className={styles.required}>*</span>}
-      </label>
-      <input
-        className={`${errors[idInput] ? styles.errorInput : ''}`}
-        id={idInput}
-        type={type}
-        required={required}
-        {...register(idInput, fieldValidation)}
-      />
-      <span className={styles.validationError}>
-        {errors[idInput]?.message as string}
-      </span>
-    </section >
-  );
-};

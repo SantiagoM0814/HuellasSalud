@@ -1,5 +1,5 @@
 import { useContext, useEffect, useMemo, useState } from "react";
-import { AppointmentData, AuthContext, InvoiceData, PetData, ProductData, ServiceData, User, UserData } from "../../helper/typesHS";
+import { AuthContext, InvoiceData, PetData, ProductData, ServiceData, UserData } from "../../helper/typesHS";
 import { useInvoiceService } from "./invoiceService";
 import { InvoicesFilters, InvoiceTable } from "./invoiceComponents";
 import styles from './invoice.module.css';
@@ -12,8 +12,6 @@ import { metaEmpty } from "../Pets/petsUtils";
 
 const Invoice = () => {
   const { user } = useContext(AuthContext);
-
-  const [isModalCreateInvoice, setIsModalCreateInvoice] = useState<boolean>(false);
   const [invoicesData, setInvoicesData] = useState<InvoiceData[] | undefined>([]);
   const [usersData, setUsersData] = useState<UserData[] | undefined>([]);
   const [prodsData, setProdsData] = useState<ProductData[] | undefined>([]);
@@ -122,7 +120,6 @@ const Invoice = () => {
         <InvoicesFilters
           searchTerm={searchTerm}
           statusFilter={statusFilter}
-          setModalCreateInvoice={setIsModalCreateInvoice}
           onSearchChange={setSearchTerm}
           onStatusFilterChange={setStatusFilter}
         />

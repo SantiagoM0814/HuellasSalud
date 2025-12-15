@@ -1,8 +1,7 @@
 import { useContext, useEffect, useState } from "react";
-import { Appointment, AppointmentData, AppointmentFiltersProps, AppointmentTableProps, AuthContext, CreateAppointmentModalProps, CreateProductModalProps, CreateServiceModalProps, FormAppointmentProps, FormProductProps, FormServiceProps, InputFieldAppointmentRegister, InputFieldProductRegister, InputFieldServiceRegister, Meta, Pet, PetData, Product, ProductData, ProductTableProps, SearchBarProps, Service, ServiceData, ServiceFiltersProps, ServiceTableProps, UserData, WeightPriceRule } from "../../helper/typesHS";
+import { Appointment, AppointmentData, AppointmentFiltersProps, AppointmentTableProps, AuthContext, CreateAppointmentModalProps, FormAppointmentProps, InputFieldAppointmentRegister, Meta, PetData, SearchBarProps, WeightPriceRule } from "../../helper/typesHS";
 import styles from './appointmentsAdmin.module.css';
-import { formatDate, statusAppointments, statusOptions, tableAppointmentColumns, tableProductColumns, tableServiceColumns, unitOfMeasure } from "../Users/UserManagement/usersUtils";
-import { formatCurrencyCOP } from "../../helper/formatter";
+import { formatDate, statusAppointments, tableAppointmentColumns } from "../Users/UserManagement/usersUtils";
 import { useAppointmentRegister } from "./appointmentRegisterService";
 import { appointmentValidationRules } from "./validationRulesAppointmentRegister";
 import { RegisterOptions } from "react-hook-form";
@@ -11,7 +10,6 @@ import { useAppointmentService } from "./appointmentsService";
 import Spinner from "../../components/spinner/Spinner";
 import { useUserService } from "../Users/UserManagement/usersService";
 import { usePetService } from "../Pets/petService";
-import { useServiceService } from "../Services/servicesService";
 import { toast } from "react-toastify";
 import { metaEmpty } from "../Pets/petsUtils";
 
@@ -68,8 +66,6 @@ export const SearchBar = ({ placeholder, searchTerm, onSearchChange }: SearchBar
 
 export const AppointmentTable = ({ appointments, setAppointmentsData, users, services, pets, vets }: AppointmentTableProps) => {
   const { user } = useContext(AuthContext);
-  const { handleGetUsers } = useUserService();
-  const { handleGetPets } = usePetService();
   const [appointmentSelected, setAppointmentSelected] = useState<AppointmentData | undefined>(undefined)
   const [isModalEditAppointment, setIsModalEditAppointment] = useState<boolean>(false);
   const { confirmDelete, confirmCancel, confirmComplete } = useAppointmentService();
@@ -125,7 +121,7 @@ export const AppointmentTable = ({ appointments, setAppointmentsData, users, ser
               <td>
                 <aside className={styles.serviceInfo}>
                   <span className={styles.imgService}>
-                    <AppointmentImg appointment={appointment} shortName={getShortName(appointment.idOwner)} />
+                    <AppointmentImg shortName={getShortName(appointment.idOwner)} />
                   </span>
                   <div className={styles.serviceDetails}>
                     <span className={styles.serviceName}>
@@ -227,12 +223,11 @@ export const AppointmentTable = ({ appointments, setAppointmentsData, users, ser
 }
 
 interface AppoitnmentImgProps {
-  appointment: Appointment;
   shortName: string;
 }
 
 
-export const AppointmentImg = ({ appointment, shortName }: AppoitnmentImgProps) => {
+export const AppointmentImg = ({ shortName }: AppoitnmentImgProps) => {
 
   const getInitials = (name: string) => {
     if (!name) return "U";
@@ -316,7 +311,7 @@ export const FormAppointment = ({ setModalAppointment, setAppointmentsData, appo
   };
 
   const {
-    errorMsg, handleCreateAppointmentSubmit, confirmUpdate, loading, register, errors,
+    handleCreateAppointmentSubmit, confirmUpdate, loading, register, errors,
     handleSubmit, setValue, watch, reset
   } = useAppointmentRegister({ setModalAppointment, setAppointmentsData, appointmentSelected });
 
@@ -647,7 +642,6 @@ const InputField = ({
   type = "text",
   idInput,
   required = true,
-  inputFull = false,
   register,
   errors
 }: InputFieldAppointmentRegister) => {

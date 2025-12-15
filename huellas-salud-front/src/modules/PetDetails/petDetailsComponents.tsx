@@ -1,11 +1,9 @@
 import styles from "./petDetails.module.css";
 import { formatDate } from "../Users/UserManagement/usersUtils";
-import { PetData, Pet, InputEditProps, MedicalHistory, FormHistoryProps, CreateHistoryModalProps, InputFieldHistoryRegister, Vaccine, AuthContext, UserData } from "../../helper/typesHS";
+import { PetData, Pet, InputEditProps, MedicalHistory, FormHistoryProps, CreateHistoryModalProps, Vaccine, AuthContext, UserData } from "../../helper/typesHS";
 import { memo, useContext, useEffect, useState } from "react";
 import { useHistoryRegister } from "./petDetailsService";
 import ButtonComponent from "../../components/Button/Button";
-import { medicalHistoryValidationRules } from "./medicalHistoryValidationRules";
-import { RegisterOptions } from "react-hook-form";
 import { useUserService } from "../Users/UserManagement/usersService";
 
 export const PetDetails = ({ pet }: { pet: PetData }) => {
@@ -205,7 +203,7 @@ export const ModalCreateHistory = ({ setModalHistory, setPetData }: CreateHistor
 
 export const FormHistory = ({ setModalHistory, setPetData }: FormHistoryProps) => {
   const { user } = useContext(AuthContext);
-  const { errorMsg, handleCreateHistorySubmit, loading, register, errors, handleSubmit, reset } = useHistoryRegister({ setModalHistory, setPetData })
+  const { handleCreateHistorySubmit, loading, register, errors, handleSubmit } = useHistoryRegister({ setModalHistory, setPetData })
   const { handleGetVeterinarians } = useUserService();
 
   const [surgeries, setSurgeries] = useState<string[]>([]);
@@ -369,38 +367,6 @@ export const FormHistory = ({ setModalHistory, setPetData }: FormHistoryProps) =
     </form>
   )
 }
-
-const InputField = ({
-  label,
-  type = "text",
-  idInput,
-  required = true,
-  inputFull = false,
-  register,
-  errors
-}: InputFieldHistoryRegister) => {
-
-  const fieldValidation = medicalHistoryValidationRules[idInput] as RegisterOptions<MedicalHistory, typeof idInput>;
-
-  return (
-    <section className={styles.inputField}>
-      <label htmlFor={idInput}>
-        {label}
-        {required && <span className={styles.required}>*</span>}
-      </label>
-      <input
-        className={`${errors[idInput] ? styles.errorInput : ''}`}
-        id={idInput}
-        type={type}
-        required={required}
-        {...register(idInput, fieldValidation)}
-      />
-      <span className={styles.validationError}>
-        {errors[idInput]?.message as string}
-      </span>
-    </section >
-  );
-};
 
 const InputPet = memo(
   ({ label, value, isEditable = true }: InputEditProps) => (

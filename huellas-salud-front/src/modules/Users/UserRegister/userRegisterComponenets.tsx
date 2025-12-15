@@ -6,7 +6,6 @@ import { useUserRegister } from "./userRegisterService";
 import ButtonComponent from "../../../components/Button/Button";
 import styles from "./userRegister.module.css";
 import { roles } from "../UserManagement/usersUtils";
-import { useState } from "react";
 
 export const FormUserRegister = () => (
     <section className={styles.containerForm}>

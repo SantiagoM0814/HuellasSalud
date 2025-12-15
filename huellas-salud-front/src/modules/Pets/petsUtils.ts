@@ -30,9 +30,7 @@ export const petEmpty: Pet = {
     disability: "",
     description: "",
     isActive: true,
-    vaccines: [],
-    surgeries: [],
-    treatments: [],
+    medicalHistory: [],
     mediaFile: undefined
 };
 

@@ -1,9 +1,8 @@
-import { useContext, useEffect, useState } from "react";
-import { AuthContext, CreateProductModalProps, FormProductProps, InputFieldProductRegister, Meta, Product, ProductData, ProductFiltersProps, ProductTableProps, SearchBarProps } from "../../helper/typesHS";
+import { useState } from "react";
+import { CreateProductModalProps, FormProductProps, InputFieldProductRegister, Meta, Product, ProductData, ProductFiltersProps, ProductTableProps, SearchBarProps } from "../../helper/typesHS";
 import styles from './productsAdmin.module.css';
 import { categorys, species, statusOptions, tableProductColumns, unitOfMeasure } from "../Users/UserManagement/usersUtils";
 import { formatCurrencyCOP } from "../../helper/formatter";
-import defaultProductImg from "../../assets/default_product.webp";
 import { useProductRegister } from "./productRegisterService";
 import { productValidationRules } from "./validationRulesProductRegister";
 import { RegisterOptions } from "react-hook-form";
@@ -184,11 +183,10 @@ export const ProductImg = ({ product }: { product: Product }) => {
 }
 
 export const FormProduct = ({ setModalProduct, setProductsData, productSelected }: FormProductProps) => {
-  const { user } = useContext(AuthContext);
 
   const {
-    errorMsg, handleCreateProductSubmit, confirmUpdate, loading, register, errors,
-    handleSubmit, fileName, fileInput, previewImg, handleChangeImg, reset
+    handleCreateProductSubmit, confirmUpdate, loading, register, errors,
+    handleSubmit, fileName, fileInput, previewImg, handleChangeImg
   } = useProductRegister({ setModalProduct, setProductsData, productSelected });
 
   return (
@@ -304,7 +302,6 @@ const InputField = ({
   type = "text",
   idInput,
   required = true,
-  inputFull = false,
   register,
   errors
 }: InputFieldProductRegister) => {

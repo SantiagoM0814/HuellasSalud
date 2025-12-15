@@ -1,5 +1,5 @@
 import { useContext, useEffect, useMemo, useState } from "react";
-import { AppointmentData, AuthContext, PetData, ProductData, ServiceData, User, UserData } from "../../helper/typesHS";
+import { AppointmentData, AuthContext, PetData, ServiceData, UserData } from "../../helper/typesHS";
 import { useAppointmentService } from "./appointmentsService";
 import { AppointmentsFilters, AppointmentModal, AppointmentTable } from "./appointmentComponents";
 import styles from './appointmentsAdmin.module.css';

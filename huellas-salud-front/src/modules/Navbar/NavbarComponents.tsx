@@ -1,10 +1,9 @@
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { AuthContext, ListItemNavProps, NavLinkProps, SubMenuProps, User } from "../../helper/typesHS";
+import { AuthContext, ListItemNavProps, SubMenuProps, User } from "../../helper/typesHS";
 import { MENU_DATA } from "./navbarData";
 import { UserAvatar } from "../Users/UserManagement/userComponents";
 import imgHS1 from "../../assets/Huellas&Salud_4.png";
-import imgHS2 from "../../assets/simba.webp";
 import styles from "./navbar.module.css";
 import { metaEmpty } from "./../Users/UserManagement/usersUtils";
 import { FormUser } from "../Users/UserRegister/userRegisterComponenets";

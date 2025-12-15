@@ -48,7 +48,7 @@ export const FormPet = ({ setModalCreatePet, setPetsData, petSelected }: FormPet
   }, []);
 
   const {
-    errorMsg, handleCreatePetSubmit, confirmUpdate, loading, register, errors,
+    handleCreatePetSubmit, confirmUpdate, loading, register, errors,
     handleSubmit, fileName, fileInput, previewImg, handleChangeImg, reset
   } = usePetRegister({ setModalCreatePet, setPetsData, petSelected });
 
@@ -60,9 +60,6 @@ export const FormPet = ({ setModalCreatePet, setPetsData, petSelected }: FormPet
       });
     }
   }, [petSelected, users, reset]);
-
-
-  const handelClicCancel = () => setModalCreatePet && setModalCreatePet(false);
 
   return (
     <form
@@ -470,7 +467,6 @@ const InputField = ({
   type = "text",
   idInput,
   required = true,
-  inputFull = false,
   register,
   errors
 }: InputFieldPetRegister) => {

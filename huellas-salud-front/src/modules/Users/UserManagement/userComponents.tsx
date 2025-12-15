@@ -1,6 +1,6 @@
-import React, { memo, useCallback, useContext, useState } from "react";
-import { AuthContext, CreateUserModalProps, EditUserModalProps, InputEditProps, Meta, Role, SearchBarProps, User, UserData, UserFiltersProps, UserTableProps } from "../../../helper/typesHS";
-import { formatDate, metaEmpty, roles, statusOptions, tableColumns, userEmpty } from "./usersUtils";
+import { useContext, useState } from "react";
+import { AuthContext, CreateUserModalProps, Meta, SearchBarProps, User, UserData, UserFiltersProps, UserTableProps } from "../../../helper/typesHS";
+import { roles, statusOptions, tableColumns } from "./usersUtils";
 import { useUserService } from "./usersService";
 import { FormUser } from "../UserRegister/userRegisterComponenets";
 import styles from "./users.module.css";
@@ -69,7 +69,6 @@ export const UserTable = ({ users, setUsersData }: UserTableProps) => {
     const { confirmDelete, confirmUpdate } = useUserService();
 
     const [userSelected, setUserSelected] = useState<UserData | undefined>(undefined)
-    const [metaSelected, setMetaSelected] = useState<Meta>(metaEmpty);
     const [isModalEditOpen, setIsModalEditOpen] = useState<boolean>(false);
 
     const changeUserStatus = async (user: User, meta: Meta) => {
@@ -185,74 +184,6 @@ export const UserAvatar = ({ user }: { user: User }) => {
     );
 }
 
-const EditUserModal = ({ user, meta, setCloseModal, confirmUpdate }: EditUserModalProps) => {
-
-    const [roleSelected, setRolSelected] = useState<string>(user.role);
-
-    const handleUpdate = useCallback(
-        async (event: React.FormEvent) => {
-            event.preventDefault();
-
-            if (roleSelected !== user.role) {
-                user.role = roleSelected as Role;
-                meta.lastUpdate = new Date().toString();
-                await confirmUpdate(user, "rol") && setCloseModal(false);
-            }
-        },
-        [roleSelected, user, meta, confirmUpdate, setCloseModal]
-    );
-
-    return (
-        <main className={styles.overlay}>
-            <section className={styles.modal}>
-                <section className={styles.backgroundModalEdit} />
-                <section className={styles.imgDataUser}>
-                    <UserAvatar user={user} />
-                    <section className={styles.sectionMetaUser}>
-                        <h2>{user.name} {user.lastName}</h2>
-                        <span>{user.email}</span>
-                        <aside className={styles.asideMeta}>
-                            <p>
-                                <span className={styles.metaUser}>Fecha registro</span>:{' '}
-                                {formatDate(meta.creationDate)}
-                            </p>
-                            <p>
-                                <span className={styles.metaUser}>Ult. actualización</span>:{' '}
-                                {meta.lastUpdate ? formatDate(meta.lastUpdate) : "---"}
-                            </p>
-                        </aside>
-                    </section>
-                </section>
-                <form className={styles.formEditUser} onSubmit={handleUpdate}>
-                    <button className={styles.closeButton} onClick={() => setCloseModal(false)}>x</button>
-                    <InputEdit label="Tipo de Documento" value={user?.documentType} />
-                    <InputEdit label="Número de Documento" value={user?.documentNumber} />
-                    <InputEdit label="Teléfono" value={user?.cellPhone} />
-                    <InputEdit label="Dirección" value={user?.address} />
-                    <InputEdit label="Estado" value={user?.active ? "Activo" : "Inactivo"} isEditable={false} />
-                    <aside className={`${styles.fieldGroup}`}>
-                        <label>Rol</label>
-                        <select
-                            required
-                            defaultValue={user?.role}
-                            className={styles.selectRolEdit}
-                            onChange={(e) => setRolSelected(e.target.value as Role)}
-                        >
-                            {roles.map(role =>
-                                (<option disabled={role === user.role} key={role} value={role}>{role}</option>))
-                            }
-                        </select>
-                    </aside>
-                    <aside className={styles.buttonGroup}>
-                        <button className={styles.cancelButton} onClick={() => setCloseModal(false)}>Cancelar</button>
-                        <button className={styles.updateButton} type="submit">Actualizar</button>
-                    </aside>
-                </form>
-            </section>
-        </main>
-    );
-}
-
 export const CreateUserModal = ({ setModalCreate, setUsersData }: CreateUserModalProps) => {
 
     return (
@@ -265,13 +196,4 @@ export const CreateUserModal = ({ setModalCreate, setUsersData }: CreateUserModa
         </main>
     );
 }
-
-const InputEdit = memo(
-    ({ label, value, isEditable = true }: InputEditProps) => (
-        <aside className={styles.fieldGroup}>
-            <label>{label}</label>
-            <input value={value} disabled={isEditable} />
-        </aside>
-    )
-);
 

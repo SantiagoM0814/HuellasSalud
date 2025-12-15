@@ -5,7 +5,7 @@ import { BtnsLogRegister, Logo, NavLinks, SearchBar, SubMenu } from "./NavbarCom
 const Navbar = () => {
 
   const [showSubMenu, setShowSubMenu] = useState<boolean>(false);
-  const [optionHover, setOptionHover] = useState<string>("Perros");
+  const [optionHover] = useState<string>("Perros");
 
   return (
     <>

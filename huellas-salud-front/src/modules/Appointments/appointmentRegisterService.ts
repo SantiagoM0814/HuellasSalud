@@ -1,7 +1,7 @@
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { Appointment, AppointmentData, CreateAppointmentModalProps, CreateServiceModalProps, MediaFile, Service, ServiceData } from "../../helper/typesHS";
+import { Appointment, AppointmentData, CreateAppointmentModalProps } from "../../helper/typesHS";
 import axiosInstance from "../../context/axiosInstance";
 import axios from "axios";
 import Swal from "sweetalert2";

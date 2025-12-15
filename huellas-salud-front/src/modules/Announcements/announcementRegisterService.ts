@@ -1,7 +1,7 @@
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { Announcement, AnnouncementData, CreateAnnouncementModalProps, CreatePetModalProps, MediaFile, Pet, PetData } from "../../helper/typesHS";
+import { Announcement, AnnouncementData, CreateAnnouncementModalProps, MediaFile } from "../../helper/typesHS";
 import axiosInstance from "../../context/axiosInstance";
 import axios from "axios";
 import Swal from "sweetalert2";

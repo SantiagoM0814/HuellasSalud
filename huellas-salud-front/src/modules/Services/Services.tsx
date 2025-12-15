@@ -1,8 +1,7 @@
 import styles from './services.module.css';
 import defaultServiceImg from '../../assets/default_service.png';
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Service, ServiceCardProps, ServiceData } from '../../helper/typesHS';
+import { Service, ServiceData } from '../../helper/typesHS';
 import { useServiceService } from './servicesService';
 import { formatCurrencyCOP } from '../../helper/formatter.ts';
 import { SearchBar } from './serviceComponents.tsx';
@@ -22,14 +21,6 @@ const Services = () => {
     }
     fetchProductData();
   }, []);
-
-  const handlerFormatCoin = (precio: number): string => {
-    return new Intl.NumberFormat("es-CO", {
-      style: "currency",
-      currency: "COP",
-      minimumFractionDigits: 0
-    }).format(precio);
-  }
 
   const filteredServices = useMemo(() => {
     return servicesData?.filter(({ data: service }) => {

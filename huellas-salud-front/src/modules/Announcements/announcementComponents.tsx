@@ -1,5 +1,5 @@
-import { useContext, useState } from "react";
-import { Announcement, AnnouncementData, AnnouncementFiltersProps, AnnouncementTableProps, AuthContext, CreateAnnouncementModalProps, FormAnnouncementProps, InputFieldAnnouncementRegister, Meta, SearchBarProps } from "../../helper/typesHS";
+import { useState } from "react";
+import { Announcement, AnnouncementData, AnnouncementFiltersProps, AnnouncementTableProps, CreateAnnouncementModalProps, FormAnnouncementProps, InputFieldAnnouncementRegister, Meta, SearchBarProps } from "../../helper/typesHS";
 import styles from './announcement.module.css';
 import { statusOptions, tableAnnouncementColumns } from "../Users/UserManagement/usersUtils";
 import { announcementValidationRules } from "./validationRulesAnnouncementRegister";
@@ -52,7 +52,6 @@ export const SearchBar = ({ placeholder, searchTerm, onSearchChange }: SearchBar
 );
 
 export const AnnouncementTable = ({ announcements, setAnnouncementsData }: AnnouncementTableProps) => {
-  const { user } = useContext(AuthContext);
   const [announcementSelected, setAnnouncementSelected] = useState<AnnouncementData | undefined>(undefined)
   const [isModalEditAnnouncement, setIsModalEditAnnouncement] = useState<boolean>(false);
   const { confirmDelete, confirmUpdate } = useAnnouncementsService();
@@ -165,10 +164,9 @@ export const AnnouncementImg = ({ announcement }: { announcement: Announcement }
 
 
 export const FormAnnouncement = ({ setModalCreateAnnouncement, setAnnouncementsData, announcementSelected }: FormAnnouncementProps) => {
-  const { user } = useContext(AuthContext);
 
   const {
-    errorMsg, handleCreateAnnouncementSubmit, confirmUpdate, loading, register, errors, previewImg,handleSubmit, reset, fileInput, fileName, handleChangeImg
+    handleCreateAnnouncementSubmit, confirmUpdate, loading, register, errors, previewImg,handleSubmit, fileInput, fileName, handleChangeImg
   } = useAnnouncementRegister({ setModalCreateAnnouncement, setAnnouncementsData, announcementSelected });
 
   return (
@@ -248,7 +246,6 @@ const InputField = ({
   type = "text",
   idInput,
   required = true,
-  inputFull = false,
   register,
   errors
 }: InputFieldAnnouncementRegister) => {
